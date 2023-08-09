@@ -1,3 +1,0 @@
-
-vite: cd spec/dummy && bin/vite dev
-web: bin/rails s
