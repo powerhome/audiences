@@ -1,0 +1,71 @@
+{
+  "name": "@powerhome/audiences",
+  "version": "1.0.0",
+  "description": "Audiences SCIM client",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/audiences.umd.js",
+  "module": "./dist/audiences.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/audiences.es.js",
+      "require": "./dist/audiences.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "npx tsc --noEmit && vite build",
+    "lint": "yarn eslint && yarn prettier",
+    "test": "echo 'No tests here';",
+    "eslint": "eslint **/*.ts",
+    "prettier": "prettier -c .",
+    "prettier:write": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:powerhome/power-tools.git"
+  },
+  "keywords": [
+    "audiences",
+    "scim",
+    "filters"
+  ],
+  "author": "Carlos Palhares",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "react-hook-form": "^7.45.2",
+    "use-http": "^1.0.28"
+  },
+  "prettier": "@powerhome/eslint-config/prettier",
+  "peerDependencies": {
+    "playbook-ui": "^12.32.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "@powerhome/eslint-config": "0.2.2",
+    "@types/lodash": "^4.14.195",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "4.16.1",
+    "@typescript-eslint/parser": "4.16.1",
+    "eslint": "7.21.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-flowtype": "5.2.0",
+    "eslint-plugin-jsx-control-statements": "2.2.1",
+    "eslint-plugin-react": "7.22.0",
+    "eslint-plugin-react-hooks": "4.2.0",
+    "eslint-webpack-plugin": "2.5.1",
+    "npm": "^9.8.1",
+    "playbook-ui": "^12.32.0",
+    "prettier": "3.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.6",
+    "vite-plugin-dts": "^3.5.1"
+  }
+}
