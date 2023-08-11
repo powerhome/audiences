@@ -1,0 +1,6 @@
+site_name: Audiences Rails
+nav:
+  - "Home": "README.md"
+  - "Changelog": "CHANGELOG.md"
+plugins:
+  - techdocs-core
