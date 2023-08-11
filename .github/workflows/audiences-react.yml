@@ -7,5 +7,6 @@ jobs:
   node:
     uses: powerhome/github-actions-workflows/.github/workflows/yarn-package.yml@main
     with:
-      workdir: "${{ github.workflow }}"
+      package: ${{ github.workflow }}
+      workdir: ${{ github.workflow }}
     secrets: inherit
