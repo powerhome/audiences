@@ -8,7 +8,7 @@
     "vite-plugin-ruby": "^3.2.2"
   },
   "dependencies": {
-    "@powerhome/audiences": "file:../../../audiences-react",
+    "@powerhome/audiences": "link:../../../audiences-react",
     "playbook-ui": "^12.32.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
