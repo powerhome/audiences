@@ -3,9 +3,6 @@
 require "audiences/scim_proxy"
 
 Audiences::ScimProxy.config = {
-  uri: "http://localhost:3002/api/scim/v2/",
-  headers: {
-    "Authorization" => "Bearer 123456789",
-  },
+  uri: "http://scim-stub:3002/api/scim/v2/",
   debug: $stdout,
 }
