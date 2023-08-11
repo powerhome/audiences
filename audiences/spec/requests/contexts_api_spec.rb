@@ -11,7 +11,7 @@ RSpec.describe "/audiences", type: :request do
     it "responds with the audience context json" do
       get audience_context_path(example_owner), format: :json
 
-      expect(parsed_body).to match({ "key" => anything, "match_all" => false })
+      expect(parsed_body).to match({ "key" => anything, "match_all" => false, criteria: [] })
     end
 
     it "responds with a valid context context_key" do
