@@ -1,9 +1,0 @@
----
-- - :name_project
-  - Audiences Rails
-  - :who:
-    :why:
-    :versions: []
-    :when: 2023-08-11 13:14:35.32847361 Z
-- - :inherit_from
-  - url: https://raw.githubusercontent.com/powerhome/oss-guide/master/license_rules.yml
