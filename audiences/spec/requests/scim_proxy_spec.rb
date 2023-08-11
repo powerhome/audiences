@@ -7,7 +7,7 @@ RSpec.describe "/audiences/scim", type: :request do
 
   context "GET /audiences/scim" do
     it "proxies the calls to the configured scim service" do
-      stub_request(:get, "http://localhost:3002/api/scim/v2/AnythingGoes")
+      stub_request(:get, "http://scim-stub:3002/api/scim/v2/AnythingGoes")
         .with(query: { filter: "name eq John" })
         .to_return(body: '{"anything":"comes"}', status: 201)
 
@@ -17,7 +17,7 @@ RSpec.describe "/audiences/scim", type: :request do
     end
 
     it "proxies the headers" do
-      stub_request(:get, "http://localhost:3002/api/scim/v2/AnythingGoes")
+      stub_request(:get, "http://scim-stub:3002/api/scim/v2/AnythingGoes")
         .with(headers: { "Authorization" => "Bearer 123456789" })
         .to_return(body: '{"anything":"comes"}', status: 201)
 
