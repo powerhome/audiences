@@ -1,6 +1,6 @@
 # `@powerhome/audiences`
 
-`@powerhome/audiences`` is a SCIM-integrated UI to create criteria based on SCIM groups and users.
+`@powerhome/audiences`` is a [SCIM](https://datatracker.ietf.org/doc/html/rfc7644)-integrated UI to create criteria based on SCIM groups and users.
 
 ## Usage
 
