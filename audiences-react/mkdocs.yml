@@ -1,0 +1,6 @@
+site_name: Audiences React
+nav:
+  - "Home": "README.md"
+  - "Changelog": "CHANGELOG.md"
+plugins:
+  - techdocs-core

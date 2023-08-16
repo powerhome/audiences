@@ -1,0 +1,45 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: audiences
+  title: Audiences
+  description: SCIM-integrated notifier for real-time Rails actions based on group changes.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: library
+  owner: heroes-for-hire
+  lifecycle: production
+  system: power-application-framework
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: audiences-react
+  title: Audiences React
+  description: SCIM-integrated UI to create criteria based on SCIM groups and users.
+  annotations:
+    backstage.io/techdocs-ref: dir:audiences-react
+spec:
+  type: library
+  owner: heroes-for-hire
+  lifecycle: production
+  subcomponentOf: audiences
+  system: power-application-framework
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: audiences-rails
+  title: Audiences Rails
+  description: SCIM-integrated notifier for real-time Rails actions based on group changes.
+  annotations:
+    backstage.io/techdocs-ref: dir:audiences
+spec:
+  type: library
+  owner: heroes-for-hire
+  lifecycle: production
+  subcomponentOf: audiences
+  system: power-application-framework

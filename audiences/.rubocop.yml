@@ -1,0 +1,33 @@
+require:
+  - rubocop-powerhome
+
+AllCops:
+  TargetRubyVersion: 2.7
+  Exclude:
+    - "vendor/**/*"
+    - "spec/dummy/node_modules/**/*"
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - "gemfiles/*"
+    - "spec/dummy/db/schema.rb"
+
+Bundler/OrderedGems:
+  Exclude:
+    - "gemfiles/*"
+
+Style/NumericLiterals:
+  Exclude:
+    - "spec/dummy/db/schema.rb"
+
+Style/WordArray:
+  Exclude:
+    - "spec/dummy/db/schema.rb"
+
+Layout/EmptyLinesAroundBlockBody:
+  Exclude:
+    - "spec/dummy/db/schema.rb"
+
+Rails/I18nLocaleTexts:
+  Exclude:
+    - "spec/dummy/**/*"

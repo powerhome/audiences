@@ -1,0 +1,12 @@
+name: audiences-react
+
+on:
+  push:
+
+jobs:
+  node:
+    uses: powerhome/github-actions-workflows/.github/workflows/yarn-package.yml@main
+    with:
+      package: ${{ github.workflow }}
+      workdir: ${{ github.workflow }}
+    secrets: inherit

@@ -1,0 +1,7 @@
+site_name: Github Actions Workflows
+site_description: Github workflows for packing, building, and plubishing.
+repo_url: https://github.com/powerhome/github-actions-workflows
+nav:
+  - 'Home': 'README.md'
+plugins:
+  - techdocs-core

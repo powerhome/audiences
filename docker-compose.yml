@@ -1,0 +1,67 @@
+volumes:
+  dummy_web_bundle:
+  scim_stub_db:
+services:
+  dummy-web:
+    image: ruby:3.2.2
+    platform: linux/x86_64
+    working_dir: /app/audiences/spec/dummy
+    environment:
+      RAILS_ENV: development
+      VITE_RUBY_HOST: dummy-vite
+    command:
+      - /bin/sh
+      - -c
+      - |
+        bundle check || bundle install
+        bundle exec rails db:setup
+        rm -f tmp/pids/server.pid
+        bundle exec rails server --binding '0.0.0.0' --port '3000'
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dummy-vite
+      - scim-stub
+    volumes:
+      - .:/app
+      - dummy_web_bundle:/usr/local/bundle
+  dummy-vite:
+    image: node:18
+    platform: linux/x86_64
+    working_dir: /app/audiences/spec/dummy
+    command:
+      - /bin/sh
+      - -c
+      - |
+        yarn install
+        yarn dev
+    ports:
+      - "3036:3036"
+    volumes:
+      - .:/app
+  package-vite:
+    image: node:18
+    platform: linux/x86_64
+    working_dir: /app/audiences-react
+    command:
+      - /bin/sh
+      - -c
+      - |
+        yarn install
+        yarn build -w
+    volumes:
+      - .:/app
+  scim-stub:
+    image: powerhome/scim-stub
+    platform: linux/x86_64
+    command:
+      - /bin/sh
+      - -c
+      - |
+        bundle exec rails db:setup
+        rm -f tmp/pids/server.pid
+        bundle exec rails server --binding '0.0.0.0' --port '3002'
+    ports:
+      - "3002:3002"
+    volumes:
+      - scim_stub_db:/app/db/development.sqlite3
