@@ -1,6 +1,6 @@
 {
-  "name": "@powerhome/audiences",
-  "version": "1.0.0",
+  "name": "audiences",
+  "version": "0.0.1",
   "description": "Audiences SCIM client",
   "files": [
     "dist"
