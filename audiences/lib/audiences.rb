@@ -27,7 +27,11 @@ module_function
   # @return Audience::Context
   #
   def load(key)
+    locate_context(key, &:readonly!)
+  end
+
+  private_class_method def locate_context(key, &block)
     owner = GlobalID::Locator.locate_signed(key, for: GID_RESOURCE)
-    ::Audiences::Context.where(owner: owner).first_or_create!.tap(&:readonly!)
+    ::Audiences::Context.for(owner).tap(&block)
   end
 end
