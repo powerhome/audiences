@@ -3,13 +3,13 @@
 module Audiences
   class ContextsController < ApplicationController
     def show
-      render json: current_context.as_json(only: %w[match_all], methods: %w[key criteria])
+      render_context Audiences.load(params[:key])
     end
 
   private
 
-    def current_context
-      @current_context ||= Audiences.load(params[:key])
+    def render_context(context)
+      render json: context.as_json(only: %w[match_all], methods: %w[criteria])
     end
   end
 end

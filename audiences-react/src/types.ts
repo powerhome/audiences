@@ -46,7 +46,6 @@ export type AudienceCriteria = {
 }
 
 export type AudienceContext = {
-  key: string
   match_all: boolean
   criteria: AudienceCriteria[]
   extraMembers: ScimUser[]
