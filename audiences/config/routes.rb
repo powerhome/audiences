@@ -3,6 +3,7 @@
 Audiences::Engine.routes.draw do
   get "/scim(/*scim_path)" => "scim_proxy#get", as: :scim_proxy
   get "/:key" => "contexts#show", as: :signed_context
+  put "/:key" => "contexts#update"
 end
 
 Rails.application.routes.draw do

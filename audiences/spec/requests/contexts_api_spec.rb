@@ -12,13 +12,21 @@ RSpec.describe "/audiences", type: :request do
 
       expect(parsed_body).to match({ "match_all" => false, "criteria" => [] })
     end
+  end
 
-    it "responds with a valid context context_key" do
-      get audience_context_path(example_owner), format: :json
+  context "PUT /audiences/:context_key" do
+    it "updates the audience context" do
+      put audience_context_path(example_owner), match_all: true
 
-      audience = Audiences.load(parsed_body["key"])
+      context = Audiences::Context.for(example_owner)
 
-      expect(audience.owner).to eql example_owner
+      expect(context).to be_match_all
+    end
+
+    it "responds with the audience context json" do
+      put audience_context_path(example_owner), match_all: true
+
+      expect(parsed_body).to match({ "match_all" => true, "criteria" => [] })
     end
   end
 end
