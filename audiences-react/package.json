@@ -52,7 +52,7 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "4.16.1",
     "@typescript-eslint/parser": "4.16.1",
-    "eslint": "7.21.0",
+    "eslint": "7.32.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-flowtype": "5.10.0",
     "eslint-plugin-jsx-control-statements": "2.2.1",
