@@ -1,34 +1,48 @@
 import { useState } from "react"
 import { Button, Flex, FlexItem } from "playbook-ui"
 import { useFieldArray, useFormContext } from "react-hook-form"
+import isEmpty from "lodash/isEmpty"
+import every from "lodash/every"
+import omitBy from "lodash/omitBy"
 
-import { AudienceCriteria } from "../types"
+import { CriteriaActions } from "./CriteriaActions"
+import { CriteriaCard } from "./CriteriaCard"
+import { CriteriaFieldsModal } from "./CriteriaFieldsModal"
+import { ScimResourceType } from "../useScimResources"
+import { GroupCriteria } from "../types"
 
-import CriteriaActions from "./CriteriaActions"
-import CriteriaCard from "./CriteriaCard"
-import CriteriaFieldsModal from "./CriteriaFieldsModal"
-
-type AudienceCriteriaField = AudienceCriteria & { id: string }
-export type CriteriaListProps = {
-  name: string
+type GroupCriteriaField = GroupCriteria & {
+  id: string
 }
-export default function CriteriaListFields({ name }: CriteriaListProps) {
+type CriteriaListFieldsProps = {
+  name: string
+  resources: ScimResourceType[]
+}
+export function CriteriaListFields({
+  name,
+  resources,
+}: CriteriaListFieldsProps) {
   const form = useFormContext()
-  const { fields, remove, append } = useFieldArray({ name })
-  const [editCriteriaField, setEditCriteriaField] =
-    useState<Parameters<typeof form.resetField>[0]>()
+  const { fields, remove, append } = useFieldArray({
+    name,
+    rules: {
+      validate: (criteria) => {
+        return every(criteria, (c: GroupCriteria) => {
+          return !isEmpty(omitBy(c, isEmpty))
+        })
+      },
+    },
+  })
+  const [currentEditing, editCriteria] = useState<number | undefined>()
 
-  const watchFieldArray = form.watch(name)
+  const closeEditor = () => editCriteria(undefined)
+  const watchFieldArray = form.watch(name) || []
   const controlledFields = fields.map((field, index) => {
     return {
       ...field,
       ...watchFieldArray[index],
     }
   })
-
-  const closeEditor = () => setEditCriteriaField(undefined)
-  const editCriteria = (index: number) =>
-    setEditCriteriaField(`${name}.${index}`)
 
   const handleCreateCriteria = () => {
     append({})
@@ -39,15 +53,18 @@ export default function CriteriaListFields({ name }: CriteriaListProps) {
       remove(index)
     }
   }
-  const handleCancelEditCriteria = () => {
-    form.resetField(editCriteriaField!)
+  const validateAndClose = async () => {
+    const valid = await form.trigger(name)
+    if (!valid) {
+      remove(currentEditing)
+    }
     closeEditor()
   }
 
   return (
     <Flex orientation="column" justify="center" align="stretch">
       <FlexItem>
-        {(controlledFields as AudienceCriteriaField[]).map(
+        {(controlledFields as GroupCriteriaField[]).map(
           (criteria, index: number) => (
             <CriteriaCard criteria={criteria} key={criteria.id}>
               <CriteriaActions
@@ -69,11 +86,12 @@ export default function CriteriaListFields({ name }: CriteriaListProps) {
         />
       </FlexItem>
 
-      {editCriteriaField !== undefined && (
+      {currentEditing !== undefined && (
         <CriteriaFieldsModal
-          current={editCriteriaField}
-          onCancel={handleCancelEditCriteria}
-          onSave={closeEditor}
+          resourceTypes={resources}
+          current={`${name}.${currentEditing}`}
+          onCancel={validateAndClose}
+          onSave={validateAndClose}
         />
       )}
     </Flex>

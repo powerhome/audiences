@@ -1,53 +1,23 @@
-// SCIM Version
-
-export const UserSchema = "urn:ietf:params:scim:schemas:core:2.0:User"
-export const GroupSchema = "urn:ietf:params:scim:schemas:core:2.0:Group"
-
-export type SchemaType = typeof UserSchema | typeof GroupSchema | never
-
-export const TerritoryGroupType = "Territory"
-export const TitleGroupType = "Title"
-export const DepartmentGroupType = "Department"
-
-export type ScimListResponse<T> = {
-  totalEntries: number
-  Resources: T[]
-}
-
-export type ScimResourceType = {
-  id: string
-  name: string
-  endpoint: string
-  schema: string
-  meta: {
-    resourceType: string
-  }
-}
-
-export interface BaseScim {
-  schemas: SchemaType[]
+export interface ScimObject {
   id: string
   displayName: string
-  photoUrl?: string
-  meta: {
-    resourceType: string
-  }
+  photos?: {
+    type: "primary" | "thumb"
+    value: string
+  }[]
 }
 
-export type ScimUser = BaseScim & {
-  username: string
+export interface GroupCriteria {
+  [resourceType: string]: ScimObject[]
 }
 
-export type ScimGroup = BaseScim
-
-export type AudienceCriteria = {
-  count?: number
-  groups?: { [key: string]: ScimGroup[] }
+export interface AudienceCriteria {
+  users?: ScimObject[]
+  groups?: GroupCriteria[]
 }
 
-export type AudienceContext = {
+export interface AudienceContext {
   match_all: boolean
-  criteria: AudienceCriteria[]
-  extraMembers: ScimUser[]
-  totalMembers: number
+  criteria: AudienceCriteria
+  total_members?: number
 }

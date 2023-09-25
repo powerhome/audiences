@@ -2,9 +2,6 @@ import * as ReactDOM from "react-dom";
 import React from "react";
 import { AudienceEditor } from "audiences";
 
-import "playbook-ui/dist/reset.css";
-import "playbook-ui/dist/playbook.css";
-
 import "@fortawesome/fontawesome-free/js/all.min.js";
 
 document.addEventListener("DOMContentLoaded", function () {

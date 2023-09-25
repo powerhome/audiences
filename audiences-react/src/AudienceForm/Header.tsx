@@ -1,14 +1,13 @@
 import { Flex, FlexItem, Caption } from "playbook-ui"
-
-import type { AudienceContext } from "../types"
-
-import Members from "../AudienceSelector/Members"
 import { useFormContext } from "react-hook-form"
+
+import { Members } from "./Members"
+import type { AudienceContext } from "../types"
 
 type HeaderProps = React.PropsWithChildren & {
   context: AudienceContext
 }
-export default function Header({ context, children }: HeaderProps) {
+export function Header({ context, children }: HeaderProps) {
   const { formState } = useFormContext()
 
   return (
@@ -24,7 +23,7 @@ export default function Header({ context, children }: HeaderProps) {
           </>
         ) : (
           <Members
-            count={context.totalMembers}
+            count={context.total_members}
             showAll
             onShowAllMembers={() => undefined}
           />

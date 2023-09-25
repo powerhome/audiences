@@ -1,12 +1,41 @@
-import { ScimListResponse, ScimResourceType } from "./types"
 import { useFetch } from "use-http"
 
-export function useScimResources(schema: string) {
-  const { data } = useFetch<ScimListResponse<ScimResourceType>>(
-    "/ResourceTypes",
-    { persist: true },
+export type ScimListResponse<T> = {
+  totalEntries: number
+  Resources: T[]
+}
+
+export type ScimResourceType = {
+  id: string
+  name: string
+  endpoint: string
+  filter: <T>(displayName: string) => Promise<T[]>
+}
+
+type UseScimResources = {
+  resources?: ScimResourceType[]
+}
+export function useScimResources(scimUri: string): UseScimResources {
+  const { get } = useFetch(scimUri)
+  const { data } = useFetch<ScimResourceType[]>(
+    `${scimUri}/ResourceTypes`,
+    {},
     [],
   )
-  const resource = data?.Resources || []
-  return resource.filter((resource) => resource.schema == schema)
+
+  if (!data) {
+    return {}
+  }
+
+  const filter =
+    (resource: ScimResourceType) => async (displayName: string) => {
+      const response = await get(
+        `${resource.endpoint}?filter=displayName co ${displayName}`,
+      )
+      return response.Resources
+    }
+
+  return {
+    resources: data.map((r) => ({ ...r, filter: filter(r) })),
+  }
 }

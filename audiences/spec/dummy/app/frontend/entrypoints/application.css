@@ -1,0 +1,6 @@
+@import "playbook-ui/dist/reset.css";
+@import "playbook-ui/dist/playbook.css";
+
+body {
+  padding: 1em !important;
+}
