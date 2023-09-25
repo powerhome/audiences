@@ -1,31 +1,52 @@
 import debounce from "lodash/debounce"
 import { useController } from "react-hook-form"
 import { Typeahead } from "playbook-ui"
+import { ScimResourceType } from "../useScimResources"
+import { AudienceResource } from "../types"
+import get from "lodash/get"
 
-import {
-  BaseScim,
-  ScimListResponse,
-  ScimResourceType,
-  ScimUser,
-} from "../types"
-import { useFetch } from "use-http"
+interface ScimPhoto {
+  type: "primary" | "thumb"
+  value: string
+}
 
-interface PlaybookOption {
+interface ScimObject {
+  id: string
+  displayName: string
+  photos?: [ScimPhoto]
+}
+
+type PlaybookOption = AudienceResource & {
   label: string
   value: any
   imageUrl?: string
 }
-function mapPlaybookOptions(
-  objects: BaseScim[],
-): (BaseScim & PlaybookOption)[] {
+
+function mapOptions(
+  resource: ScimResourceType,
+  objects: ScimObject[],
+): PlaybookOption[] {
   return objects
     ? objects.map((object) => ({
         label: object.displayName,
-        value: object.id,
-        imageUrl: object.photoUrl,
-        ...object,
+        value: parseInt(object.id),
+        imageUrl: get(object, "photos.0.value"),
+        image_url: get(object, "photos.0.value"),
+        display: object.displayName,
+        resource_id: object.id,
+        resource_type: resource.id,
       }))
     : []
+}
+function mapValues(objects: AudienceResource[]): PlaybookOption[] {
+  return (
+    objects?.map((object) => ({
+      label: object.display,
+      value: object.resource_id,
+      imageUrl: object.image_url,
+      ...object,
+    })) || []
+  )
 }
 
 export interface ScimResourceTypeahead {
@@ -39,27 +60,28 @@ export default function ScimResourceTypeahead({
   resource,
   ...typeaheadProps
 }: ScimResourceTypeahead) {
-  const { get } = useFetch<ScimListResponse<BaseScim>>(resource.endpoint)
+  const { field } = useController({ name })
 
   const searchResourceOptions = async (
-    _search: string,
+    search: string,
     callback: (options: PlaybookOption[]) => void,
   ) => {
-    const options = await get()
-    callback(mapPlaybookOptions(options.Resources))
+    if (search.length > 0) {
+      const options = await resource.filter<ScimObject>(search)
+      callback(mapOptions(resource, options))
+    }
   }
-  const { field } = useController({ name })
 
   return (
     <Typeahead
       isMulti
       async
-      loadOptions={debounce(searchResourceOptions, 300)}
+      loadOptions={debounce(searchResourceOptions, 600)}
       placeholder=""
       {...typeaheadProps}
       {...field}
       ref={undefined} // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
-      value={mapPlaybookOptions(field.value)}
+      value={mapValues(field.value)}
     />
   )
 }

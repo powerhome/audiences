@@ -24,7 +24,7 @@ export default function Header({ context, children }: HeaderProps) {
           </>
         ) : (
           <Members
-            count={context.totalMembers}
+            count={context.total_members}
             showAll
             onShowAllMembers={() => undefined}
           />
