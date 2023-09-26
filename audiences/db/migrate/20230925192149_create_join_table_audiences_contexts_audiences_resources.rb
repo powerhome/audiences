@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateJoinTableAudiencesContextsAudiencesResources < ActiveRecord::Migration[7.0]
+class CreateJoinTableAudiencesContextsAudiencesResources < ActiveRecord::Migration[6.0]
   def change
     create_table :audiences_context_extra_resources do |t|
       t.references :context

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateAudiencesAudiencesResources < ActiveRecord::Migration[7.0]
+class CreateAudiencesAudiencesResources < ActiveRecord::Migration[6.0]
   def change
     create_table :audiences_resources do |t|
       t.integer :resource_id
