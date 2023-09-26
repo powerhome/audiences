@@ -6,7 +6,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gemspec
 
 # Development workflow
-gem "appraisal", "~> 2.4.1"
+gem "appraisal", "~> 2.5.0"
 gem "foreman", "~> 0.87.2"
 gem "license_finder", ">= 7.0"
 gem "vite_rails", "~> 3.0"
