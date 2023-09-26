@@ -2,8 +2,13 @@
 
 class CreateJoinTableAudiencesContextsAudiencesResources < ActiveRecord::Migration[7.0]
   def change
-    create_join_table :contexts, :resources, table_name: :audiences_contexts_resources do |t|
-      t.index %i[context_id resource_id]
+    create_table :audiences_context_extra_resources do |t|
+      t.references :context
+      t.references :resource
+
+      t.timestamps
+
+      t.index %i[context_id resource_id], name: :idx_audiences_extra_resources_on_context_id_and_resource_id
     end
   end
 end

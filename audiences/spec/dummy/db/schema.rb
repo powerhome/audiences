@@ -11,6 +11,16 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2023_09_25_192149) do
+  create_table "audiences_context_extra_resources", force: :cascade do |t|
+    t.integer "context_id"
+    t.integer "resource_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["context_id", "resource_id"], name: "idx_audiences_extra_resources_on_context_id_and_resource_id"
+    t.index ["context_id"], name: "index_audiences_context_extra_resources_on_context_id"
+    t.index ["resource_id"], name: "index_audiences_context_extra_resources_on_resource_id"
+  end
+
   create_table "audiences_contexts", force: :cascade do |t|
     t.string "owner_type", null: false
     t.integer "owner_id", null: false
@@ -18,12 +28,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_25_192149) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["owner_type", "owner_id"], name: "index_audiences_contexts_on_owner_type_and_owner_id", unique: true
-  end
-
-  create_table "audiences_contexts_resources", id: false, force: :cascade do |t|
-    t.integer "context_id", null: false
-    t.integer "resource_id", null: false
-    t.index ["context_id", "resource_id"], name: "index_audiences_contexts_resources_on_context_id_and_resource_id"
   end
 
   create_table "audiences_resources", force: :cascade do |t|
