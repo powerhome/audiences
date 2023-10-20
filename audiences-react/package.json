@@ -58,7 +58,7 @@
     "eslint-plugin-jsx-control-statements": "3.0.0",
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
-    "eslint-webpack-plugin": "2.7.0",
+    "eslint-webpack-plugin": "4.0.1",
     "npm": "^9.8.1",
     "playbook-ui": "12.38.0-alpha.audiencesalpha1083",
     "prettier": "3.0.3",
