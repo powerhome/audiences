@@ -1,12 +1,11 @@
 import { Card, Body, Flex, FlexItem, Caption } from "playbook-ui"
 
-import type { AudienceCriteria } from "../types"
+import type { AudienceCriteria, GroupCriteria } from "../types"
 
 import { CriteriaDescription } from "./CriteriaDescription"
-import { AudienceContextInput } from "."
 
 type CriteriaFieldsProps = React.PropsWithChildren & {
-  criteria?: AudienceContextInput["criteria"][0]
+  criteria?: GroupCriteria
 }
 export default function CriteriaCard({
   criteria,

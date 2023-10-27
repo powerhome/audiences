@@ -1,18 +1,23 @@
-export type AudienceResource = {
-  resource_id: string
-  resource_type: string
-  display: string
-  image_url?: string
+export interface GroupCriteria {
+  [resourceType: string]: ScimObject[]
 }
 
-export type AudienceCriteria = {
-  count?: number
-  resources: AudienceResource[]
+export interface AudienceCriteria {
+  users?: ScimObject[]
+  groups?: GroupCriteria
 }
 
-export type AudienceContext = {
+export interface AudienceContext {
   match_all: boolean
-  criteria: AudienceCriteria[]
-  resources: AudienceResource[]
+  criteria: AudienceCriteria
   total_members?: number
+}
+
+export interface ScimObject {
+  id: string
+  displayName: string
+  photos?: {
+    type: "primary" | "thumb"
+    value: string
+  }[]
 }

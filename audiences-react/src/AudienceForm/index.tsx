@@ -1,31 +1,12 @@
 import { FormProvider, useForm } from "react-hook-form"
-import {
-  Button,
-  Card,
-  Toggle,
-  Caption,
-  User as UserInfo,
-  Flex,
-} from "playbook-ui"
+import { Button, Card, Toggle, Caption, User, Flex } from "playbook-ui"
 
-import { AudienceContext, AudienceResource } from "../types"
+import { AudienceContext } from "../types"
 
 import Header from "./Header"
 import ScimResourceTypeahead from "./ScimResourceTypeahead"
 import CriteriaListFields from "./CriteriaListFields"
 import { ScimResourceType } from "../useScimResources"
-import get from "lodash/get"
-import { values } from "lodash"
-
-export interface ResourceGroupInputs {
-  [resourceType: string]: AudienceResource[]
-}
-
-export type AudienceContextInput = {
-  resources: AudienceResource[]
-  criteria: ResourceGroupInputs[]
-  match_all: boolean
-}
 
 type AudienceFormProps = {
   userResource: ScimResourceType
@@ -37,35 +18,6 @@ type AudienceFormProps = {
   saving?: boolean
 }
 
-function denormalizeContext(context: AudienceContext): AudienceContextInput {
-  return {
-    match_all: context.match_all,
-    resources: context.resources,
-    criteria: context.criteria.map((criteria) =>
-      criteria.resources.reduce(
-        (current, resource) => ({
-          ...current,
-          [resource.resource_type]: [
-            resource,
-            ...get(current, resource.resource_type, []),
-          ],
-        }),
-        {},
-      ),
-    ),
-  }
-}
-
-function normalizeContext(input: AudienceContextInput): AudienceContext {
-  return {
-    match_all: input.match_all,
-    resources: input.resources,
-    criteria: input.criteria.map((criteria) => ({
-      resources: values(criteria).flat(),
-    })),
-  }
-}
-
 const AudienceForm = ({
   userResource,
   groupResources,
@@ -74,11 +26,11 @@ const AudienceForm = ({
   onSave,
   saving,
 }: AudienceFormProps) => {
-  const form = useForm<AudienceContextInput>({
-    defaultValues: denormalizeContext(context),
+  const form = useForm<AudienceContext>({
+    defaultValues: context,
   })
-  function handleSave(value: AudienceContextInput) {
-    onSave(normalizeContext(value))
+  function handleSave(value: AudienceContext) {
+    onSave(value)
   }
 
   const all = form.watch("match_all")
@@ -99,20 +51,23 @@ const AudienceForm = ({
 
         {all || (
           <Card.Body>
-            <CriteriaListFields resources={groupResources} name="criteria" />
+            <CriteriaListFields
+              resources={groupResources}
+              name="criteria.groups"
+            />
 
             {allowIndividuals && userResource && (
               <ScimResourceTypeahead
                 label="Other Members"
-                name="resources"
+                name="criteria.users"
                 resource={userResource}
-                valueComponent={(user: AudienceResource) => (
-                  <UserInfo
-                    avatar
-                    avatarUrl={user.image_url}
-                    name={user.display}
-                  />
-                )}
+                // valueComponent={(user: any) => (
+                //   <UserInfo
+                //     avatar
+                //     avatarUrl={user?.image_url}
+                //     name={user?.display}
+                //   />
+                // )}
               />
             )}
           </Card.Body>

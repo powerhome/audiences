@@ -2,51 +2,24 @@ import debounce from "lodash/debounce"
 import { useController } from "react-hook-form"
 import { Typeahead } from "playbook-ui"
 import { ScimResourceType } from "../useScimResources"
-import { AudienceResource } from "../types"
+import { ScimObject } from "../types"
 import get from "lodash/get"
 
-interface ScimPhoto {
-  type: "primary" | "thumb"
-  value: string
-}
-
-interface ScimObject {
-  id: string
-  displayName: string
-  photos?: [ScimPhoto]
-}
-
-type PlaybookOption = AudienceResource & {
-  label: string
+type PlaybookOption = ScimObject & {
   value: any
+  label: string
   imageUrl?: string
 }
 
-function mapOptions(
-  resource: ScimResourceType,
-  objects: ScimObject[],
-): PlaybookOption[] {
+function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
   return objects
-    ? objects.map((object) => ({
-        label: object.displayName,
+    ? objects.map((object: ScimObject) => ({
+        ...object,
         value: parseInt(object.id),
+        label: object.displayName,
         imageUrl: get(object, "photos.0.value"),
-        image_url: get(object, "photos.0.value"),
-        display: object.displayName,
-        resource_id: object.id,
-        resource_type: resource.id,
       }))
     : []
-}
-function mapValues(objects: AudienceResource[]): PlaybookOption[] {
-  return (
-    objects?.map((object) => ({
-      label: object.display,
-      value: object.resource_id,
-      imageUrl: object.image_url,
-      ...object,
-    })) || []
-  )
 }
 
 export interface ScimResourceTypeahead {
@@ -68,7 +41,7 @@ export default function ScimResourceTypeahead({
   ) => {
     if (search.length > 0) {
       const options = await resource.filter<ScimObject>(search)
-      callback(mapOptions(resource, options))
+      callback(playbookOptions(options))
     }
   }
 
@@ -81,7 +54,7 @@ export default function ScimResourceTypeahead({
       {...typeaheadProps}
       {...field}
       ref={undefined} // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
-      value={mapValues(field.value)}
+      value={playbookOptions(field.value)}
     />
   )
 }

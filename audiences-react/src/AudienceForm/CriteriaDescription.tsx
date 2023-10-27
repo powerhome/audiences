@@ -1,12 +1,14 @@
-import type { AudienceResource } from "../types"
+// import type { AudienceResource } from "../types"
 import join from "lodash/join"
 import map from "lodash/map"
-import { AudienceContextInput } from "."
+// import { AudienceContextInput } from "."
 import { isEmpty } from "lodash"
 import React from "react"
+import { GroupCriteria } from "../types"
+import { ScimObject } from "../types"
 
-function toSentence(resources: AudienceResource[]) {
-  const names = map(resources, "display")
+function toSentence(resources: ScimObject[]) {
+  const names = map(resources, "displayName")
 
   if (names.length == 1) {
     return names
@@ -26,7 +28,7 @@ const Prepositions = {
 }
 
 type CriteriaDescriptionProps = {
-  criteria?: AudienceContextInput["criteria"][0]
+  criteria?: GroupCriteria
 }
 export const CriteriaDescription = ({ criteria }: CriteriaDescriptionProps) => {
   if (!criteria) return null
@@ -34,15 +36,13 @@ export const CriteriaDescription = ({ criteria }: CriteriaDescriptionProps) => {
   return (
     <div>
       {"All "}
-      {map(
-        Prepositions,
-        (prep, key) =>
-          isEmpty(criteria[key]) || (
-            <React.Fragment key={`criteria-${criteria.id}-${key}`}>
-              {` ${prep} `}
-              <strong>{toSentence(criteria[key])}</strong>
-            </React.Fragment>
-          ),
+      {map(Prepositions, (prep, key) =>
+        isEmpty(criteria[key]) ? null : (
+          <React.Fragment key={`criteria-${criteria.id}-${key}`}>
+            {` ${prep} `}
+            <strong>{toSentence(criteria[key])}</strong>
+          </React.Fragment>
+        ),
       )}
       {"."}
     </div>
