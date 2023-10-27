@@ -13,11 +13,11 @@ module Audiences
   private
 
     def render_context(context)
-      render json: context.as_json(only: %w[match_all], methods: %w[criteria])
+      render json: context.as_json(only: %i[match_all criteria])
     end
 
     def context_params
-      params.slice(:match_all).permit!
+      params.permit(:match_all, criteria: {})
     end
   end
 end

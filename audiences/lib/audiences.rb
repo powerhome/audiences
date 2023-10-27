@@ -40,9 +40,9 @@ module_function
   # @param params [Hash] the updated params
   # @return Audience::Context
   #
-  def update(key, params)
+  def update(key, attrs)
     locate_context(key) do |context|
-      context.update!(params)
+      context.update!(attrs)
       context.readonly!
     end
   end
