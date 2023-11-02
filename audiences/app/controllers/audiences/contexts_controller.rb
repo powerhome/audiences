@@ -7,7 +7,7 @@ module Audiences
     end
 
     def update
-      render_context Audiences.update(params[:key], context_params)
+      render_context Audiences.update(params[:key], context_params.to_h)
     end
 
   private
