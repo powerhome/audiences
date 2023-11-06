@@ -14,7 +14,7 @@ type MembersProps = {
   onShowAllMembers: () => void
 }
 
-export default function Members({
+export function Members({
   showAll = false,
   count,
   onShowAllMembers,

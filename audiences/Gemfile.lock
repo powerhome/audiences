@@ -139,8 +139,6 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.8)
-    rack-cors (2.0.1)
-      rack (>= 2.0.0)
     rack-proxy (0.7.7)
       rack
     rack-test (2.1.0)
@@ -276,10 +274,9 @@ DEPENDENCIES
   foreman (~> 0.87.2)
   license_finder (>= 7.0)
   puma (~> 6.3)
-  rack-cors (~> 2.0)
   rake (>= 13.0)
   rspec (>= 3.0)
-  rspec-rails (>= 3.0)
+  rspec-rails (>= 6.0.3)
   rubocop (>= 1.32)
   rubocop-powerhome
   shoulda-matchers (~> 5.0)

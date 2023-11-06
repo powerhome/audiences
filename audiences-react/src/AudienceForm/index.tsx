@@ -1,14 +1,15 @@
 import { FormProvider, useForm } from "react-hook-form"
-import { Button, Card, Toggle, Caption, User, Flex } from "playbook-ui"
+import { UserInfo, Button, Card, Toggle, Caption, Flex } from "playbook-ui"
 
-import { AudienceContext, ScimUser, UserSchema } from "../types"
-
-import Header from "./Header"
-import ScimResourceTypeahead from "./ScimResourceTypeahead"
-import CriteriaListFields from "./CriteriaListFields"
-import { useScimResources } from "../useScimResources"
+import { Header } from "./Header"
+import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
+import { CriteriaListFields } from "./CriteriaListFields"
+import { ScimResourceType } from "../useScimResources"
+import { AudienceContext } from "../types"
 
 type AudienceFormProps = {
+  userResource: ScimResourceType
+  groupResources: ScimResourceType[]
   allowIndividuals: boolean
   context: AudienceContext
   loading?: boolean
@@ -16,14 +17,17 @@ type AudienceFormProps = {
   saving?: boolean
 }
 
-const AudienceForm = ({
+export const AudienceForm = ({
+  userResource,
+  groupResources,
   allowIndividuals = true,
   context,
   onSave,
   saving,
 }: AudienceFormProps) => {
-  const form = useForm({ values: context })
-  const [userResource] = useScimResources(UserSchema)
+  const form = useForm<AudienceContext>({
+    defaultValues: context,
+  })
 
   const all = form.watch("match_all")
 
@@ -43,20 +47,16 @@ const AudienceForm = ({
 
         {all || (
           <Card.Body>
-            <CriteriaListFields name="criteria" />
+            <CriteriaListFields
+              resources={groupResources}
+              name="criteria.groups"
+            />
 
             {allowIndividuals && userResource && (
               <ScimResourceTypeahead
                 label="Other Members"
-                name="extraMembers"
+                name="criteria.users"
                 resource={userResource}
-                valueComponent={(user: ScimUser) => (
-                  <User
-                    avatar
-                    avatarUrl={user.photoUrl}
-                    name={user.displayName}
-                  />
-                )}
               />
             )}
           </Card.Body>
@@ -84,4 +84,3 @@ const AudienceForm = ({
     </FormProvider>
   )
 }
-export default AudienceForm

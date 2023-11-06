@@ -27,7 +27,28 @@ module_function
   # @return Audience::Context
   #
   def load(key)
+    locate_context(key, &:readonly!)
+  end
+
+  # Updates the given context
+  #
+  # Params might contain:
+  #
+  # match_all: Boolean
+  #
+  # @param token [String] a signed token (see #sign)
+  # @param params [Hash] the updated params
+  # @return Audience::Context
+  #
+  def update(key, attrs)
+    locate_context(key) do |context|
+      context.update!(attrs)
+      context.readonly!
+    end
+  end
+
+  private_class_method def locate_context(key, &block)
     owner = GlobalID::Locator.locate_signed(key, for: GID_RESOURCE)
-    ::Audiences::Context.where(owner: owner).first_or_create!.tap(&:readonly!)
+    ::Audiences::Context.for(owner).tap(&block)
   end
 end

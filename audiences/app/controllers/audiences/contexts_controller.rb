@@ -3,13 +3,21 @@
 module Audiences
   class ContextsController < ApplicationController
     def show
-      render json: current_context.as_json(only: %w[match_all], methods: %w[key criteria])
+      render_context Audiences.load(params[:key])
+    end
+
+    def update
+      render_context Audiences.update(params[:key], context_params.to_h)
     end
 
   private
 
-    def current_context
-      @current_context ||= Audiences.load(params[:key])
+    def render_context(context)
+      render json: context.as_json(only: %i[match_all criteria])
+    end
+
+    def context_params
+      params.permit(:match_all, criteria: {})
     end
   end
 end

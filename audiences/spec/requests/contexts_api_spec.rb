@@ -3,23 +3,36 @@
 require "rails_helper"
 
 RSpec.describe "/audiences", type: :request do
-  let(:parsed_body) { JSON.parse(last_response.body) }
+  let(:example_owner) { ExampleOwner.create!(name: "Example Owner") }
 
   context "GET /audiences/:context_key" do
-    let(:example_owner) { ExampleOwner.create(name: "Example Owner") }
-
     it "responds with the audience context json" do
-      get audience_context_path(example_owner), format: :json
+      get audience_context_path(example_owner)
 
-      expect(parsed_body).to match({ "key" => anything, "match_all" => false, "criteria" => [] })
+      expect(response.parsed_body).to match({ "match_all" => false, "criteria" => {} })
+    end
+  end
+
+  context "PUT /audiences/:context_key" do
+    it "updates the audience context" do
+      put audience_context_path(example_owner), params: { match_all: true }
+
+      context = Audiences::Context.for(example_owner)
+
+      expect(context).to be_match_all
     end
 
-    it "responds with a valid context context_key" do
-      get audience_context_path(example_owner), format: :json
+    it "updates the context resources" do
+      put audience_context_path(example_owner), params: { criteria: { users: [123] } }
 
-      audience = Audiences.load(parsed_body["key"])
+      context = Audiences::Context.for(example_owner)
+      expect(context.users_criteria).to eql ["123"]
+    end
 
-      expect(audience.owner).to eql example_owner
+    it "responds with the audience context json" do
+      put audience_context_path(example_owner), params: { match_all: true }
+
+      expect(response.parsed_body).to match({ "match_all" => true, "criteria" => {} })
     end
   end
 end

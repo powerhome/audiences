@@ -3,8 +3,6 @@
 require "rails_helper"
 
 RSpec.describe "/audiences/scim", type: :request do
-  let(:parsed_body) { JSON.parse(last_response.body) }
-
   context "GET /audiences/scim" do
     it "proxies the calls to the configured scim service" do
       stub_request(:get, "http://scim-stub:3002/api/scim/v2/AnythingGoes")
@@ -13,7 +11,7 @@ RSpec.describe "/audiences/scim", type: :request do
 
       get audience_scim_proxy_path(scim_path: "AnythingGoes", filter: "name eq John")
 
-      expect(parsed_body).to eql("anything" => "comes")
+      expect(response.parsed_body).to eql("anything" => "comes")
     end
 
     it "proxies the headers" do
@@ -23,7 +21,7 @@ RSpec.describe "/audiences/scim", type: :request do
 
       get audience_scim_proxy_path(scim_path: "AnythingGoes")
 
-      expect(parsed_body).to eql("anything" => "comes")
+      expect(response.parsed_body).to eql("anything" => "comes")
     end
   end
 end
