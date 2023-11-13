@@ -16,7 +16,7 @@ RSpec.describe "/audiences/scim", type: :request do
 
   context "GET /audiences/scim" do
     it "returns the Resources key from the response" do
-      stub_request(:get, "http://scim-stub:3002/api/scim/v2/AnythingGoes")
+      stub_request(:get, "http://example.com/scim/v2/AnythingGoes")
         .with(query: { filter: "name eq John" })
         .to_return(body: response_body, status: 201)
 
@@ -28,7 +28,7 @@ RSpec.describe "/audiences/scim", type: :request do
     end
 
     it "proxies the headers" do
-      stub_request(:get, "http://scim-stub:3002/api/scim/v2/AnythingGoes?filter")
+      stub_request(:get, "http://example.com/scim/v2/AnythingGoes?filter")
         .with(headers: { "Authorization" => "Bearer 123456789" })
         .to_return(body: response_body, status: 201)
 
