@@ -1,13 +1,11 @@
 import { Flex, Icon } from "playbook-ui"
-import filter from "lodash/filter"
-import find from "lodash/find"
 
 import { useAudience } from "./useAudience"
 import { AudienceForm } from "./AudienceForm"
-import { useScimResources } from "./useScimResources"
+import Scim from "./scim"
 
-const UserResourceId = "User"
-const AllowedGroupIds = ["Territory", "Department", "Title"]
+const UserResourceId = "Users"
+const AllowedGroupIds = ["Territories", "Departments", "Titles"]
 
 type AudienceEditorProps = {
   uri: string
@@ -20,28 +18,24 @@ export function AudienceEditor({
   allowIndividuals = true,
 }: AudienceEditorProps) {
   const [context, updateContext] = useAudience(uri)
-  const { resources } = useScimResources(scimUri)
 
-  const userResource = find(resources, { id: UserResourceId })
-  const groupResources = filter(resources, (resource) =>
-    AllowedGroupIds.includes(resource.id),
-  )
-
-  if (!context || !resources) {
+  if (context) {
+    return (
+      <Scim.Provider value={scimUri}>
+        <AudienceForm
+          userResource={UserResourceId}
+          groupResources={AllowedGroupIds}
+          context={context}
+          allowIndividuals={allowIndividuals}
+          onSave={updateContext}
+        />
+      </Scim.Provider>
+    )
+  } else {
     return (
       <Flex justify="center">
         <Icon fontStyle="fas" icon="spinner" spin />
       </Flex>
     )
   }
-
-  return (
-    <AudienceForm
-      userResource={userResource!}
-      groupResources={groupResources}
-      context={context}
-      allowIndividuals={allowIndividuals}
-      onSave={updateContext}
-    />
-  )
 }

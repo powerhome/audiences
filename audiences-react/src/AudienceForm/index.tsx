@@ -4,12 +4,11 @@ import { UserInfo, Button, Card, Toggle, Caption, Flex } from "playbook-ui"
 import { Header } from "./Header"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { CriteriaListFields } from "./CriteriaListFields"
-import { ScimResourceType } from "../useScimResources"
 import { AudienceContext } from "../types"
 
 type AudienceFormProps = {
-  userResource: ScimResourceType
-  groupResources: ScimResourceType[]
+  userResource: string
+  groupResources: string[]
   allowIndividuals: boolean
   context: AudienceContext
   loading?: boolean
@@ -48,7 +47,7 @@ export const AudienceForm = ({
         {all || (
           <Card.Body>
             <CriteriaListFields
-              resources={groupResources}
+              groupResources={groupResources}
               name="criteria.groups"
             />
 
@@ -56,7 +55,7 @@ export const AudienceForm = ({
               <ScimResourceTypeahead
                 label="Other Members"
                 name="criteria.users"
-                resource={userResource}
+                resourceId={userResource}
               />
             )}
           </Card.Body>
