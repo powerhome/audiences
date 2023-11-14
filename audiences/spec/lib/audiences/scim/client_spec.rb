@@ -2,8 +2,8 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::Scim do
-  subject { Audiences::Scim.new(uri: "http://example.com/scim/") }
+RSpec.describe Audiences::Scim::Client do
+  subject { Audiences::Scim::Client.new(uri: "http://example.com/scim/") }
 
   context "#query" do
     let(:resources) do
@@ -25,7 +25,7 @@ RSpec.describe Audiences::Scim do
       users = subject.query("Users", filter: "name eq John")
 
       expect(users.size).to eql(3)
-      expect(users.first).to be_a Audiences::SafeObject
+      expect(users.first).to be_a Audiences::Scim::SafeObject
       expect(users.first.id).to eql "13"
       expect(users.first.displayName).to eql "A Name"
       expect(users.first.photos).to eql "photo 1"
