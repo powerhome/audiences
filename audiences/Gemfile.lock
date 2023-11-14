@@ -274,6 +274,7 @@ DEPENDENCIES
   foreman (~> 0.87.2)
   license_finder (>= 7.0)
   puma (~> 6.3)
+  rails (~> 7.0)
   rake (>= 13.0)
   rspec (>= 3.0)
   rspec-rails (>= 6.0.3)
