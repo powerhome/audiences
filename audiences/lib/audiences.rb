@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "audiences/version"
+require "audiences/scim"
 
 # Audiences system
 # Audiences pushes notifications to your rails app when a
@@ -8,6 +9,8 @@ require "audiences/version"
 #
 module Audiences
   GID_RESOURCE = "audiences"
+
+  mattr_accessor :scim
 
 module_function
 
