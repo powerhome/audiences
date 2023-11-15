@@ -13,11 +13,15 @@ module Audiences
   private
 
     def render_context(context)
-      render json: context.as_json(only: %i[match_all criteria])
+      render json: context.as_json(only: %i[match_all extra_users criteria])
     end
 
     def context_params
-      params.permit(:match_all, criteria: {})
+      params.permit(
+        :match_all,
+        criteria: {},
+        extra_users: [:id, :displayName, { photos: %i[type value] }]
+      )
     end
   end
 end

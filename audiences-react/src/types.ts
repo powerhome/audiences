@@ -12,12 +12,12 @@ export interface GroupCriteria {
 }
 
 export interface AudienceCriteria {
-  users?: ScimObject[]
   groups?: GroupCriteria[]
 }
 
 export interface AudienceContext {
   match_all: boolean
+  extra_users: ScimObject[] | null
   criteria: AudienceCriteria
   total_members?: number
 }

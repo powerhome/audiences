@@ -25,9 +25,15 @@ RSpec.describe Audiences do
     end
 
     it "updates an direct resources collection" do
-      updated_context = Audiences.update(token, users_criteria: [123, 321])
+      updated_context = Audiences.update(token, extra_users: [123, 321])
 
-      expect(updated_context.criteria[:users]).to eql([123, 321])
+      expect(updated_context.extra_users).to eql([123, 321])
+    end
+
+    it "updates group criterion" do
+      updated_context = Audiences.update(token, extra_users: [123, 321])
+
+      expect(updated_context.extra_users).to eql([123, 321])
     end
   end
 end
