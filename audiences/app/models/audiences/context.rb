@@ -15,6 +15,10 @@ module Audiences
       where(owner: owner).first_or_create!
     end
 
+    def count
+      users.size
+    end
+
     def users
       [*extra_users, *criteria.flat_map(&:users)].uniq.compact
     end

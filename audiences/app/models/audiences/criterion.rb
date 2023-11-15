@@ -7,5 +7,9 @@ module Audiences
     def self.map(criteria)
       Array(criteria).map { new(_1) }
     end
+
+    def count
+      users&.size.to_i
+    end
   end
 end

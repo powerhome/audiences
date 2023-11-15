@@ -9,7 +9,12 @@ RSpec.describe "/audiences", type: :request do
     it "responds with the audience context json" do
       get audience_context_path(example_owner)
 
-      expect(response.parsed_body).to match({ "match_all" => false, "extra_users" => nil, "criteria" => [] })
+      expect(response.parsed_body).to match({
+                                              "match_all" => false,
+                                              "count" => 0,
+                                              "extra_users" => nil,
+                                              "criteria" => [],
+                                            })
     end
   end
 
@@ -44,6 +49,7 @@ RSpec.describe "/audiences", type: :request do
 
       expect(response.parsed_body).to match({
                                               "match_all" => false,
+                                              "count" => 1,
                                               "extra_users" => [{
                                                 "id" => 123,
                                                 "displayName" => "John Doe",
@@ -69,8 +75,10 @@ RSpec.describe "/audiences", type: :request do
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "extra_users" => nil,
+                                              "count" => 0,
                                               "criteria" => [
                                                 {
+                                                  "count" => 0,
                                                   "groups" => {
                                                     "Departments" => [{ "id" => 123, "displayName" => "Finance" }],
                                                     "Territories" => [{ "id" => 321,
@@ -78,6 +86,7 @@ RSpec.describe "/audiences", type: :request do
                                                   },
                                                 },
                                                 {
+                                                  "count" => 0,
                                                   "groups" => {
                                                     "Departments" => [{ "id" => 789, "displayName" => "Sales" }],
                                                     "Territories" => [{ "id" => 987, "displayName" => "Detroit" }],

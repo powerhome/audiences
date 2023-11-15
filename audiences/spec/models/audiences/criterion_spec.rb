@@ -21,4 +21,12 @@ RSpec.describe Audiences::Criterion do
       expect(criteria.last.groups).to match({ "Territories" => [{ "id" => 3 }] })
     end
   end
+
+  describe "#count" do
+    it "is the count of chached users matching" do
+      criteria = Audiences::Criterion.new(users: [{ id: 1 }, { id: 2 }])
+
+      expect(criteria.count).to eql 2
+    end
+  end
 end

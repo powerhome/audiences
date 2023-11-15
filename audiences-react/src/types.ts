@@ -20,5 +20,5 @@ export interface AudienceContext {
   match_all: boolean
   extra_users: ScimObject[] | null
   criteria: GroupCriterion[]
-  total_members?: number
+  count: number
 }

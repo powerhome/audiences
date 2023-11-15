@@ -13,7 +13,11 @@ module Audiences
   private
 
     def render_context(context)
-      render json: context.as_json(only: %i[match_all extra_users], include: { criteria: { only: %i[groups] } })
+      render json: context.as_json(
+        only: %i[match_all extra_users],
+        methods: %i[count],
+        include: { criteria: { only: %i[groups], methods: %i[count] } }
+      )
     end
 
     def context_params
