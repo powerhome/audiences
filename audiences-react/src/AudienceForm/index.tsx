@@ -48,7 +48,7 @@ export const AudienceForm = ({
           <Card.Body>
             <CriteriaListFields
               groupResources={groupResources}
-              name="criteria.groups"
+              name="criteria"
             />
 
             {allowIndividuals && userResource && (

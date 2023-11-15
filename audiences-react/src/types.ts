@@ -7,17 +7,18 @@ export interface ScimObject {
   }[]
 }
 
-export interface GroupCriteria {
+export interface Groups {
   [resourceType: string]: ScimObject[]
 }
 
-export interface AudienceCriteria {
-  groups?: GroupCriteria[]
+export interface GroupCriterion {
+  groups?: Groups
+  count?: number
 }
 
 export interface AudienceContext {
   match_all: boolean
   extra_users: ScimObject[] | null
-  criteria: AudienceCriteria
+  criteria: GroupCriterion[]
   total_members?: number
 }

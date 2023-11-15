@@ -1,13 +1,13 @@
 import { Card, Body, Flex, FlexItem, Caption } from "playbook-ui"
 
-import type { GroupCriteria } from "../types"
+import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
 
 type CriteriaFieldsProps = React.PropsWithChildren & {
-  criteria?: GroupCriteria
+  criterion?: GroupCriterion
 }
-export function CriteriaCard({ criteria, children }: CriteriaFieldsProps) {
-  if (!criteria) {
+export function CriteriaCard({ criterion, children }: CriteriaFieldsProps) {
+  if (!criterion) {
     return null
   }
 
@@ -16,9 +16,14 @@ export function CriteriaCard({ criteria, children }: CriteriaFieldsProps) {
       <Flex justify="between">
         <FlexItem>
           <Body className="mr-3">
-            <CriteriaDescription criteria={criteria} />
+            <CriteriaDescription groups={criterion.groups} />
           </Body>
-          <Caption marginLeft="xs" size="xs" tag="span" text={criteria.count} />
+          <Caption
+            marginLeft="xs"
+            size="xs"
+            tag="span"
+            text={criterion.count}
+          />
         </FlexItem>
 
         <FlexItem>{children}</FlexItem>

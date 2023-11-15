@@ -10,16 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[6.0].define(version: 2023_11_14_210454) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_14_215843) do
   create_table "audiences_contexts", force: :cascade do |t|
     t.string "owner_type", null: false
     t.integer "owner_id", null: false
     t.boolean "match_all", default: false, null: false
-    t.json "criteria"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.json "extra_users"
     t.index ["owner_type", "owner_id"], name: "index_audiences_contexts_on_owner_type_and_owner_id", unique: true
+  end
+
+  create_table "audiences_criterions", force: :cascade do |t|
+    t.json "groups"
+    t.integer "context_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["context_id"], name: "index_audiences_criterions_on_context_id"
   end
 
   create_table "example_owners", force: :cascade do |t|
@@ -28,4 +35,5 @@ ActiveRecord::Schema[6.0].define(version: 2023_11_14_210454) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "audiences_criterions", "audiences_contexts", column: "context_id"
 end

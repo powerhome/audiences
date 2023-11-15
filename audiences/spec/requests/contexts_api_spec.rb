@@ -9,7 +9,7 @@ RSpec.describe "/audiences", type: :request do
     it "responds with the audience context json" do
       get audience_context_path(example_owner)
 
-      expect(response.parsed_body).to match({ "match_all" => false, "extra_users" => nil, "criteria" => {} })
+      expect(response.parsed_body).to match({ "match_all" => false, "extra_users" => nil, "criteria" => [] })
     end
   end
 
@@ -49,7 +49,7 @@ RSpec.describe "/audiences", type: :request do
                                                 "displayName" => "John Doe",
                                                 "photos" => [{ "value" => "http://example.com" }],
                                               }],
-                                              "criteria" => {},
+                                              "criteria" => [],
                                             })
     end
 
@@ -58,28 +58,32 @@ RSpec.describe "/audiences", type: :request do
           as: :json,
           params: {
             match_all: false,
-            criteria: {
-              groups: [
-                { Departments: [{ id: 123, displayName: "Finance" }],
-                  Territories: [{ id: 321, displayName: "Philadelphia" }] },
-                { Departments: [{ id: 789, displayName: "Sales" }],
-                  Territories: [{ id: 987, displayName: "Detroit" }] },
-              ],
-            },
+            criteria: [
+              { groups: { Departments: [{ id: 123, displayName: "Finance" }],
+                          Territories: [{ id: 321, displayName: "Philadelphia" }] } },
+              { groups: { Departments: [{ id: 789, displayName: "Sales" }],
+                          Territories: [{ id: 987, displayName: "Detroit" }] } },
+            ],
           }
 
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "extra_users" => nil,
-                                              "criteria" => {
-                                                "groups" => [
-                                                  { "Departments" => [{ "id" => 123, "displayName" => "Finance" }],
+                                              "criteria" => [
+                                                {
+                                                  "groups" => {
+                                                    "Departments" => [{ "id" => 123, "displayName" => "Finance" }],
                                                     "Territories" => [{ "id" => 321,
-                                                                        "displayName" => "Philadelphia" }] },
-                                                  { "Departments" => [{ "id" => 789, "displayName" => "Sales" }],
-                                                    "Territories" => [{ "id" => 987, "displayName" => "Detroit" }] },
-                                                ],
-                                              },
+                                                                        "displayName" => "Philadelphia" }],
+                                                  },
+                                                },
+                                                {
+                                                  "groups" => {
+                                                    "Departments" => [{ "id" => 789, "displayName" => "Sales" }],
+                                                    "Territories" => [{ "id" => 987, "displayName" => "Detroit" }],
+                                                  },
+                                                },
+                                              ],
                                             })
     end
   end

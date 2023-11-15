@@ -5,7 +5,7 @@ module Audiences
   class Context < ApplicationRecord
     belongs_to :owner, polymorphic: true
 
-    store :criteria, accessors: %i[users groups], suffix: true
+    has_many :criteria, class_name: "Audiences::Criterion", dependent: :destroy
 
     # Finds or creates a context for the given owner
     #

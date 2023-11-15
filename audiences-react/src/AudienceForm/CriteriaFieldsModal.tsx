@@ -30,7 +30,7 @@ export function CriteriaFieldsModal({
   return (
     <Dialog onClose={handleCancel} opened>
       <Dialog.Header>
-        <CriteriaDescription criteria={value} />
+        <CriteriaDescription groups={value.groups} />
       </Dialog.Header>
       <Dialog.Body>
         {map(groupResources, (resourceId) => (
@@ -38,7 +38,7 @@ export function CriteriaFieldsModal({
             resourceId={resourceId}
             key={`${current}.${resourceId}`}
             label={resourceId}
-            name={`${current}.${resourceId}`}
+            name={`${current}.groups.${resourceId}`}
           />
         ))}
       </Dialog.Body>

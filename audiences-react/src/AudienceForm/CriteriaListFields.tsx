@@ -8,9 +8,9 @@ import omitBy from "lodash/omitBy"
 import { CriteriaActions } from "./CriteriaActions"
 import { CriteriaCard } from "./CriteriaCard"
 import { CriteriaFieldsModal } from "./CriteriaFieldsModal"
-import { GroupCriteria } from "../types"
+import { GroupCriterion } from "../types"
 
-type GroupCriteriaField = GroupCriteria & {
+type GroupCriterionField = GroupCriterion & {
   id: string
 }
 type CriteriaListFieldsProps = {
@@ -22,17 +22,17 @@ export function CriteriaListFields({
   groupResources,
 }: CriteriaListFieldsProps) {
   const form = useFormContext()
+  const [currentEditing, editCriteria] = useState<number | undefined>()
   const { fields, remove, append } = useFieldArray({
     name,
     rules: {
       validate: (criteria) => {
-        return every(criteria, (c: GroupCriteria) => {
-          return !isEmpty(omitBy(c, isEmpty))
+        return every(criteria, (c: GroupCriterion) => {
+          return !isEmpty(omitBy(c.groups, isEmpty))
         })
       },
     },
   })
-  const [currentEditing, editCriteria] = useState<number | undefined>()
 
   const closeEditor = () => editCriteria(undefined)
   const watchFieldArray = form.watch(name) || []
@@ -54,18 +54,21 @@ export function CriteriaListFields({
   }
   const validateAndClose = async () => {
     const valid = await form.trigger(name)
+    closeEditor()
     if (!valid) {
       remove(currentEditing)
     }
-    closeEditor()
   }
 
   return (
     <Flex orientation="column" justify="center" align="stretch">
       <FlexItem>
-        {(controlledFields as GroupCriteriaField[]).map(
-          (criteria, index: number) => (
-            <CriteriaCard criteria={criteria} key={criteria.id}>
+        {(controlledFields as GroupCriterionField[]).map(
+          (criterion, index: number) => (
+            <CriteriaCard
+              criterion={criterion}
+              key={`criterion-${criterion.id}`}
+            >
               <CriteriaActions
                 onRequestRemove={() => handleRemoveCriteria(index)}
                 onRequestEdit={() => editCriteria(index)}
