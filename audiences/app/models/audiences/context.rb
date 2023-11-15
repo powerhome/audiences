@@ -14,5 +14,9 @@ module Audiences
     def self.for(owner)
       where(owner: owner).first_or_create!
     end
+
+    def users
+      [*extra_users, *criteria.flat_map(&:users)].uniq.compact
+    end
   end
 end
