@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_11_14_215843) do
+ActiveRecord::Schema[6.0].define(version: 2023_11_15_204932) do
   create_table "audiences_contexts", force: :cascade do |t|
     t.string "owner_type", null: false
     t.integer "owner_id", null: false
@@ -26,6 +26,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_14_215843) do
     t.integer "context_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "users"
+    t.datetime "refreshed_at", precision: nil
     t.index ["context_id"], name: "index_audiences_criterions_on_context_id"
   end
 
