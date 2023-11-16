@@ -39,18 +39,6 @@ services:
       - "3036:3036"
     volumes:
       - .:/app
-  package-vite:
-    image: node:18
-    platform: linux/x86_64
-    working_dir: /app/audiences-react
-    command:
-      - /bin/sh
-      - -c
-      - |
-        yarn install
-        yarn build -w
-    volumes:
-      - .:/app
   scim-stub:
     image: powerhome/scim-stub
     platform: linux/x86_64

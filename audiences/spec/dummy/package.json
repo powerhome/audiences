@@ -8,6 +8,7 @@
     "vite-plugin-ruby": "^3.2.2"
   },
   "dependencies": {
+    "@types/node": "^20.9.0",
     "audiences": "link:../../../audiences-react",
     "playbook-ui": "12.38.0-alpha.audiencesalpha1083",
     "react": "^17.0.2",
