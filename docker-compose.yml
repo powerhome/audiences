@@ -48,7 +48,7 @@ services:
       - -c
       - |
         yarn install
-        yarn build -w
+        yarn vite dev
     volumes:
       - .:/app
   scim-stub:
