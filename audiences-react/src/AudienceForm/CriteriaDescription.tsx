@@ -3,7 +3,7 @@ import join from "lodash/join"
 import map from "lodash/map"
 import isEmpty from "lodash/isEmpty"
 
-import { GroupCriteria, ScimObject } from "../types"
+import { Groups, ScimObject } from "../types"
 
 function toSentence(resources: ScimObject[]) {
   const names = map(resources, "displayName")
@@ -26,19 +26,19 @@ const Prepositions = {
 }
 
 type CriteriaDescriptionProps = {
-  criteria?: GroupCriteria
+  groups?: Groups
 }
-export function CriteriaDescription({ criteria }: CriteriaDescriptionProps) {
-  if (!criteria) return null
+export function CriteriaDescription({ groups }: CriteriaDescriptionProps) {
+  if (!groups || groups.groups) return null
 
   return (
     <div>
       {"All "}
       {map(Prepositions, (prep, key) =>
-        isEmpty(criteria[key]) ? null : (
-          <React.Fragment key={`criteria-${criteria.id}-${key}`}>
+        isEmpty(groups[key]) ? null : (
+          <React.Fragment key={`groups-${key}`}>
             {` ${prep} `}
-            <strong>{toSentence(criteria[key])}</strong>
+            <strong>{toSentence(groups[key])}</strong>
           </React.Fragment>
         ),
       )}

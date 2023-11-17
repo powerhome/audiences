@@ -43,8 +43,9 @@ module_function
   # @param params [Hash] the updated params
   # @return Audience::Context
   #
-  def update(key, attrs)
+  def update(key, criteria: [], **attrs)
     locate_context(key) do |context|
+      context.criteria.replace ::Audiences::Criterion.map(criteria)
       context.update!(attrs)
       context.readonly!
     end

@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from "react-hook-form"
-import { UserInfo, Button, Card, Toggle, Caption, Flex } from "playbook-ui"
+import { Button, Card, Toggle, Caption, Flex } from "playbook-ui"
 
 import { Header } from "./Header"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
@@ -48,13 +48,13 @@ export const AudienceForm = ({
           <Card.Body>
             <CriteriaListFields
               groupResources={groupResources}
-              name="criteria.groups"
+              name="criteria"
             />
 
             {allowIndividuals && userResource && (
               <ScimResourceTypeahead
                 label="Other Members"
-                name="criteria.users"
+                name="extra_users"
                 resourceId={userResource}
               />
             )}
