@@ -35,5 +35,4 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_14_215843) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "audiences_criterions", "audiences_contexts", column: "context_id"
 end
