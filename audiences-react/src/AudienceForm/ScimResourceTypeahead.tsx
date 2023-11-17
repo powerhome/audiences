@@ -1,9 +1,9 @@
 import debounce from "lodash/debounce"
 import { useController } from "react-hook-form"
-import { Typeahead } from "playbook-ui"
-import { ScimResourceType } from "../useScimResources"
-import { ScimObject } from "../types"
 import get from "lodash/get"
+import { Typeahead } from "playbook-ui"
+import { useScim } from "../scim"
+import { ScimObject } from "../types"
 
 type PlaybookOption = ScimObject & {
   value: any
@@ -25,21 +25,22 @@ function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
 type ScimResourceTypeaheadProps = {
   label: string
   name: string
-  resource: ScimResourceType
+  resourceId: string
 }
 export function ScimResourceTypeahead({
   name,
-  resource,
+  resourceId,
   ...typeaheadProps
 }: ScimResourceTypeaheadProps) {
   const { field } = useController({ name })
+  const { filter } = useScim()
 
   const searchResourceOptions = async (
     search: string,
     callback: (options: PlaybookOption[]) => void,
   ) => {
     if (search.length > 2) {
-      const options = await resource.filter<ScimObject>(search)
+      const options = await filter<ScimObject>(resourceId, search)
       callback(playbookOptions(options))
     } else {
       callback([])

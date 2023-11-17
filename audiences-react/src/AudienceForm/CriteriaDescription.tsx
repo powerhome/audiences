@@ -20,9 +20,9 @@ function toSentence(resources: ScimObject[]) {
 }
 
 const Prepositions = {
-  Title: "",
-  Department: "in",
-  Territory: "from",
+  Titles: "",
+  Departments: "in",
+  Territories: "from",
 }
 
 type CriteriaDescriptionProps = {

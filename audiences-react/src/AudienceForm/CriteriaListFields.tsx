@@ -8,7 +8,6 @@ import omitBy from "lodash/omitBy"
 import { CriteriaActions } from "./CriteriaActions"
 import { CriteriaCard } from "./CriteriaCard"
 import { CriteriaFieldsModal } from "./CriteriaFieldsModal"
-import { ScimResourceType } from "../useScimResources"
 import { GroupCriteria } from "../types"
 
 type GroupCriteriaField = GroupCriteria & {
@@ -16,11 +15,11 @@ type GroupCriteriaField = GroupCriteria & {
 }
 type CriteriaListFieldsProps = {
   name: string
-  resources: ScimResourceType[]
+  groupResources: string[]
 }
 export function CriteriaListFields({
   name,
-  resources,
+  groupResources,
 }: CriteriaListFieldsProps) {
   const form = useFormContext()
   const { fields, remove, append } = useFieldArray({
@@ -88,7 +87,7 @@ export function CriteriaListFields({
 
       {currentEditing !== undefined && (
         <CriteriaFieldsModal
-          resourceTypes={resources}
+          groupResources={groupResources}
           current={`${name}.${currentEditing}`}
           onCancel={validateAndClose}
           onSave={validateAndClose}

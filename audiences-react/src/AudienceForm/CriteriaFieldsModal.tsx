@@ -6,17 +6,16 @@ import { useFormContext } from "react-hook-form"
 
 import { CriteriaDescription } from "./CriteriaDescription"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
-import { ScimResourceType } from "../useScimResources"
 
 export type CriteriaFieldsModalProps = {
-  resourceTypes: ScimResourceType[]
+  groupResources: string[]
   current: string
   onSave: () => void
   onCancel: (clear: boolean) => void
 }
 export function CriteriaFieldsModal({
   current,
-  resourceTypes,
+  groupResources,
   onSave,
   onCancel,
 }: CriteriaFieldsModalProps) {
@@ -34,12 +33,12 @@ export function CriteriaFieldsModal({
         <CriteriaDescription criteria={value} />
       </Dialog.Header>
       <Dialog.Body>
-        {map(resourceTypes, (resource) => (
+        {map(groupResources, (resourceId) => (
           <ScimResourceTypeahead
-            resource={resource}
-            key={`${current}.${resource.id}`}
-            label={resource.name}
-            name={`${current}.${resource.id}` as const}
+            resourceId={resourceId}
+            key={`${current}.${resourceId}`}
+            label={resourceId}
+            name={`${current}.${resourceId}`}
           />
         ))}
       </Dialog.Body>
