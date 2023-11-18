@@ -4,8 +4,7 @@ require "rails_helper"
 
 RSpec.describe Audiences::Scim::Client do
   subject { Audiences::Scim::Client.new(uri: "http://example.com/scim/") }
-
-  context "#query" do
+  context "#perform_request" do
     let(:resources) do
       [
         { id: "13", displayName: "A Name", photos: "photo 1", anotherAttribute: "value" },
@@ -14,21 +13,17 @@ RSpec.describe Audiences::Scim::Client do
       ]
     end
     let(:response_body) do
-      { Resources: resources }.to_json
+      { Resources: resources }
     end
 
     it "queries the scim backend for the given resource" do
       stub_request(:get, "http://example.com/scim/Users")
         .with(query: { filter: "name eq John" })
-        .to_return(body: response_body, status: 201)
+        .to_return(body: response_body.to_json, status: 201)
 
-      users = subject.query("Users", filter: "name eq John")
+      response = subject.perform_request(path: :Users, method: :Get, query: { filter: "name eq John" })
 
-      expect(users.size).to eql(3)
-      expect(users.first).to be_a Audiences::Scim::SafeObject
-      expect(users.first.id).to eql "13"
-      expect(users.first.displayName).to eql "A Name"
-      expect(users.first.photos).to eql "photo 1"
+      expect(response).to match(response_body.as_json)
     end
   end
 end

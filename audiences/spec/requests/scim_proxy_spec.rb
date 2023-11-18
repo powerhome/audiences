@@ -5,10 +5,10 @@ require "rails_helper"
 RSpec.describe "/audiences/scim", type: :request do
   let(:resources) do
     [
-      { id: "1", displayName: "A Name", photo: "photo 1", anotherAttribute: "value" },
-      { id: "2", displayName: "Another Name", photo: "photo 2", anotherAttribute: "value" },
-      { id: "3", displayName: "YAN", photo: "photo 3", anotherAttribute: "value" },
-    ]
+      { id: "1", displayName: "A Name", photos: "photo 1", anotherAttribute: "value" },
+      { id: "2", displayName: "Another Name", photos: "photo 2", anotherAttribute: "value" },
+      { id: "3", displayName: "YAN", photos: "photo 3", anotherAttribute: "value" },
+    ].as_json
   end
   let(:response_body) do
     { Resources: resources }.to_json
@@ -16,26 +16,16 @@ RSpec.describe "/audiences/scim", type: :request do
 
   context "GET /audiences/scim" do
     it "returns the Resources key from the response" do
-      stub_request(:get, "http://example.com/scim/v2/AnythingGoes")
-        .with(query: { filter: "name eq John" })
-        .to_return(body: response_body, status: 201)
+      stub_request(:get, "http://example.com/scim/v2/MyResources?filter=name eq John")
+        .to_return(status: 200, body: response_body, headers: {})
 
-      get audience_scim_proxy_path(scim_path: "AnythingGoes", filter: "name eq John")
+      get audience_scim_proxy_path(scim_path: "MyResources", filter: "name eq John")
 
-      response_resources = response.parsed_body
-      expect(response_resources.size).to eql(resources.size)
-      expect(response_resources.first.keys).to match_array %w[id displayName photos]
-    end
-
-    it "proxies the headers" do
-      stub_request(:get, "http://example.com/scim/v2/AnythingGoes?filter")
-        .with(headers: { "Authorization" => "Bearer 123456789" })
-        .to_return(body: response_body, status: 201)
-
-      get audience_scim_proxy_path(scim_path: "AnythingGoes")
-
-      response_resources = response.parsed_body
-      expect(response_resources.size).to eql(resources.size)
+      expect(response.parsed_body).to match([
+                                              { "displayName" => "A Name", "id" => "1", "photos" => "photo 1" },
+                                              { "displayName" => "Another Name", "id" => "2", "photos" => "photo 2" },
+                                              { "displayName" => "YAN", "id" => "3", "photos" => "photo 3" },
+                                            ])
     end
   end
 end

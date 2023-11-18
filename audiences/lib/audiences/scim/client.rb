@@ -12,18 +12,6 @@ module Audiences
         @headers = headers
       end
 
-      def users_in_groups(group_ids)
-        Audiences::UsersQuery.new(self, group_ids: group_ids).to_a
-      end
-
-      def query(resource_type, filter:, wrapper: SafeObject)
-        response = perform_request(path: resource_type, method: :Get, query: { filter: filter })
-
-        response.fetch("Resources", response).map { wrapper.new(_1) }
-      end
-
-    private
-
       def perform_request(method:, path:, query: {})
         uri = URI.join(@uri, path.to_s)
         uri.query = URI.encode_www_form(query)

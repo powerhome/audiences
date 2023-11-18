@@ -59,41 +59,58 @@ RSpec.describe "/audiences", type: :request do
                                             })
     end
 
-    it "allows updating the group criteria" do
-      put audience_context_path(example_owner),
-          as: :json,
-          params: {
-            match_all: false,
-            criteria: [
-              { groups: { Departments: [{ id: 123, displayName: "Finance" }],
-                          Territories: [{ id: 321, displayName: "Philadelphia" }] } },
-              { groups: { Departments: [{ id: 789, displayName: "Sales" }],
-                          Territories: [{ id: 987, displayName: "Detroit" }] } },
-            ],
-          }
+    context "updating a group criteria" do
+      let(:users_response) do
+        {
+          Resources: [{ id: 1 }, { id: 2 }],
+        }
+      end
 
-      expect(response.parsed_body).to match({
-                                              "match_all" => false,
-                                              "extra_users" => nil,
-                                              "count" => 0,
-                                              "criteria" => [
-                                                {
-                                                  "count" => 0,
-                                                  "groups" => {
-                                                    "Departments" => [{ "id" => 123, "displayName" => "Finance" }],
-                                                    "Territories" => [{ "id" => 321,
-                                                                        "displayName" => "Philadelphia" }],
+      it "allows updating the group criteria" do
+        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 123")
+          .to_return(status: 200, body: users_response.to_json, headers: {})
+        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 321")
+          .to_return(status: 200, body: users_response.to_json, headers: {})
+        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 789")
+          .to_return(status: 200, body: users_response.to_json, headers: {})
+        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 987")
+          .to_return(status: 200, body: users_response.to_json, headers: {})
+
+        put audience_context_path(example_owner),
+            as: :json,
+            params: {
+              match_all: false,
+              criteria: [
+                { groups: { Departments: [{ id: 123, displayName: "Finance" }],
+                            Territories: [{ id: 321, displayName: "Philadelphia" }] } },
+                { groups: { Departments: [{ id: 789, displayName: "Sales" }],
+                            Territories: [{ id: 987, displayName: "Detroit" }] } },
+              ],
+            }
+
+        expect(response.parsed_body).to match({
+                                                "match_all" => false,
+                                                "extra_users" => nil,
+                                                "count" => 2,
+                                                "criteria" => [
+                                                  {
+                                                    "count" => 2,
+                                                    "groups" => {
+                                                      "Departments" => [{ "id" => 123, "displayName" => "Finance" }],
+                                                      "Territories" => [{ "id" => 321,
+                                                                          "displayName" => "Philadelphia" }],
+                                                    },
                                                   },
-                                                },
-                                                {
-                                                  "count" => 0,
-                                                  "groups" => {
-                                                    "Departments" => [{ "id" => 789, "displayName" => "Sales" }],
-                                                    "Territories" => [{ "id" => 987, "displayName" => "Detroit" }],
+                                                  {
+                                                    "count" => 2,
+                                                    "groups" => {
+                                                      "Departments" => [{ "id" => 789, "displayName" => "Sales" }],
+                                                      "Territories" => [{ "id" => 987, "displayName" => "Detroit" }],
+                                                    },
                                                   },
-                                                },
-                                              ],
-                                            })
+                                                ],
+                                              })
+      end
     end
   end
 end
