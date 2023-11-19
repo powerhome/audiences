@@ -25,12 +25,24 @@ RSpec.describe Audiences do
     end
 
     it "updates an direct resources collection" do
-      updated_context = Audiences.update(token, extra_users: [{ id: 123 }, { id: 321 }])
+      updated_context = Audiences.update(token, extra_users: [{ id: 678 }])
+      expect(updated_context.extra_users).to eql([{ "id" => 678 }])
 
+      updated_context = Audiences.update(token, extra_users: [{ id: 123 }, { id: 321 }])
       expect(updated_context.extra_users).to eql([{ "id" => 123 }, { "id" => 321 }])
     end
 
     it "updates group criterion" do
+      updated_context = Audiences.update(
+        token,
+        criteria: [
+          { groups: { Departments: [{ id: 3 }, { id: 4 }] } },
+        ]
+      )
+
+      expect(updated_context.criteria.size).to eql(1)
+      expect(updated_context.criteria.first.groups).to match({ "Departments" => [{ "id" => 3 }, { "id" => 4 }] })
+
       updated_context = Audiences.update(
         token,
         criteria: [

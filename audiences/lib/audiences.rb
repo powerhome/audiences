@@ -43,8 +43,10 @@ module_function
   #
   def update(key, criteria: [], **attrs)
     locate_context(key) do |context|
-      context.criteria.replace ::Audiences::Criterion.map(criteria)
-      context.update!(attrs)
+      context.update!(
+        criteria: ::Audiences::Criterion.map(criteria),
+        **attrs
+      )
       context.readonly!
     end
   end
