@@ -24,9 +24,7 @@ export const AudienceForm = ({
   onSave,
   saving,
 }: AudienceFormProps) => {
-  const form = useForm<AudienceContext>({
-    defaultValues: context,
-  })
+  const form = useForm<AudienceContext>({ values: context })
 
   const all = form.watch("match_all")
 

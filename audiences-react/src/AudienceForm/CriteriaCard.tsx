@@ -22,7 +22,7 @@ export function CriteriaCard({ criterion, children }: CriteriaFieldsProps) {
             marginLeft="xs"
             size="xs"
             tag="span"
-            text={criterion.count}
+            text={criterion.count?.toString()}
           />
         </FlexItem>
 
