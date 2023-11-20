@@ -13,7 +13,7 @@ module Audiences
       @groups.values.map do |groups|
         filter = group_filter(groups.pluck("id"))
         Audiences::Scim.resources(type: :Users, filter: filter)
-                       .to_a
+                       .all.to_a
       end
       .reduce(&:&)
       &.each(...)
