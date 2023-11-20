@@ -10,7 +10,7 @@ module Audiences
 
   module_function
 
-    def resources(type:, **options)
+    def resources(type:, client: Scim.client, **options)
       ResourcesQuery.new(client, resource_type: type, **options)
     end
   end
