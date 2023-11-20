@@ -33,6 +33,19 @@ RSpec.describe Audiences do
     end
 
     it "updates group criterion" do
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: { filter: "groups.value eq 1 OR groups.value eq 2" })
+        .to_return(status: 200, body: { "Resources" => [] }.to_json)
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: { filter: "groups.value eq 3 OR groups.value eq 4" })
+        .to_return(status: 200, body: { "Resources" => [] }.to_json)
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: { filter: "groups.value eq 5 OR groups.value eq 6" })
+        .to_return(status: 200, body: { "Resources" => [] }.to_json)
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: { filter: "groups.value eq 7 OR groups.value eq 8" })
+        .to_return(status: 200, body: { "Resources" => [] }.to_json)
+
       updated_context = Audiences.update(
         token,
         criteria: [
