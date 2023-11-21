@@ -2,11 +2,13 @@ import { Button, Icon, PbReactPopover, List, ListItem } from "playbook-ui"
 import { useState } from "react"
 
 type CriteriaActionsProps = {
+  viewMembers: boolean
   onRequestRemove: () => void
   onRequestEdit: () => void
   onRequestViewMembers: () => void
 }
 export function CriteriaActions({
+  viewMembers,
   onRequestRemove,
   onRequestEdit,
   onRequestViewMembers,
@@ -48,15 +50,17 @@ export function CriteriaActions({
             text="Edit"
           />
         </ListItem>
-        <ListItem padding="none">
-          <Button
-            variant="link"
-            size="xs"
-            padding="xs"
-            onClick={handleAndClose(onRequestViewMembers)}
-            text="Members"
-          />
-        </ListItem>
+        {viewMembers && (
+          <ListItem padding="none">
+            <Button
+              variant="link"
+              size="xs"
+              padding="xs"
+              onClick={handleAndClose(onRequestViewMembers)}
+              text="Members"
+            />
+          </ListItem>
+        )}
         <ListItem padding="none">
           <Button
             variant="link"

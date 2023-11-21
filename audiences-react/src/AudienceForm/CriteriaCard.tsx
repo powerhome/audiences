@@ -2,11 +2,20 @@ import { Card, Body, Flex, FlexItem, Caption } from "playbook-ui"
 
 import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
+import { CriteriaActions } from "./CriteriaActions"
 
-type CriteriaFieldsProps = React.PropsWithChildren & {
+type CriteriaFieldsProps = {
   criterion?: GroupCriterion
+  onRequestRemove: () => void
+  onRequestEdit: () => void
+  onRequestViewMembers: () => void
 }
-export function CriteriaCard({ criterion, children }: CriteriaFieldsProps) {
+export function CriteriaCard({
+  criterion,
+  onRequestRemove,
+  onRequestEdit,
+  onRequestViewMembers,
+}: CriteriaFieldsProps) {
   if (!criterion) {
     return null
   }
@@ -26,7 +35,14 @@ export function CriteriaCard({ criterion, children }: CriteriaFieldsProps) {
           />
         </FlexItem>
 
-        <FlexItem>{children}</FlexItem>
+        <FlexItem>
+          <CriteriaActions
+            viewMembers={!!criterion.count}
+            onRequestRemove={onRequestRemove}
+            onRequestEdit={onRequestEdit}
+            onRequestViewMembers={onRequestViewMembers}
+          />
+        </FlexItem>
       </Flex>
     </Card>
   )

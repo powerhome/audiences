@@ -68,13 +68,10 @@ export function CriteriaListFields({
             <CriteriaCard
               criterion={criterion}
               key={`criterion-${criterion.id}`}
-            >
-              <CriteriaActions
-                onRequestRemove={() => handleRemoveCriteria(index)}
-                onRequestEdit={() => editCriteria(index)}
-                onRequestViewMembers={() => {}}
-              />
-            </CriteriaCard>
+              onRequestRemove={() => handleRemoveCriteria(index)}
+              onRequestEdit={() => editCriteria(index)}
+              onRequestViewMembers={() => {}}
+            />
           ),
         )}
       </FlexItem>
