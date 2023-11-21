@@ -1,56 +1,35 @@
 import { Caption, Button } from "playbook-ui"
-
-const style = {
-  memberCounter: {},
-  viewAllLink: {
-    fontWeight: 400,
-    fontSize: "12px",
-  },
-}
+import { useFormContext } from "react-hook-form"
 
 type MembersProps = {
-  count?: number
-  showAll?: boolean
+  count: number
   onShowAllMembers: () => void
 }
 
-export function Members({
-  showAll = false,
-  count,
-  onShowAllMembers,
-}: MembersProps) {
+export function Members({ count, onShowAllMembers }: MembersProps) {
+  const { formState } = useFormContext()
+
   return (
     <>
-      <Caption tag="span" text="Audience" />
-
-      {count == 0 ? (
+      <Caption tag="span" text="Audience Total" />
+      {formState.isDirty ? (
         <Caption
-          style={style.memberCounter}
-          marginLeft="xs"
           size="xs"
-          tag="span"
-          text="0"
+          text="Audience total will update when the page is saved"
         />
       ) : (
-        <>
-          <Caption
-            style={style.memberCounter}
-            marginLeft="xs"
-            tag="span"
-            text={count}
+        <Caption marginLeft="xs" size="xs" tag="span" text={count} />
+      )}
+
+      {count > 0 && (
+        <div>
+          <Button
+            onClick={onShowAllMembers}
+            padding="none"
+            text="View All Members"
+            variant="link"
           />
-          {showAll && (
-            <div>
-              <Button
-                style={style.viewAllLink}
-                onClick={onShowAllMembers}
-                padding="none"
-                text="View All Members"
-                variant="link"
-              />
-            </div>
-          )}
-        </>
+        </div>
       )}
     </>
   )
