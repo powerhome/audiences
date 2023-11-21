@@ -1,20 +1,27 @@
-import { Flex, FlexItem, Caption } from "playbook-ui"
+import { Flex, FlexItem, Caption, Toggle } from "playbook-ui"
 
 import { Members } from "./Members"
-import type { AudienceContext } from "../types"
+import { useFormContext } from "react-hook-form"
 
-type HeaderProps = React.PropsWithChildren & {
-  context: AudienceContext
+type HeaderProps = {
+  count: number
 }
-export function Header({ context, children }: HeaderProps) {
+export function Header({ count }: HeaderProps) {
+  const { register } = useFormContext()
+
   return (
     <Flex orientation="row" spacing="between" wrap>
       <FlexItem>
-        <Members count={context.count} onShowAllMembers={() => undefined} />
+        <Members count={count} onShowAllMembers={() => undefined} />
       </FlexItem>
       <FlexItem>
         <Flex justify="right" orientation="row">
-          {children}
+          <Flex align="center">
+            <Toggle>
+              <input {...register("match_all")} type="checkbox" />
+            </Toggle>
+            <Caption marginLeft="xs" size="xs" text="All Employees" />
+          </Flex>
         </Flex>
       </FlexItem>
     </Flex>
