@@ -4,10 +4,11 @@ require "rails_helper"
 
 RSpec.describe "/audiences", type: :request do
   let(:example_owner) { ExampleOwner.create!(name: "Example Owner") }
+  let(:context_key) { Audiences.sign(example_owner) }
 
-  context "GET /audiences/:context_key" do
+  describe "GET /audiences/:context_key" do
     it "responds with the audience context json" do
-      get audience_context_path(example_owner)
+      get audiences.signed_context_path(context_key)
 
       expect(response.parsed_body).to match({
                                               "match_all" => false,
@@ -18,9 +19,9 @@ RSpec.describe "/audiences", type: :request do
     end
   end
 
-  context "PUT /audiences/:context_key" do
+  describe "PUT /audiences/:context_key" do
     it "updates the audience context" do
-      put audience_context_path(example_owner), as: :json, params: { match_all: true }
+      put audiences.signed_context_path(context_key), as: :json, params: { match_all: true }
 
       context = Audiences::Context.for(example_owner)
 
@@ -28,7 +29,7 @@ RSpec.describe "/audiences", type: :request do
     end
 
     it "updates the context extra users" do
-      put audience_context_path(example_owner),
+      put audiences.signed_context_path(context_key),
           as: :json,
           params: { extra_users: [{ id: 123, displayName: "John Doe",
                                     photos: [{ value: "http://example.com" }] }] }
@@ -42,7 +43,7 @@ RSpec.describe "/audiences", type: :request do
     end
 
     it "responds with the audience context json" do
-      put audience_context_path(example_owner),
+      put audiences.signed_context_path(context_key),
           as: :json,
           params: { extra_users: [{ id: 123, displayName: "John Doe",
                                     photos: [{ value: "http://example.com" }] }] }
@@ -111,6 +112,22 @@ RSpec.describe "/audiences", type: :request do
                                                 ],
                                               })
       end
+    end
+  end
+
+  describe "GET /audiences/:context_key/users" do
+    it "is the list of users from an audience context" do
+      Audiences::Context.for(example_owner).update!(
+        extra_users: [{ "id" => 123 }, { "id" => 456 }, { "id" => 789 }]
+      )
+
+      get audiences.users_path(context_key)
+
+      expect(response.parsed_body).to match_array([
+                                                    { "id" => 123 },
+                                                    { "id" => 456 },
+                                                    { "id" => 789 },
+                                                  ])
     end
   end
 end

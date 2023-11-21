@@ -10,6 +10,12 @@ module Audiences
       render_context Audiences.update(params.require(:key), **context_params)
     end
 
+    def users
+      context = Audiences.load(params.require(:key))
+
+      render json: context.users
+    end
+
   private
 
     def render_context(context)
