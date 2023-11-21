@@ -17,7 +17,7 @@ export function AudienceEditor({
   scimUri,
   allowIndividuals = true,
 }: AudienceEditorProps) {
-  const [context, updateContext] = useAudience(uri)
+  const { context, update } = useAudience(uri)
 
   if (context) {
     return (
@@ -27,7 +27,7 @@ export function AudienceEditor({
           groupResources={AllowedGroupIds}
           context={context}
           allowIndividuals={allowIndividuals}
-          onSave={updateContext}
+          onSave={update}
         />
       </Scim.Provider>
     )

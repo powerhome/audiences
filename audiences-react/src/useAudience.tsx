@@ -3,9 +3,11 @@ import { useFetch } from "use-http"
 
 import { AudienceContext } from "./types"
 
-export function useAudience(
-  uri: string,
-): [AudienceContext | undefined, (uri: AudienceContext) => void] {
+type UseAudience = {
+  context: AudienceContext | undefined
+  update: (attrs: AudienceContext) => void
+}
+export function useAudience(uri: string): UseAudience {
   const [context, setContext] = useState<AudienceContext>()
   const { get, put } = useFetch(uri, {
     onError({ error }) {
@@ -16,14 +18,14 @@ export function useAudience(
     get().then(setContext)
   }, [])
 
-  async function updateContext(context: AudienceContext) {
+  async function update(attrs: AudienceContext) {
     try {
-      const updatedContext = await put(context)
+      const updatedContext = await put(attrs)
       setContext(updatedContext)
     } catch (e) {
       console.log(context, e)
     }
   }
 
-  return [context, updateContext]
+  return { context, update }
 }
