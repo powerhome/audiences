@@ -4,7 +4,8 @@ import {
   Body,
   Button,
   Caption,
-  Card,
+  List,
+  ListItem,
   Dialog,
   Flex,
   TextInput,
@@ -50,6 +51,12 @@ export function MembersModalButton({
 
   return (
     <>
+      <Button
+        onClick={() => setShowMembers(true)}
+        padding="none"
+        text={label}
+        variant="link"
+      />
       <Dialog opened={showMembers} onClose={() => setShowMembers(false)}>
         <Dialog.Header className="pb-4 pt-3 pl-5" closeButton>
           <Flex spacing="between" flex="1">
@@ -58,45 +65,37 @@ export function MembersModalButton({
         </Dialog.Header>
 
         <Dialog.Body className="px-5">
-          <Card padding="none">
-            <div>
-              <TextInput
-                onChange={handleMemberNameSearch}
-                placeholder="Filter for members"
-                value={search}
-              />
-            </div>
-            <div>
+          <Flex orientation="column" align="stretch">
+            <TextInput
+              onChange={handleMemberNameSearch}
+              placeholder="Filter for members"
+              value={search}
+            />
+            <List>
               {users.map((member: ScimObject, index: number) => (
-                <User
-                  avatar
-                  avatarUrl={get(member, "photos.0.value")}
-                  key={index}
-                  marginBottom="xs"
-                  name={member.displayName}
-                />
+                <ListItem>
+                  <User
+                    avatar
+                    avatarUrl={get(member, "photos.0.value")}
+                    key={index}
+                    marginBottom="xs"
+                    name={member.displayName}
+                  />
+                </ListItem>
               ))}
-            </div>
-            <div>
-              <div className="text-center">
-                <Button
-                  key={`load-more-${loading}`}
-                  text="Load More"
-                  variant="link"
-                />
-              </div>
-            </div>
-          </Card>
-          <Caption size="xs" text={`Showing ${users.length} of ${count}`} />
+            </List>
+          </Flex>
+          <Flex orientation="column" align="center">
+            <Button
+              key={`load-more-${loading}`}
+              flex="1"
+              text="Load More"
+              variant="link"
+            />
+            <Caption size="xs" text={`Showing ${users.length} of ${count}`} />
+          </Flex>
         </Dialog.Body>
       </Dialog>
-
-      <Button
-        onClick={() => setShowMembers(true)}
-        padding="none"
-        text={label}
-        variant="link"
-      />
     </>
   )
 }
