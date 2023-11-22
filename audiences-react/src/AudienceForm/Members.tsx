@@ -1,16 +1,15 @@
-import { Caption, Button } from "playbook-ui"
+import { Caption } from "playbook-ui"
 import { useFormContext } from "react-hook-form"
 
 type MembersProps = {
   count: number
-  onShowAllMembers: () => void
 }
 
-export function Members({ count, onShowAllMembers }: MembersProps) {
+export function Members({ count }: MembersProps) {
   const { formState } = useFormContext()
 
   return (
-    <>
+    <div>
       <Caption tag="span" text="Audience Total" />
       {formState.isDirty ? (
         <Caption
@@ -20,17 +19,6 @@ export function Members({ count, onShowAllMembers }: MembersProps) {
       ) : (
         <Caption marginLeft="xs" size="xs" tag="span" text={count} />
       )}
-
-      {count > 0 && (
-        <div>
-          <Button
-            onClick={onShowAllMembers}
-            padding="none"
-            text="View All Members"
-            variant="link"
-          />
-        </div>
-      )}
-    </>
+    </div>
   )
 }
