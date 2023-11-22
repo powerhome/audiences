@@ -4,18 +4,18 @@ import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
 import { CriteriaActions } from "./CriteriaActions"
 
-type CriteriaFieldsProps = {
+type CriteriaCardProps = {
+  viewUsers: boolean
   criterion?: GroupCriterion
   onRequestRemove: () => void
   onRequestEdit: () => void
-  onRequestViewMembers: () => void
 }
 export function CriteriaCard({
   criterion,
+  viewUsers,
   onRequestRemove,
   onRequestEdit,
-  onRequestViewMembers,
-}: CriteriaFieldsProps) {
+}: CriteriaCardProps) {
   if (!criterion) {
     return null
   }
@@ -27,12 +27,14 @@ export function CriteriaCard({
           <Body className="mr-3">
             <CriteriaDescription groups={criterion.groups} />
           </Body>
-          <Caption
-            marginLeft="xs"
-            size="xs"
-            tag="span"
-            text={criterion.count?.toString()}
-          />
+          {viewUsers && (
+            <Caption
+              marginLeft="xs"
+              size="xs"
+              tag="span"
+              text={criterion.count?.toString()}
+            />
+          )}
         </FlexItem>
 
         <FlexItem>
@@ -40,6 +42,7 @@ export function CriteriaCard({
             criterion={criterion}
             onRequestRemove={onRequestRemove}
             onRequestEdit={onRequestEdit}
+            viewUsers={viewUsers}
           />
         </FlexItem>
       </Flex>

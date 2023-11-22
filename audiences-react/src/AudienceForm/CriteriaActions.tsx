@@ -5,11 +5,13 @@ import { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
 
 type CriteriaActionsProps = {
+  viewUsers: boolean
   criterion: GroupCriterion
   onRequestRemove: () => void
   onRequestEdit: () => void
 }
 export function CriteriaActions({
+  viewUsers,
   criterion,
   onRequestRemove,
   onRequestEdit,
@@ -52,13 +54,15 @@ export function CriteriaActions({
           />
         </ListItem>
         <ListItem padding="none">
-          <MembersModalButton
-            padding="xs"
-            text="Users"
-            title={<CriteriaDescription groups={criterion.groups} />}
-            count={criterion.count}
-            criterion={criterion}
-          />
+          {viewUsers && (
+            <MembersModalButton
+              padding="xs"
+              text="Users"
+              title={<CriteriaDescription groups={criterion.groups} />}
+              count={criterion.count}
+              criterion={criterion}
+            />
+          )}
         </ListItem>
         <ListItem padding="none">
           <Button

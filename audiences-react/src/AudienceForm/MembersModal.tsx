@@ -17,7 +17,7 @@ import { useAudienceContext } from "../audiences"
 
 type MembersModalButtonProps = any & {
   title: React.ReactNode
-  criterion: GroupCriterion
+  criterion?: GroupCriterion
   count: number
 }
 

@@ -5,7 +5,6 @@ import isEmpty from "lodash/isEmpty"
 import every from "lodash/every"
 import omitBy from "lodash/omitBy"
 
-import { CriteriaActions } from "./CriteriaActions"
 import { CriteriaCard } from "./CriteriaCard"
 import { CriteriaFieldsModal } from "./CriteriaFieldsModal"
 import { GroupCriterion } from "../types"
@@ -42,6 +41,8 @@ export function CriteriaListFields({
       ...watchFieldArray[index],
     }
   })
+  const isCriterionDirty = (index: number) =>
+    form.getFieldState(`${name}.${index}`).isDirty
 
   const handleCreateCriteria = () => {
     append({})
@@ -68,6 +69,7 @@ export function CriteriaListFields({
             <CriteriaCard
               criterion={criterion}
               key={`criterion-${criterion.id}`}
+              viewUsers={!isCriterionDirty(index)}
               onRequestRemove={() => handleRemoveCriteria(index)}
               onRequestEdit={() => editCriteria(index)}
             />
