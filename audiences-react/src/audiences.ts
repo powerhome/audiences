@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react"
-import { UseFetchObjectReturn, useFetch } from "use-http"
+import { CachePolicies, UseFetchObjectReturn, useFetch } from "use-http"
 
 import { AudienceContext, ScimObject } from "./types"
 import { createContext } from "react"
@@ -14,6 +14,7 @@ const Context = createContext<ContextProps | undefined>(undefined)
 export function useAudience(uri: string): ContextProps {
   const [context, setContext] = useState<AudienceContext | undefined>()
   const fetch = useFetch(uri, {
+    cachePolicy: CachePolicies.NO_CACHE,
     onError({ error }) {
       throw error.message
     },
