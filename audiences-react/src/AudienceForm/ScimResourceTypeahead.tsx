@@ -35,6 +35,10 @@ export function ScimResourceTypeahead({
   const { field } = useController({ name })
   const { filter } = useScim()
 
+  function onChange(value: any, ...event: any[]) {
+    field.onChange(value || [], ...event)
+  }
+
   const searchResourceOptions = async (
     search: string,
     callback: (options: PlaybookOption[]) => void,
@@ -57,6 +61,7 @@ export function ScimResourceTypeahead({
       {...field}
       ref={undefined} // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
       value={playbookOptions(field.value)}
+      onChange={onChange}
     />
   )
 }
