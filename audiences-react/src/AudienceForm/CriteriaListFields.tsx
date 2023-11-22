@@ -70,7 +70,6 @@ export function CriteriaListFields({
               key={`criterion-${criterion.id}`}
               onRequestRemove={() => handleRemoveCriteria(index)}
               onRequestEdit={() => editCriteria(index)}
-              onRequestViewMembers={() => {}}
             />
           ),
         )}

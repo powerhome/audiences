@@ -57,6 +57,7 @@ export function CriteriaActions({
             text="Users"
             title={<CriteriaDescription groups={criterion.groups} />}
             count={criterion.count}
+            criterion={criterion}
           />
         </ListItem>
         <ListItem padding="none">

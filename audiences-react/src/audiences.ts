@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react"
 import { CachePolicies, UseFetchObjectReturn, useFetch } from "use-http"
 
-import { AudienceContext, ScimObject } from "./types"
+import { AudienceContext, GroupCriterion, ScimObject } from "./types"
 import { createContext } from "react"
 
 type ContextProps = UseFetchObjectReturn<any> & {
@@ -33,13 +33,13 @@ export function useAudience(uri: string): ContextProps {
 type UseAudienceContext = {
   context?: AudienceContext
   update: (attrs: AudienceContext) => void
-  fetchUsers: () => Promise<ScimObject[]>
+  fetchUsers: (criterion?: GroupCriterion) => Promise<ScimObject[]>
 }
 export function useAudienceContext(): UseAudienceContext {
   const { context, setContext, get, put } = useContext(Context)!
 
-  async function fetchUsers() {
-    return get("/users")
+  async function fetchUsers(criterion?: GroupCriterion) {
+    return get(`/users/${criterion?.id || ""}`)
   }
 
   async function update(attrs: AudienceContext) {

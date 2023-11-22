@@ -12,17 +12,19 @@ import {
   User,
 } from "playbook-ui"
 
-import type { ScimObject } from "../types"
+import type { GroupCriterion, ScimObject } from "../types"
 import { useAudienceContext } from "../audiences"
 
 type MembersModalButtonProps = any & {
   title: React.ReactNode
+  criterion: GroupCriterion
   count: number
 }
 
 export function MembersModalButton({
   title,
   count,
+  criterion,
   ...buttonOptions
 }: MembersModalButtonProps) {
   const [loading, setLoading] = useState<boolean>()
@@ -34,7 +36,7 @@ export function MembersModalButton({
   useEffect(
     function () {
       setLoading(true)
-      fetchUsers().then((usersList) => {
+      fetchUsers(criterion).then((usersList) => {
         setUsers(usersList)
         setLoading(false)
       })
