@@ -17,8 +17,9 @@ export function Header({ count }: HeaderProps) {
 
         {formState.isDirty || (
           <MembersModalButton
-            label="View All Members"
+            text="View All Members"
             title="All users"
+            padding="none"
             count={count}
           />
         )}

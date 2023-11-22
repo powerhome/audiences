@@ -15,16 +15,15 @@ import {
 import type { ScimObject } from "../types"
 import { useAudienceContext } from "../audiences"
 
-type MembersModalButtonProps = {
-  label: string
+type MembersModalButtonProps = any & {
   title: React.ReactNode
   count: number
 }
 
 export function MembersModalButton({
   title,
-  label,
   count,
+  ...buttonOptions
 }: MembersModalButtonProps) {
   const [loading, setLoading] = useState<boolean>()
   const [users, setUsers] = useState<ScimObject[]>([])
@@ -52,9 +51,8 @@ export function MembersModalButton({
   return (
     <>
       <Button
+        {...buttonOptions}
         onClick={() => setShowMembers(true)}
-        padding="none"
-        text={label}
         variant="link"
       />
       <Dialog opened={showMembers} onClose={() => setShowMembers(false)}>
@@ -72,14 +70,13 @@ export function MembersModalButton({
               value={search}
             />
             <List>
-              {users.map((member: ScimObject, index: number) => (
-                <ListItem>
+              {users.map((user: ScimObject, index: number) => (
+                <ListItem key={`users-${index}`}>
                   <User
                     avatar
-                    avatarUrl={get(member, "photos.0.value")}
-                    key={index}
-                    marginBottom="xs"
-                    name={member.displayName}
+                    avatarUrl={get(user, "photos.0.value")}
+                    margin="none"
+                    name={user.displayName}
                   />
                 </ListItem>
               ))}

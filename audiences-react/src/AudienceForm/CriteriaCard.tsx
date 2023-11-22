@@ -37,10 +37,9 @@ export function CriteriaCard({
 
         <FlexItem>
           <CriteriaActions
-            viewMembers={!!criterion.count}
+            criterion={criterion}
             onRequestRemove={onRequestRemove}
             onRequestEdit={onRequestEdit}
-            onRequestViewMembers={onRequestViewMembers}
           />
         </FlexItem>
       </Flex>
