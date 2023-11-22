@@ -12,8 +12,9 @@ module Audiences
 
     def users
       context = Audiences.load(params.require(:key))
+      criterion = context.criteria.find(params[:criterion_id]) if params[:criterion_id]
 
-      render json: context.users
+      render json: (criterion || context).users
     end
 
   private
@@ -22,7 +23,7 @@ module Audiences
       render json: context.as_json(
         only: %i[match_all extra_users],
         methods: %i[count],
-        include: { criteria: { only: %i[groups], methods: %i[count] } }
+        include: { criteria: { only: %i[id groups], methods: %i[count] } }
       )
     end
 

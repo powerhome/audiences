@@ -95,6 +95,7 @@ RSpec.describe "/audiences", type: :request do
                                                 "count" => 2,
                                                 "criteria" => [
                                                   {
+                                                    "id" => anything,
                                                     "count" => 2,
                                                     "groups" => {
                                                       "Departments" => [{ "id" => 123, "displayName" => "Finance" }],
@@ -103,6 +104,7 @@ RSpec.describe "/audiences", type: :request do
                                                     },
                                                   },
                                                   {
+                                                    "id" => anything,
                                                     "count" => 2,
                                                     "groups" => {
                                                       "Departments" => [{ "id" => 789, "displayName" => "Sales" }],
@@ -127,6 +129,22 @@ RSpec.describe "/audiences", type: :request do
                                                     { "id" => 123 },
                                                     { "id" => 456 },
                                                     { "id" => 789 },
+                                                  ])
+    end
+  end
+
+  describe "GET /audiences/:context_key/users/:criterion_id" do
+    it "is the list of users from an audience context's criterion" do
+      context = Audiences::Context.for(example_owner)
+      criterion = context.criteria.create!
+      criterion.update(users: [{ "id" => 1 }, { "id" => 2 }, { "id" => 3 }])
+
+      get audiences.users_path(context_key, criterion_id: criterion.id)
+
+      expect(response.parsed_body).to match_array([
+                                                    { "id" => 1 },
+                                                    { "id" => 2 },
+                                                    { "id" => 3 },
                                                   ])
     end
   end
