@@ -4,6 +4,7 @@ import { CachePolicies, UseFetchObjectReturn, useFetch } from "use-http"
 import { AudienceContext, GroupCriterion, ScimObject } from "./types"
 import { createContext } from "react"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ContextProps = UseFetchObjectReturn<any> & {
   context?: AudienceContext
   setContext: (newContext: AudienceContext) => void
