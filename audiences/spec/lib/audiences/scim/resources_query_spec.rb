@@ -80,7 +80,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
 
         query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users)
 
-        expect(query.all.count).to eql 5
+        expect(query.all.count).to eql 5 # rubocop:disable Rails/RedundantActiveRecordAllMethod
       end
     end
   end
