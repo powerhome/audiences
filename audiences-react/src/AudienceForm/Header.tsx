@@ -1,37 +1,37 @@
-import { Flex, FlexItem, Caption } from "playbook-ui"
-import { useFormContext } from "react-hook-form"
+import { Flex, FlexItem, Caption, Toggle } from "playbook-ui"
 
 import { Members } from "./Members"
-import type { AudienceContext } from "../types"
+import { useFormContext } from "react-hook-form"
+import { MembersModalButton } from "./MembersModal"
 
-type HeaderProps = React.PropsWithChildren & {
-  context: AudienceContext
+type HeaderProps = {
+  count: number
 }
-export function Header({ context, children }: HeaderProps) {
-  const { formState } = useFormContext()
+export function Header({ count }: HeaderProps) {
+  const { register, formState } = useFormContext()
 
   return (
     <Flex orientation="row" spacing="between" wrap>
       <FlexItem>
-        {formState.isDirty ? (
-          <>
-            <Caption tag="span" text="Audience Total" />
-            <Caption
-              size="xs"
-              text="Audience total will update when the page is saved"
-            />
-          </>
-        ) : (
-          <Members
-            count={context.total_members}
-            showAll
-            onShowAllMembers={() => undefined}
+        <Members count={count} />
+
+        {formState.isDirty || (
+          <MembersModalButton
+            text="View All Members"
+            title="All users"
+            padding="none"
+            count={count}
           />
         )}
       </FlexItem>
       <FlexItem>
         <Flex justify="right" orientation="row">
-          {children}
+          <Flex align="center">
+            <Toggle>
+              <input {...register("match_all")} type="checkbox" />
+            </Toggle>
+            <Caption marginLeft="xs" size="xs" text="All Employees" />
+          </Flex>
         </Flex>
       </FlexItem>
     </Flex>

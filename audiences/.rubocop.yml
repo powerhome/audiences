@@ -12,6 +12,10 @@ Style/FrozenStringLiteralComment:
     - "gemfiles/*"
     - "spec/dummy/db/schema.rb"
 
+Lint/ToEnumArguments:
+  Exclude:
+    - "lib/audiences/scim/resources_query.rb"
+
 Bundler/OrderedGems:
   Exclude:
     - "gemfiles/*"

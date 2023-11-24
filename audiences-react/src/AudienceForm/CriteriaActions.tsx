@@ -1,15 +1,20 @@
 import { Button, Icon, PbReactPopover, List, ListItem } from "playbook-ui"
 import { useState } from "react"
+import { MembersModalButton } from "./MembersModal"
+import { GroupCriterion } from "../types"
+import { CriteriaDescription } from "./CriteriaDescription"
 
 type CriteriaActionsProps = {
+  viewUsers: boolean
+  criterion: GroupCriterion
   onRequestRemove: () => void
   onRequestEdit: () => void
-  onRequestViewMembers: () => void
 }
 export function CriteriaActions({
+  viewUsers,
+  criterion,
   onRequestRemove,
   onRequestEdit,
-  onRequestViewMembers,
 }: CriteriaActionsProps) {
   const [showPopover, togglePopover] = useState(false)
   const switchPopover = () => togglePopover(!showPopover)
@@ -49,13 +54,15 @@ export function CriteriaActions({
           />
         </ListItem>
         <ListItem padding="none">
-          <Button
-            variant="link"
-            size="xs"
-            padding="xs"
-            onClick={handleAndClose(onRequestViewMembers)}
-            text="Members"
-          />
+          {viewUsers && (
+            <MembersModalButton
+              padding="xs"
+              text="Users"
+              title={<CriteriaDescription groups={criterion.groups} />}
+              count={criterion.count}
+              criterion={criterion}
+            />
+          )}
         </ListItem>
         <ListItem padding="none">
           <Button

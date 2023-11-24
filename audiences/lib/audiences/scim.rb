@@ -1,35 +1,17 @@
 # frozen_string_literal: true
 
-require "net/http"
-require "json"
-require "uri"
+require_relative "scim/client"
+require_relative "scim/safe_object"
+require_relative "scim/resources_query"
 
 module Audiences
-  class Scim
-    def initialize(uri:, headers: {})
-      @uri = uri
-      @headers = headers
-    end
+  module Scim
+    mattr_accessor :client
 
-    def query(resource_type, filter:, wrapper: SafeObject)
-      response = perform_request(path: resource_type, method: :Get, query: { filter: filter })
+  module_function
 
-      response.fetch("Resources", response).map { wrapper.new(_1) }
-    end
-
-  private
-
-    def perform_request(method:, path:, query: {})
-      uri = URI.join(@uri, path.to_s)
-      uri.query = URI.encode_www_form(query)
-      request = ::Net::HTTP.const_get(method).new(uri, @headers)
-
-      http = ::Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-
-      response = http.request(request)
-
-      JSON.parse(response.body)
+    def resources(type:, client: Scim.client, **options)
+      ResourcesQuery.new(client, resource_type: type, **options)
     end
   end
 end

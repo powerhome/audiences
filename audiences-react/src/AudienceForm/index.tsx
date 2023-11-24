@@ -1,47 +1,41 @@
 import { FormProvider, useForm } from "react-hook-form"
-import { Button, Card, Toggle, Caption, Flex } from "playbook-ui"
+import { Button, Card, Flex, Icon } from "playbook-ui"
 
 import { Header } from "./Header"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { CriteriaListFields } from "./CriteriaListFields"
 import { AudienceContext } from "../types"
+import { useAudienceContext } from "../audiences"
 
 type AudienceFormProps = {
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
-  context: AudienceContext
-  loading?: boolean
-  onSave: (updatedContext: AudienceContext) => void
-  saving?: boolean
 }
 
 export const AudienceForm = ({
   userResource,
   groupResources,
   allowIndividuals = true,
-  context,
-  onSave,
-  saving,
 }: AudienceFormProps) => {
-  const form = useForm<AudienceContext>({
-    defaultValues: context,
-  })
+  const { context, update } = useAudienceContext()
+  const form = useForm<AudienceContext>({ values: context })
 
   const all = form.watch("match_all")
+
+  if (!context) {
+    return (
+      <Flex justify="center">
+        <Icon fontStyle="fas" icon="spinner" spin />
+      </Flex>
+    )
+  }
 
   return (
     <FormProvider {...form}>
       <Card margin="xs" padding="xs">
         <Card.Header headerColor="white">
-          <Header context={context}>
-            <Flex align="center">
-              <Toggle>
-                <input {...form.register("match_all")} type="checkbox" />
-              </Toggle>
-              <Caption marginLeft="xs" size="xs" text="All Employees" />
-            </Flex>
-          </Header>
+          <Header count={context.count} />
         </Card.Header>
 
         {all || (
@@ -63,12 +57,7 @@ export const AudienceForm = ({
 
         <Card.Body>
           <div className="mt-5 pt-5">
-            <Button
-              disabled={saving}
-              onClick={form.handleSubmit(onSave)}
-              loading={saving}
-              text="Save"
-            />
+            <Button onClick={form.handleSubmit(update)} text="Save" />
             {form.formState.isDirty && (
               <Button
                 marginLeft="sm"

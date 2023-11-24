@@ -10,8 +10,6 @@ require "audiences/scim"
 module Audiences
   GID_RESOURCE = "audiences"
 
-  mattr_accessor :scim
-
 module_function
 
   # Provides a key to load an audience context for the given owner.
@@ -45,8 +43,10 @@ module_function
   #
   def update(key, criteria: [], **attrs)
     locate_context(key) do |context|
-      context.criteria.replace ::Audiences::Criterion.map(criteria)
-      context.update!(attrs)
+      context.update!(
+        criteria: ::Audiences::Criterion.map(criteria),
+        **attrs
+      )
       context.readonly!
     end
   end

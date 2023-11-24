@@ -10,10 +10,21 @@ module Audiences
       render_context Audiences.update(params.require(:key), **context_params)
     end
 
+    def users
+      context = Audiences.load(params.require(:key))
+      criterion = context.criteria.find(params[:criterion_id]) if params[:criterion_id]
+
+      render json: (criterion || context).users
+    end
+
   private
 
     def render_context(context)
-      render json: context.as_json(only: %i[match_all extra_users], include: { criteria: { only: %i[groups] } })
+      render json: context.as_json(
+        only: %i[match_all extra_users],
+        methods: %i[count],
+        include: { criteria: { only: %i[id groups], methods: %i[count] } }
+      )
     end
 
     def context_params

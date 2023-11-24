@@ -1,7 +1,5 @@
-import { Flex, Icon } from "playbook-ui"
-
-import { useAudience } from "./useAudience"
 import { AudienceForm } from "./AudienceForm"
+import Audiences, { useAudience } from "./audiences"
 import Scim from "./scim"
 
 const UserResourceId = "Users"
@@ -17,25 +15,17 @@ export function AudienceEditor({
   scimUri,
   allowIndividuals = true,
 }: AudienceEditorProps) {
-  const [context, updateContext] = useAudience(uri)
+  const context = useAudience(uri)
 
-  if (context) {
-    return (
-      <Scim.Provider value={scimUri}>
+  return (
+    <Scim.Provider value={scimUri}>
+      <Audiences.Provider value={context}>
         <AudienceForm
           userResource={UserResourceId}
           groupResources={AllowedGroupIds}
-          context={context}
           allowIndividuals={allowIndividuals}
-          onSave={updateContext}
         />
-      </Scim.Provider>
-    )
-  } else {
-    return (
-      <Flex justify="center">
-        <Icon fontStyle="fas" icon="spinner" spin />
-      </Flex>
-    )
-  }
+      </Audiences.Provider>
+    </Scim.Provider>
+  )
 }

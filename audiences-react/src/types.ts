@@ -12,6 +12,7 @@ export interface Groups {
 }
 
 export interface GroupCriterion {
+  id?: number
   groups?: Groups
   count?: number
 }
@@ -20,5 +21,5 @@ export interface AudienceContext {
   match_all: boolean
   extra_users: ScimObject[] | null
   criteria: GroupCriterion[]
-  total_members?: number
+  count: number
 }
