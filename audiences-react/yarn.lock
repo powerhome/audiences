@@ -2637,6 +2637,16 @@ he@^1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+highcharts-react-official@^3.2.0:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/highcharts-react-official/-/highcharts-react-official-3.2.1.tgz#4b62a7af2969bdebde6b338d36f6b9bf1f1029bc"
+  integrity sha512-hyQTX7ezCxl7JqumaWiGsroGWalzh24GedQIgO3vJbkGOZ6ySRAltIYjfxhrq4HszJOySZegotEF7v+haQ75UA==
+
+highcharts@^9.0.0:
+  version "9.3.3"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-9.3.3.tgz#ae62178de788fd7934431aa26b8e250b8073c541"
+  integrity sha512-QeOvm6cifeZYYdTLm4IxZsXcOE9c4xqfs0z0OJJ0z7hhA9WG0rmcVAyuIp5HBl/znjA/ayYHmpYjBYD/9PG4Fg==
+
 highlight-words-core@^1.2.0:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/highlight-words-core/-/highlight-words-core-1.2.2.tgz#1eff6d7d9f0a22f155042a00791237791b1eeaaa"
@@ -3467,25 +3477,6 @@ mkdirp@^1.0.3:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-moment-strftime@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/moment-strftime/-/moment-strftime-0.5.0.tgz#0cd395058cfabb2cbdbf49a2d3758aa22093d65a"
-  integrity sha512-0gwXdJEY1nD1YMlH9nLbDl+HLMfprzfxT2+qDkl29jGgDlVHzPCdwBBN0DPgY+e3+ur7tfdngxweKYBiT80nEA==
-  dependencies:
-    moment "^2.11.2"
-
-moment-timezone@^0.5.26:
-  version "0.5.43"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.43.tgz#3dd7f3d0c67f78c23cd1906b9b2137a09b3c4790"
-  integrity sha512-72j3aNyuIsDxdF1i7CEgV2FfxM1r6aaqJyLB2vwb33mXYyoyLly+F1zbWqhA3/bVIoJ4szlUoMbUnVdid32NUQ==
-  dependencies:
-    moment "^2.29.4"
-
-moment@^2.11.2, moment@^2.29.1, moment@^2.29.4:
-  version "2.29.4"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
-  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
-
 ms@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
@@ -3941,10 +3932,10 @@ picomatch@^2.2.3, picomatch@^2.3.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
-playbook-ui@12.38.0-alpha.audiencesalpha1083:
-  version "12.38.0-alpha.audiencesalpha1083"
-  resolved "https://registry.yarnpkg.com/playbook-ui/-/playbook-ui-12.38.0-alpha.audiencesalpha1083.tgz#0dc7f5b888b5575d6e027c48b6c83901d7ae9540"
-  integrity sha512-HIvtAZbKIszuwjJ7o/uY3Dn+mq5wh2ZYf5Gj5x/6DdIPwX0iOEt4BHisvVpWDXw4+nOTjCdBsYBPrUVLDI5Dtg==
+playbook-ui@13.12.0:
+  version "13.12.0"
+  resolved "https://registry.yarnpkg.com/playbook-ui/-/playbook-ui-13.12.0.tgz#c5804ad3dbb71e9a51912cd7e740cd286d92c62f"
+  integrity sha512-Es/8vDwvzEQT1rzt/yrYsN27CXKyGwpk9Gt3uAgaBhrZ0GWEnNJbK4WgSpzyPQGGfAu8B9/qUBCMTHAaECVdDg==
   dependencies:
     "@babel/runtime" "^7.12.1"
     "@floating-ui/react" "^0.22.2"
@@ -3954,12 +3945,11 @@ playbook-ui@12.38.0-alpha.audiencesalpha1083:
     core-js "3.29.1"
     file-loader "^6.2.0"
     flatpickr "^4.6.13"
+    highcharts "^9.0.0"
+    highcharts-react-official "^3.2.0"
     intl-tel-input "^17.0.19"
     lazysizes "^5.2.2"
     lodash "^4.17.19"
-    moment "^2.29.1"
-    moment-strftime "^0.5.0"
-    moment-timezone "^0.5.26"
     react-animate-height "^2.0.23"
     react-dropzone "^10.2.2"
     react-highlight-words "^0.20.0"
