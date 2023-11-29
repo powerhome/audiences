@@ -2,9 +2,7 @@
 
 class UpdateMembershipsJob < ApplicationJob
   def perform(context)
-    owner = context.owner
-
-    owner.memberships = owner.memberships.build(
+    memberships = owner.memberships.build(
       context.users.map do |user|
         {
           user_id: user["id"],
@@ -13,6 +11,6 @@ class UpdateMembershipsJob < ApplicationJob
         }
       end
     )
-    owner.save!
+    context.owner.update!(memberships: memberships)
   end
 end
