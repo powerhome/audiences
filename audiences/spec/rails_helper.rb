@@ -17,9 +17,15 @@ Shoulda::Matchers.configure do |config|
   end
 end
 
+ActiveJob::Base.queue_adapter = :test
+
 RSpec.configure do |config|
   config.include Rails.application.routes.url_helpers, type: :request
 
   config.infer_spec_type_from_file_location!
   config.use_transactional_fixtures = true
+
+  config.before do
+    Audiences::Notifications.subscriptions.clear
+  end
 end

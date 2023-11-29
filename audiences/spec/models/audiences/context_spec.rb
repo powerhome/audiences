@@ -3,6 +3,19 @@
 require "rails_helper"
 
 RSpec.describe Audiences::Context do
+  describe "subscriptions" do
+    let(:owner) { ExampleOwner.create(name: "Example") }
+
+    it "publishes a notification about the context update" do
+      owner = ExampleOwner.create
+
+      expect do |blk|
+        Audiences::Notifications.subscribe ExampleOwner, &blk
+        Audiences::Context.create(owner: owner)
+      end.to yield_with_args
+    end
+  end
+
   describe "associations" do
     it { is_expected.to belong_to(:owner) }
   end
