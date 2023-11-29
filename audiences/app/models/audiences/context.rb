@@ -9,6 +9,8 @@ module Audiences
                         autosave: true,
                         dependent: :destroy
 
+    after_commit :notify
+
     # Finds or creates a context for the given owner
     #
     # @private
@@ -23,6 +25,12 @@ module Audiences
 
     def users
       [*extra_users, *criteria.flat_map(&:users)].uniq.compact
+    end
+
+  private
+
+    def notify
+      Audiences::Notifications.publish(self)
     end
   end
 end

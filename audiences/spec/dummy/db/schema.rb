@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_15_204932) do
+ActiveRecord::Schema.define(version: 2023_11_27_200326) do
 
   create_table "audiences_contexts", force: :cascade do |t|
     t.string "owner_type", null: false
@@ -30,6 +30,16 @@ ActiveRecord::Schema.define(version: 2023_11_15_204932) do
     t.json "users"
     t.datetime "refreshed_at"
     t.index ["context_id"], name: "index_audiences_criterions_on_context_id"
+  end
+
+  create_table "example_memberships", force: :cascade do |t|
+    t.integer "owner_id"
+    t.integer "user_id"
+    t.string "name"
+    t.string "photo"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["owner_id"], name: "index_example_memberships_on_owner_id"
   end
 
   create_table "example_owners", force: :cascade do |t|
