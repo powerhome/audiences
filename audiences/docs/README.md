@@ -13,29 +13,44 @@ That can be done with a unobstrusive JS renderer like react-rails, or a custom o
 - The context URI: `audience_context_url(owner)` helper
 - The SCIM endpoint: `audience_scim_proxy_url` helper if using the [proxy](#configuring-the-scim-proxy), or the SCIM endpoint.
 
-### Listening to audience changes
+### Configuring the SCIM backend
 
-**TBD**
-
-### Configuring the SCIM proxy
-
-The Audience::ScimProxy should point to the real SCIM endpoint. The proxy allows you to configure the endpoint and the credentials/headers:
+The Audience::Scim should point to the real SCIM endpoint. The service allows you to configure the endpoint and the credentials/headers:
 
 I.e.:
 
 ```ruby
-# frozen_string_literal: true
-
-require "audiences/scim_proxy"
-
-Audiences::ScimProxy.config = {
-  uri: "http://super-secret-scim.com/scim/v2/",
-  headers: {
-    "Authorization": "Beaer very-secret"
-  }
-  debug: $stdout,
-}
+Audiences::Scim.client = Audiences::Scim::Client.new(
+  uri: ENV.fetch("SCIM_V2_API"),
+  headers: { "Authorization" => "Bearer #{ENV.fetch('SCIM_V2_TOKEN')}" }
+)
 ```
+
+### Listening to audience changes
+
+The goal of audiences is to allow the app to keep up with a mutable group of people. To allow that, `Audiences` includes the `Audiences::Notifications` module, to allow the hosting app to subscribe to audiences related to a certain owner type, and react to that through a block:
+
+```ruby
+Rails.application.config.to_prepare do
+  Audiences::Notifications.subscribe Team do |context|
+    team.update_memberships(context.users)
+  end
+end
+```
+
+or scheduling an AcitiveJob:
+
+```ruby
+Rails.application.config.to_prepare do
+  Audiences::Notifications.subscribe Group, job: UpdateGroupMembershipsJob
+  Audiences::Notifications.subscribe Team, job: UpdateTeamMembershipsJob.set(queue: "low")
+end
+```
+
+You can find a working example in our dummy app:
+
+- [initializer](../spec/dummy/config/initializers/audiences.rb)
+- [job class](../spec/dummy/app/jobs/update_memberships_job.rb)
 
 ## Installation
 

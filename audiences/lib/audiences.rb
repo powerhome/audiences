@@ -2,6 +2,7 @@
 
 require "audiences/version"
 require "audiences/scim"
+require "audiences/notifications"
 
 # Audiences system
 # Audiences pushes notifications to your rails app when a
