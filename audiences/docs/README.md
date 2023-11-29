@@ -47,6 +47,11 @@ Rails.application.config.to_prepare do
 end
 ```
 
+You can find a working example in our dummy app:
+
+- [initializer](../spec/dummy/config/initializers/audiences.rb)
+- [job class](../spec/dummy/app/jobs/update_memberships_job.rb)
+
 ## Installation
 
 Add this line to your application's Gemfile:
