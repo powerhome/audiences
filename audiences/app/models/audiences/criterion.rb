@@ -3,6 +3,8 @@
 module Audiences
   class Criterion < ApplicationRecord
     belongs_to :context, class_name: "Audiences::Context"
+    has_many :memberships, as: :group, dependent: :delete_all
+    has_many :users, through: :memberships, source: :external_user, dependent: :delete_all
 
     before_create :refresh_users
 
@@ -10,12 +12,10 @@ module Audiences
       Array(criteria).map { new(_1) }
     end
 
-    def count
-      users&.size.to_i
-    end
+    delegate :count, to: :users
 
     def refresh_users
-      self.users = CriterionUsers.new(groups || {})
+      self.users = CriterionUsers.new(groups || {}).to_a
       self.refreshed_at = Time.current
     end
   end

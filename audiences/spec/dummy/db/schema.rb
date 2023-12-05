@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_27_200326) do
+ActiveRecord::Schema.define(version: 2023_12_05_140046) do
 
   create_table "audiences_contexts", force: :cascade do |t|
     t.string "owner_type", null: false
@@ -27,9 +27,25 @@ ActiveRecord::Schema.define(version: 2023_11_27_200326) do
     t.integer "context_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.json "users"
     t.datetime "refreshed_at"
     t.index ["context_id"], name: "index_audiences_criterions_on_context_id"
+  end
+
+  create_table "audiences_external_users", force: :cascade do |t|
+    t.string "user_id"
+    t.json "data"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "audiences_memberships", force: :cascade do |t|
+    t.integer "external_user_id", null: false
+    t.string "group_type", null: false
+    t.integer "group_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["external_user_id"], name: "index_audiences_memberships_on_external_user_id"
+    t.index ["group_type", "group_id"], name: "index_audiences_memberships_on_group_type_and_group_id"
   end
 
   create_table "example_memberships", force: :cascade do |t|

@@ -137,14 +137,16 @@ RSpec.describe "/audiences", type: :request do
     it "is the list of users from an audience context's criterion" do
       context = Audiences::Context.for(example_owner)
       criterion = context.criteria.create!
-      criterion.update(users: [{ "id" => 1 }, { "id" => 2 }, { "id" => 3 }])
+      criterion.users.create(user_id: 1, data: { "id" => 1, "displayName" => "John" })
+      criterion.users.create(user_id: 2, data: { "id" => 2, "displayName" => "Jose" })
+      criterion.users.create(user_id: 3, data: { "id" => 3, "displayName" => "Nelson" })
 
       get audiences.users_path(context_key, criterion_id: criterion.id)
 
       expect(response.parsed_body).to match_array([
-                                                    { "id" => 1 },
-                                                    { "id" => 2 },
-                                                    { "id" => 3 },
+                                                    { "id" => 1, "displayName" => "John" },
+                                                    { "id" => 2, "displayName" => "Jose" },
+                                                    { "id" => 3, "displayName" => "Nelson" },
                                                   ])
     end
   end
