@@ -6,8 +6,6 @@ module Audiences
     has_many :memberships, as: :group, dependent: :delete_all
     has_many :users, through: :memberships, source: :external_user, dependent: :delete_all
 
-    before_create :refresh_users
-
     def self.map(criteria)
       Array(criteria).map { new(_1) }
     end

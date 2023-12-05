@@ -20,12 +20,22 @@ RSpec.describe "/audiences", type: :request do
   end
 
   describe "PUT /audiences/:context_key" do
-    it "updates the audience context" do
+    let(:users_response) do
+      {
+        Resources: [{ id: 1 }, { id: 2 }],
+      }
+    end
+
+    it "updates the audience context to match all" do
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .to_return(status: 200, body: users_response.to_json, headers: {})
+
       put audiences.signed_context_path(context_key), as: :json, params: { match_all: true }
 
       context = Audiences::Context.for(example_owner)
 
       expect(context).to be_match_all
+      expect(context.users.count).to eql 2
     end
 
     it "updates the context extra users" do

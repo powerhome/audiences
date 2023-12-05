@@ -19,6 +19,10 @@ RSpec.describe Audiences do
     let(:token) { Audiences.sign(baseball_club) }
 
     it "updates an audience context from a given key and params" do
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: {})
+        .to_return(status: 200, body: { "Resources" => [] }.to_json)
+
       updated_context = Audiences.update(token, match_all: true)
 
       expect(updated_context).to be_match_all

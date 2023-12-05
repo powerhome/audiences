@@ -8,7 +8,10 @@ module Audiences
     has_many :criteria, class_name: "Audiences::Criterion",
                         autosave: true,
                         dependent: :destroy
+    has_many :memberships, as: :group, dependent: :delete_all
+    has_many :users, through: :memberships, source: :external_user, dependent: :delete_all
 
+    before_commit :refresh_users
     after_commit :notify
 
     # Finds or creates a context for the given owner
@@ -20,23 +23,16 @@ module Audiences
     end
 
     # Total users within this context (see #users)
-    def count
-      users.size
-    end
+    delegate :count, to: :users
 
-    # All users within that Audience context. These include:
-    #
-    # - All users matching any of the criteria
-    # - All users set directly through `extra_users`
-    # - Users are listed once (uniquely)
-    def users
-      @users ||= [*extra_users, *criteria.flat_map(&:users)].uniq.compact
+    def refresh_users
+      self.users = ContextUsers.new(self).to_a
     end
 
   private
 
     def notify
-      Audiences::Notifications.publish(self)
+      Notifications.publish(self)
     end
   end
 end

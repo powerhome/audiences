@@ -36,61 +36,16 @@ RSpec.describe Audiences::Context do
   end
 
   describe "#count" do
-    it "is the total of all users matching any criterion" do
-      user1 = external_user!(id: 1)
-      user2 = external_user!(id: 2)
-      user3 = external_user!(id: 3)
+    let(:owner) { ExampleOwner.create(name: "Example") }
 
-      criterion1 = Audiences::Criterion.new(users: [user1, user2])
-      criterion2 = Audiences::Criterion.new(users: [user2, user3])
+    it "is the total of all member users" do
+      user1 = external_user(id: 1)
+      user2 = external_user(id: 2)
 
-      context = Audiences::Context.new(criteria: [criterion1, criterion2])
+      context = Audiences::Context.create!(owner: owner, users: [user1, user2])
 
-      expect(context.count).to eql 3
+      expect(context.count).to eql 2
     end
-
-    it "also includes the extra users of the context" do
-      criterion1 = Audiences::Criterion.new(users: [external_user(id: 1), external_user(id: 2)])
-
-      context = Audiences::Context.new(criteria: [criterion1],
-                                       extra_users: [{ "id" => 3 },
-                                                     { "id" => 4 }])
-
-      expect(context.count).to eql 4
-    end
-  end
-
-  describe "#users" do
-    it "is the group of all users matching any criterion" do
-      user1 = external_user!(id: 1)
-      user2 = external_user!(id: 2)
-      user3 = external_user!(id: 3)
-
-      criterion1 = Audiences::Criterion.new(users: [user1, user2])
-      criterion2 = Audiences::Criterion.new(users: [user2, user3])
-
-      context = Audiences::Context.new(criteria: [criterion1, criterion2])
-
-      expect(context.users).to(
-        match_array([user1, user2, user3])
-      )
-    end
-
-    it "also includes the extra users of the context" do
-      criterion1 = Audiences::Criterion.new(users: [external_user(id: 1), external_user(id: 2)])
-
-      context = Audiences::Context.new(criteria: [criterion1],
-                                       extra_users: [{ "id" => 3 },
-                                                     { "id" => 4 }])
-
-      expect(context.users.as_json).to(
-        match_array([{ "id" => 3 }, { "id" => 4 }, { "id" => 1 }, { "id" => 2 }])
-      )
-    end
-  end
-
-  def external_user!(...)
-    external_user(...).tap(&:save!)
   end
 
   def external_user(**data)
