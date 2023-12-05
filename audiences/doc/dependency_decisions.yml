@@ -2,7 +2,7 @@
 - - :inherit_from
   - https://raw.githubusercontent.com/powerhome/oss-guide/master/license_rules.yml
 - - :approve
-  - vite_ruby
+  - nio4r
   - :who: Ben Langfeld
     :why: Quite a crazy license definition, but it's fine. We allow both MIT and BSD.
     :versions: []
