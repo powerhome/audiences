@@ -13,7 +13,6 @@ module Audiences
                         autosave: true,
                         dependent: :destroy
 
-    before_commit :refresh_users
     after_commit :notify
 
     # Finds or creates a context for the given owner
@@ -24,8 +23,9 @@ module Audiences
       where(owner: owner).first_or_create!
     end
 
-    def refresh_users
-      self.users = ContextUsers.new(self).to_a
+    def refresh_users!
+      criteria.each(&:refresh_users!)
+      update!(users: ContextUsers.new(self).to_a)
     end
 
   private

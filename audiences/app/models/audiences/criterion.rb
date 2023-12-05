@@ -10,9 +10,11 @@ module Audiences
       Array(criteria).map { new(_1) }
     end
 
-    def refresh_users
-      self.users = CriterionUsers.new(groups || {}).to_a
-      self.refreshed_at = Time.current
+    def refresh_users!
+      update!(
+        users: CriterionUsers.new(groups || {}).to_a,
+        refreshed_at: Time.current
+      )
     end
   end
 end

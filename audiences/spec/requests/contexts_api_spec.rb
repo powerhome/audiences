@@ -129,9 +129,10 @@ RSpec.describe "/audiences", type: :request do
 
   describe "GET /audiences/:context_key/users" do
     it "is the list of users from an audience context" do
-      Audiences::Context.for(example_owner).update!(
-        extra_users: [{ "id" => 123 }, { "id" => 456 }, { "id" => 789 }]
-      )
+      context = Audiences::Context.for(example_owner)
+      context.users.create(user_id: 123, data: { "id" => 123 })
+      context.users.create(user_id: 456, data: { "id" => 456 })
+      context.users.create(user_id: 789, data: { "id" => 789 })
 
       get audiences.users_path(context_key)
 

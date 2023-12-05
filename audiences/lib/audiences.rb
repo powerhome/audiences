@@ -48,6 +48,7 @@ module_function
         criteria: ::Audiences::Criterion.map(criteria),
         **attrs
       )
+      context.refresh_users!
       context.readonly!
     end
   end
