@@ -9,22 +9,25 @@ module Audiences
       @context = context
     end
 
-    def each(&block)
-      _matching_users.each(&block)
-      @context.extra_users&.each do |data|
-        yield ExternalUser.for(data)
+    def each(...)
+      if @context.match_all
+        all_users.each(...)
+      else
+        matching_users.each(...)
       end
     end
 
   private
 
-    def _matching_users
-      if @context.match_all
-        Scim.resources(type: :Users)
-            .all.map { ExternalUser.for(_1) }
-      else
-        @context.criteria.flat_map(&:users).uniq
-      end
+    def all_users
+      Scim.resources(type: :Users)
+          .all.map { ExternalUser.for(_1) }
+    end
+
+    def matching_users
+      extras = @context.extra_users
+                       &.map { ExternalUser.for(_1) }
+      [*extras, *@context.criteria.flat_map(&:users)].uniq
     end
   end
 end

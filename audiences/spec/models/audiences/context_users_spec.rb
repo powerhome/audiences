@@ -37,21 +37,21 @@ RSpec.describe Audiences::ContextUsers do
       expect(users[2].user_id).to eql "3"
     end
 
-    it "includes the extra users" do
+    it "includes the extra users uniquely" do
       criterion = Audiences::Criterion.new(users: [external_user!("id" => 1), external_user!("id" => 2)])
       context = Audiences::Context.new(
         match_all: false,
         criteria: [criterion],
-        extra_users: [{ "id" => 456 }, { "id" => 789 }]
+        extra_users: [{ "id" => 1 }, { "id" => 456 }, { "id" => 789 }]
       )
 
       users = Audiences::ContextUsers.new(context).to_a
 
       expect(users.size).to eql 4
       expect(users[0].user_id).to eql "1"
-      expect(users[1].user_id).to eql "2"
-      expect(users[2].user_id).to eql "456"
-      expect(users[3].user_id).to eql "789"
+      expect(users[1].user_id).to eql "456"
+      expect(users[2].user_id).to eql "789"
+      expect(users[3].user_id).to eql "2"
     end
   end
 
