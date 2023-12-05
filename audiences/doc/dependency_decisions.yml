@@ -1,3 +1,9 @@
 ---
 - - :inherit_from
   - https://raw.githubusercontent.com/powerhome/oss-guide/master/license_rules.yml
+- - :approve
+  - nio4r
+  - :who: Ben Langfeld
+    :why: Quite a crazy license definition, but it's fine. We allow both MIT and BSD.
+    :versions: []
+    :when: 2023-12-05 10:19:29.427991786 Z
