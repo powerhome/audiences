@@ -2,15 +2,13 @@
 
 module Audiences
   class Criterion < ApplicationRecord
+    include ::Audiences::MembershipGroup
+
     belongs_to :context, class_name: "Audiences::Context"
-    has_many :memberships, as: :group, dependent: :delete_all
-    has_many :users, through: :memberships, source: :external_user, dependent: :delete_all
 
     def self.map(criteria)
       Array(criteria).map { new(_1) }
     end
-
-    delegate :count, to: :users
 
     def refresh_users
       self.users = CriterionUsers.new(groups || {}).to_a
