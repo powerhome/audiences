@@ -32,10 +32,11 @@ ActiveRecord::Schema.define(version: 2023_12_05_140046) do
   end
 
   create_table "audiences_external_users", force: :cascade do |t|
-    t.string "user_id"
+    t.string "user_id", null: false
     t.json "data"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_audiences_external_users_on_user_id", unique: true
   end
 
   create_table "audiences_memberships", force: :cascade do |t|

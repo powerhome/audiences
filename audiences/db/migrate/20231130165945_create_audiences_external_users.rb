@@ -3,10 +3,11 @@
 class CreateAudiencesExternalUsers < ActiveRecord::Migration[6.0]
   def change
     create_table :audiences_external_users do |t|
-      t.string :user_id
+      t.string :user_id, null: false
       t.json :data
 
       t.timestamps
+      t.index :user_id, unique: true
     end
   end
 end
