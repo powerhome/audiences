@@ -25,8 +25,12 @@ RSpec.describe Audiences::ContextUsers do
 
   context "has criteria" do
     it "is the distinct union of users from the criteria" do
-      criterion1 = Audiences::Criterion.new(users: [external_user!("id" => 1), external_user!("id" => 2)])
-      criterion2 = Audiences::Criterion.new(users: [external_user!("id" => 2), external_user!("id" => 3)])
+      user1 = external_user!("id" => 1)
+      user2 = external_user!("id" => 2)
+      user3 = external_user!("id" => 3)
+
+      criterion1 = Audiences::Criterion.new(users: [user1, user2])
+      criterion2 = Audiences::Criterion.new(users: [user2, user3])
       context = Audiences::Context.new(match_all: false, criteria: [criterion1, criterion2])
 
       users = Audiences::ContextUsers.new(context).to_a
@@ -56,6 +60,6 @@ RSpec.describe Audiences::ContextUsers do
   end
 
   def external_user!(**data)
-    Audiences::ExternalUser.for(data)
+    Audiences::ExternalUser.create(user_id: data["id"], data: data)
   end
 end

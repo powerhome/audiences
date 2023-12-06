@@ -9,20 +9,18 @@ module Audiences
       @groups = groups
     end
 
-    def each
+    def each(...)
       @groups.values
-             .map { |groups| list_from_groups(groups.pluck("id")) }
+             .map { |groups| groups_users(groups.pluck("id")) }
              .reduce(&:&)
-             &.each do |user|
-        yield ExternalUser.for(user)
-      end
+             &.each(...)
     end
 
   private
 
-    def list_from_groups(group_ids)
+    def groups_users(group_ids)
       filter = group_ids.map { "groups.value eq #{_1}" }.join(" OR ")
-      Audiences::Scim.resources(type: :Users, filter: filter)
+      Audiences::Scim.resources(type: :Users, filter: filter, wrapper: ExternalUser)
                      .all.to_a
     end
   end

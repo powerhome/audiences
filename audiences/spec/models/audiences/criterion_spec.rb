@@ -38,7 +38,7 @@ RSpec.describe Audiences::Criterion do
     let(:owner) { ExampleOwner.create }
     let(:context) { Audiences::Context.for(owner) }
 
-    it "fetches automatically when creating a new criterion" do
+    it "fetches the criteria matching users" do
       stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 123")
         .to_return(status: 200, body: { "Resources" => [{ "id" => 13 }] }.to_json)
 

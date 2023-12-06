@@ -20,13 +20,12 @@ module Audiences
   private
 
     def all_users
-      Scim.resources(type: :Users)
-          .all.map { ExternalUser.for(_1) }
+      Scim.resources(type: :Users, wrapper: ExternalUser)
+          .all
     end
 
     def matching_users
-      extras = @context.extra_users
-                       &.map { ExternalUser.for(_1) }
+      extras = ExternalUser.wrap(@context.extra_users)
       [*extras, *@context.criteria.flat_map(&:users)].uniq
     end
   end

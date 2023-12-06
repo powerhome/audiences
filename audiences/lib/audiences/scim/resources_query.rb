@@ -28,8 +28,7 @@ module Audiences
       end
 
       def resources
-        @resources ||= response.fetch("Resources", [])
-                               .lazy.map { @wrapper.new(_1) }
+        @resources ||= @wrapper.wrap(response.fetch("Resources", []))
       end
 
       def next_page?

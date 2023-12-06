@@ -34,7 +34,11 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                       ])
       )
 
-      new_wrapper = Struct.new(:data)
+      new_wrapper = Struct.new(:data) do
+        def self.wrap(data)
+          data.map { new(_1) }
+        end
+      end
 
       resources = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Groups, wrapper: new_wrapper).to_a
 
