@@ -13,7 +13,10 @@ module Audiences
                         autosave: true,
                         dependent: :destroy
 
-    after_commit :notify
+    before_save if: :match_all do
+      self.criteria = []
+      self.extra_users = []
+    end
 
     # Finds or creates a context for the given owner
     #

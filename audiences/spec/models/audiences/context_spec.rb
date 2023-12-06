@@ -3,16 +3,25 @@
 require "rails_helper"
 
 RSpec.describe Audiences::Context do
-  describe "subscriptions" do
-    let(:owner) { ExampleOwner.create(name: "Example") }
+  let(:owner) { ExampleOwner.create(name: "Example") }
 
-    it "publishes a notification about the context update" do
-      owner = ExampleOwner.create
+  describe "#match_all" do
+    it "clears other criteria when set to match all" do
+      context = Audiences::Context.for(owner)
+      context.criteria.create(groups: { Departments: [1, 3, 4] })
 
-      expect do |blk|
-        Audiences::Notifications.subscribe ExampleOwner, &blk
-        Audiences::Context.create(owner: owner)
-      end.to yield_with_args
+      context.update(match_all: true)
+
+      expect(context.criteria).to be_empty
+    end
+
+    it "clears extra users when set to match all" do
+      context = Audiences::Context.for(owner)
+      context.update(extra_users: [{ "id" => 123 }])
+
+      context.update(match_all: true)
+
+      expect(context.extra_users).to be_empty
     end
   end
 
@@ -22,22 +31,17 @@ RSpec.describe Audiences::Context do
 
   describe ".for(owner)" do
     it "fetches an existing context" do
-      owner = ExampleOwner.create(name: "Example")
       context = Audiences::Context.create(owner: owner)
 
       expect(Audiences::Context.for(owner)).to eql context
     end
 
     it "creates a new context when one doesn't exist" do
-      owner = ExampleOwner.create(name: "Example")
-
       expect(Audiences::Context.for(owner)).to be_a Audiences::Context
     end
   end
 
   describe "#count" do
-    let(:owner) { ExampleOwner.create(name: "Example") }
-
     it "is the total of all member users" do
       user1 = external_user(id: 1)
       user2 = external_user(id: 2)
