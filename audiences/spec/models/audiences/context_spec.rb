@@ -5,6 +5,17 @@ require "rails_helper"
 RSpec.describe Audiences::Context do
   let(:owner) { ExampleOwner.create(name: "Example") }
 
+  describe "#refresh_users!" do
+    it "publishes a notification about the context update" do
+      context = Audiences::Context.for(owner)
+
+      expect do |blk|
+        Audiences::Notifications.subscribe ExampleOwner, &blk
+        context.refresh_users!
+      end.to yield_with_args
+    end
+  end
+
   describe "#match_all" do
     it "clears other criteria when set to match all" do
       context = Audiences::Context.for(owner)

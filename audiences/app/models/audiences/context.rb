@@ -29,11 +29,6 @@ module Audiences
     def refresh_users!
       criteria.each(&:refresh_users!)
       update!(users: ContextUsers.new(self).to_a)
-    end
-
-  private
-
-    def notify
       Notifications.publish(self)
     end
   end
