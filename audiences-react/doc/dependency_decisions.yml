@@ -8,7 +8,7 @@
       at Power, but not for SaaS front-end or mobile/desktop app use cases. Definitions
       can be found at https://tech.powerhrg.com/oss-guide/docs/using/permitted-licenses.html\#permitted-licenses
     :versions:
-    - 10.2.4
+    - 10.2.5
     :when: 2023-08-16 17:03:03.331054000 Z
 - - :license
   - qrcode-terminal
