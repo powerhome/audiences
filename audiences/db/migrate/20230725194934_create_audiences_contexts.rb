@@ -7,7 +7,7 @@ class CreateAudiencesContexts < ActiveRecord::Migration[6.0]
       t.boolean :match_all, default: false, null: false
       t.json :criteria
 
-      t.timestamps
+      t.timestamps precision: 0
     end
   end
 end

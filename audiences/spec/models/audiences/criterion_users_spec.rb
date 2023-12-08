@@ -18,8 +18,8 @@ RSpec.describe Audiences::CriterionUsers do
     users = Audiences::CriterionUsers.new(criterion).to_a
 
     expect(users.size).to eql 2
-    expect(users.first.id).to eql 1313
-    expect(users.last.id).to eql 1414
+    expect(users.first.user_id).to eql "1313"
+    expect(users.last.user_id).to eql "1414"
   end
 
   context "when the criteria has different group types" do
@@ -51,8 +51,8 @@ RSpec.describe Audiences::CriterionUsers do
       users = Audiences::CriterionUsers.new(criterion).to_a
 
       expect(users.size).to eql 2
-      expect(users.first.id).to eql 1313
-      expect(users.last.id).to eql 1515
+      expect(users.first.user_id).to eql "1313"
+      expect(users.last.user_id).to eql "1515"
     end
   end
 end

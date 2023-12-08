@@ -20,12 +20,22 @@ RSpec.describe "/audiences", type: :request do
   end
 
   describe "PUT /audiences/:context_key" do
-    it "updates the audience context" do
+    let(:users_response) do
+      {
+        Resources: [{ id: 1 }, { id: 2 }],
+      }
+    end
+
+    it "updates the audience context to match all" do
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .to_return(status: 200, body: users_response.to_json, headers: {})
+
       put audiences.signed_context_path(context_key), as: :json, params: { match_all: true }
 
       context = Audiences::Context.for(example_owner)
 
       expect(context).to be_match_all
+      expect(context.users.count).to eql 2
     end
 
     it "updates the context extra users" do
@@ -119,9 +129,10 @@ RSpec.describe "/audiences", type: :request do
 
   describe "GET /audiences/:context_key/users" do
     it "is the list of users from an audience context" do
-      Audiences::Context.for(example_owner).update!(
-        extra_users: [{ "id" => 123 }, { "id" => 456 }, { "id" => 789 }]
-      )
+      context = Audiences::Context.for(example_owner)
+      context.users.create(user_id: 123, data: { "id" => 123 })
+      context.users.create(user_id: 456, data: { "id" => 456 })
+      context.users.create(user_id: 789, data: { "id" => 789 })
 
       get audiences.users_path(context_key)
 
@@ -137,14 +148,16 @@ RSpec.describe "/audiences", type: :request do
     it "is the list of users from an audience context's criterion" do
       context = Audiences::Context.for(example_owner)
       criterion = context.criteria.create!
-      criterion.update(users: [{ "id" => 1 }, { "id" => 2 }, { "id" => 3 }])
+      criterion.users.create(user_id: 1, data: { "id" => 1, "displayName" => "John" })
+      criterion.users.create(user_id: 2, data: { "id" => 2, "displayName" => "Jose" })
+      criterion.users.create(user_id: 3, data: { "id" => 3, "displayName" => "Nelson" })
 
       get audiences.users_path(context_key, criterion_id: criterion.id)
 
       expect(response.parsed_body).to match_array([
-                                                    { "id" => 1 },
-                                                    { "id" => 2 },
-                                                    { "id" => 3 },
+                                                    { "id" => 1, "displayName" => "John" },
+                                                    { "id" => 2, "displayName" => "Jose" },
+                                                    { "id" => 3, "displayName" => "Nelson" },
                                                   ])
     end
   end

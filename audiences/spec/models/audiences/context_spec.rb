@@ -3,16 +3,36 @@
 require "rails_helper"
 
 RSpec.describe Audiences::Context do
-  describe "subscriptions" do
-    let(:owner) { ExampleOwner.create(name: "Example") }
+  let(:owner) { ExampleOwner.create(name: "Example") }
 
+  describe "#refresh_users!" do
     it "publishes a notification about the context update" do
-      owner = ExampleOwner.create
+      context = Audiences::Context.for(owner)
 
       expect do |blk|
         Audiences::Notifications.subscribe ExampleOwner, &blk
-        Audiences::Context.create(owner: owner)
+        context.refresh_users!
       end.to yield_with_args
+    end
+  end
+
+  describe "#match_all" do
+    it "clears other criteria when set to match all" do
+      context = Audiences::Context.for(owner)
+      context.criteria.create(groups: { Departments: [1, 3, 4] })
+
+      context.update(match_all: true)
+
+      expect(context.criteria).to be_empty
+    end
+
+    it "clears extra users when set to match all" do
+      context = Audiences::Context.for(owner)
+      context.update(extra_users: [{ "id" => 123 }])
+
+      context.update(match_all: true)
+
+      expect(context.extra_users).to be_empty
     end
   end
 
@@ -22,64 +42,28 @@ RSpec.describe Audiences::Context do
 
   describe ".for(owner)" do
     it "fetches an existing context" do
-      owner = ExampleOwner.create(name: "Example")
       context = Audiences::Context.create(owner: owner)
 
       expect(Audiences::Context.for(owner)).to eql context
     end
 
     it "creates a new context when one doesn't exist" do
-      owner = ExampleOwner.create(name: "Example")
-
       expect(Audiences::Context.for(owner)).to be_a Audiences::Context
     end
   end
 
   describe "#count" do
-    it "is the total of all users matching any criterion" do
-      criterion1 = Audiences::Criterion.new(users: [{ "id" => 1 }, { "id" => 2 }])
-      criterion2 = Audiences::Criterion.new(users: [{ "id" => 2 }, { "id" => 3 }])
+    it "is the total of all member users" do
+      user1 = external_user(id: 1)
+      user2 = external_user(id: 2)
 
-      context = Audiences::Context.new(criteria: [criterion1, criterion2])
+      context = Audiences::Context.create!(owner: owner, users: [user1, user2])
 
-      expect(context.count).to eql 3
-    end
-
-    it "also includes the extra users of the context" do
-      criterion1 = Audiences::Criterion.new(users: [{ "id" => 1 }, { "id" => 2 }])
-      criterion2 = Audiences::Criterion.new(users: [{ "id" => 2 }, { "id" => 3 }])
-
-      context = Audiences::Context.new(criteria: [criterion1, criterion2],
-                                       extra_users: [{ "id" => 3 },
-                                                     { "id" => 4 }])
-
-      expect(context.count).to eql 4
+      expect(context.count).to eql 2
     end
   end
 
-  describe "#users" do
-    it "is the group of all users matching any criterion" do
-      criterion1 = Audiences::Criterion.new(users: [{ "id" => 1 }, { "id" => 2 }])
-      criterion2 = Audiences::Criterion.new(users: [{ "id" => 2 }, { "id" => 3 }])
-
-      context = Audiences::Context.new(criteria: [criterion1, criterion2])
-
-      expect(context.users).to(
-        match_array([{ "id" => 1 }, { "id" => 2 }, { "id" => 3 }])
-      )
-    end
-
-    it "also includes the extra users of the context" do
-      criterion1 = Audiences::Criterion.new(users: [{ "id" => 1 }, { "id" => 2 }])
-      criterion2 = Audiences::Criterion.new(users: [{ "id" => 2 }, { "id" => 3 }])
-
-      context = Audiences::Context.new(criteria: [criterion1, criterion2],
-                                       extra_users: [{ "id" => 3 },
-                                                     { "id" => 4 }])
-
-      expect(context.users).to(
-        match_array([{ "id" => 1 }, { "id" => 2 }, { "id" => 3 }, { "id" => 4 }])
-      )
-    end
+  def external_user(**data)
+    Audiences::ExternalUser.new(user_id: data[:id], data: data)
   end
 end

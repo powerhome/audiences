@@ -5,7 +5,7 @@ class CreateExampleOwners < ActiveRecord::Migration[6.0]
     create_table :example_owners do |t|
       t.string :name
 
-      t.timestamps
+      t.timestamps precision: 0
     end
   end
 end
