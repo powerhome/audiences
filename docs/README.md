@@ -10,7 +10,7 @@
 ## How does it work
 
 1. User creates a criteria based on SCIM groups;
-1. Whenever the group of users matching this criteria changes, a notification is posted to `ActiveSupport::Notifications`;
+1. Whenever the group of users matching this criteria changes, a notification is posted to `Audiences::Notifications`;
 1. The rails app can react to this change (i.e.: granting or revoking memberships).
 
 ## Development
