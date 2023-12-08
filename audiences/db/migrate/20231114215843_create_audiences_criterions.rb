@@ -6,7 +6,7 @@ class CreateAudiencesCriterions < ActiveRecord::Migration[6.0]
       t.json :groups
       t.references :context, null: false, foreign_key: false
 
-      t.timestamps
+      t.timestamps precision: 0
     end
   end
 end

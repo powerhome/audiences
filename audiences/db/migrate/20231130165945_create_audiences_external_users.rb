@@ -6,7 +6,7 @@ class CreateAudiencesExternalUsers < ActiveRecord::Migration[6.0]
       t.string :user_id, null: false
       t.json :data
 
-      t.timestamps
+      t.timestamps precision: 0
       t.index :user_id, unique: true
     end
   end

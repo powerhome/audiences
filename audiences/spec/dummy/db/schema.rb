@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 2023_12_05_140046) do
     t.string "owner_type", null: false
     t.integer "owner_id", null: false
     t.boolean "match_all", default: false, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: 0, null: false
+    t.datetime "updated_at", precision: 0, null: false
     t.json "extra_users"
     t.index ["owner_type", "owner_id"], name: "index_audiences_contexts_on_owner_type_and_owner_id", unique: true
   end
@@ -25,8 +25,8 @@ ActiveRecord::Schema.define(version: 2023_12_05_140046) do
   create_table "audiences_criterions", force: :cascade do |t|
     t.json "groups"
     t.integer "context_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: 0, null: false
+    t.datetime "updated_at", precision: 0, null: false
     t.datetime "refreshed_at"
     t.index ["context_id"], name: "index_audiences_criterions_on_context_id"
   end
@@ -34,8 +34,8 @@ ActiveRecord::Schema.define(version: 2023_12_05_140046) do
   create_table "audiences_external_users", force: :cascade do |t|
     t.string "user_id", null: false
     t.json "data"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: 0, null: false
+    t.datetime "updated_at", precision: 0, null: false
     t.index ["user_id"], name: "index_audiences_external_users_on_user_id", unique: true
   end
 
@@ -43,8 +43,8 @@ ActiveRecord::Schema.define(version: 2023_12_05_140046) do
     t.integer "external_user_id", null: false
     t.string "group_type", null: false
     t.integer "group_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: 0, null: false
+    t.datetime "updated_at", precision: 0, null: false
     t.index ["external_user_id"], name: "index_audiences_memberships_on_external_user_id"
     t.index ["group_type", "group_id"], name: "index_audiences_memberships_on_group_type_and_group_id"
   end
@@ -54,15 +54,15 @@ ActiveRecord::Schema.define(version: 2023_12_05_140046) do
     t.integer "user_id"
     t.string "name"
     t.string "photo"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: 0, null: false
+    t.datetime "updated_at", precision: 0, null: false
     t.index ["owner_id"], name: "index_example_memberships_on_owner_id"
   end
 
   create_table "example_owners", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", precision: 0, null: false
+    t.datetime "updated_at", precision: 0, null: false
   end
 
 end

@@ -6,7 +6,7 @@ class CreateAudiencesMemberships < ActiveRecord::Migration[6.0]
       t.references :external_user, null: false, foreign_key: false
       t.references :group, null: false, foreign_key: false, polymorphic: true
 
-      t.timestamps
+      t.timestamps precision: 0
     end
   end
 end

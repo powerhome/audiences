@@ -7,7 +7,7 @@ class CreateExampleMemberships < ActiveRecord::Migration[6.0]
       t.integer :user_id
       t.string :name
       t.string :photo
-      t.timestamps
+      t.timestamps precision: 0
     end
   end
 end
