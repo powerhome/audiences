@@ -35,10 +35,7 @@ RSpec.describe Audiences::ContextUsers do
 
       users = Audiences::ContextUsers.new(context).to_a
 
-      expect(users.size).to eql 3
-      expect(users[0].user_id).to eql "1"
-      expect(users[1].user_id).to eql "2"
-      expect(users[2].user_id).to eql "3"
+      expect(users.map(&:user_id)).to eq(["1", "2", "3"])
     end
 
     it "includes the extra users uniquely" do
