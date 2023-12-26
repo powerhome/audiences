@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { get } from "lodash"
+import get from "lodash/get"
+import debounce from "lodash/debounce"
 import {
   Body,
   Button,
@@ -12,8 +13,9 @@ import {
   User,
 } from "playbook-ui"
 
-import type { GroupCriterion, ScimObject } from "../types"
-import { useAudienceContext } from "../audiences"
+import type { GroupCriterion, ScimObject } from "../../types"
+import { useAudienceContext } from "../../audiences"
+import styles from "./style.module.css"
 
 type MembersModalButtonProps = any & {
   title: React.ReactNode
@@ -33,20 +35,25 @@ export function MembersModalButton({
   const { fetchUsers } = useAudienceContext()
   const [showMembers, setShowMembers] = useState(false)
 
-  useEffect(
-    function () {
-      setLoading(true)
-      fetchUsers(criterion).then((usersList) => {
-        setUsers(usersList)
-        setLoading(false)
-      })
-    },
-    [search],
-  )
+  useEffect(() => {
+    loadUsers(0).then(setUsers)
+  }, [search])
 
-  const handleMemberNameSearch = ({
+  async function loadUsers(limit: number) {
+    setLoading(true)
+    const users = await fetchUsers(criterion, search, limit)
+    setLoading(false)
+    return users
+  }
+
+  async function handleLoadMore() {
+    const moreUsers = await loadUsers(users.length)
+    setUsers((users) => [...users, ...moreUsers])
+  }
+
+  function handleMemberNameSearch({
     target,
-  }: React.ChangeEvent<HTMLInputElement>) => {
+  }: React.ChangeEvent<HTMLInputElement>) {
     setSearch(target.value)
   }
 
@@ -71,9 +78,9 @@ export function MembersModalButton({
               placeholder="Filter for members"
               value={search}
             />
-            <List>
+            <List className={styles.list}>
               {users.map((user: ScimObject, index: number) => (
-                <ListItem key={`users-${index}`}>
+                <ListItem key={`users-${index}`} padding="xs">
                   <User
                     avatar
                     avatarUrl={get(user, "photos.0.value")}
@@ -82,15 +89,21 @@ export function MembersModalButton({
                   />
                 </ListItem>
               ))}
+              <ListItem>
+                {users.length < count && (
+                  <Button
+                    key={`load-more-${loading}`}
+                    disabled={loading}
+                    flex="1"
+                    text="Load More"
+                    onClick={handleLoadMore}
+                    variant="link"
+                  />
+                )}
+              </ListItem>
             </List>
           </Flex>
           <Flex orientation="column" align="center">
-            <Button
-              key={`load-more-${loading}`}
-              flex="1"
-              text="Load More"
-              variant="link"
-            />
             <Caption size="xs" text={`Showing ${users.length} of ${count}`} />
           </Flex>
         </Dialog.Body>
