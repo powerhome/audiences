@@ -12,6 +12,7 @@ module Audiences
 
     def users
       users = (current_criterion || current_context).users
+                                                    .search(params[:search])
                                                     .limit(params[:limit] || 20)
                                                     .offset(params[:offset])
 

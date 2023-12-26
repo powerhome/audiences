@@ -14,6 +14,10 @@ module Audiences
       where(user_id: attrs.pluck(:user_id))
     end
 
+    scope :search, ->(search) do
+      where("data LIKE ?", "%#{search}%")
+    end
+
     def as_json(*)
       data.as_json
     end
