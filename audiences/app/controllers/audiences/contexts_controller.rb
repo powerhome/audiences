@@ -11,13 +11,24 @@ module Audiences
     end
 
     def users
-      context = Audiences.load(params.require(:key))
-      criterion = context.criteria.find(params[:criterion_id]) if params[:criterion_id]
+      users = (current_criterion || current_context).users
+                                                    .limit(params[:limit] || 20)
+                                                    .offset(params[:offset])
 
-      render json: (criterion || context).users
+      render json: users
     end
 
   private
+
+    def current_context
+      @current_context ||= Audiences.load(params.require(:key))
+    end
+
+    def current_criterion
+      return unless params[:criterion_id]
+
+      @current_criterion ||= current_context.criteria.find(params[:criterion_id])
+    end
 
     def render_context(context)
       render json: context.as_json(
