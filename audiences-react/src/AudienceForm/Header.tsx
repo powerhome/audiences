@@ -5,22 +5,22 @@ import { useFormContext } from "react-hook-form"
 import { MembersModalButton } from "./MembersModal"
 
 type HeaderProps = {
-  count: number
+  total: number
 }
-export function Header({ count }: HeaderProps) {
+export function Header({ total }: HeaderProps) {
   const { register, formState } = useFormContext()
 
   return (
     <Flex orientation="row" spacing="between" wrap>
       <FlexItem>
-        <Members count={count} />
+        <Members total={total} />
 
         {formState.isDirty || (
           <MembersModalButton
             text="View All Members"
             title="All users"
             padding="none"
-            count={count}
+            total={total}
           />
         )}
       </FlexItem>

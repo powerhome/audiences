@@ -59,7 +59,7 @@ export function CriteriaActions({
               padding="xs"
               text="Users"
               title={<CriteriaDescription groups={criterion.groups} />}
-              count={criterion.count}
+              total={criterion.count}
               criterion={criterion}
             />
           )}

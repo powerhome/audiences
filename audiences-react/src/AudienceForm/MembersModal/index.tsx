@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react"
 import get from "lodash/get"
-import debounce from "lodash/debounce"
 import {
   Body,
   Button,
@@ -20,12 +19,12 @@ import styles from "./style.module.css"
 type MembersModalButtonProps = any & {
   title: React.ReactNode
   criterion?: GroupCriterion
-  count: number
+  total: number
 }
 
 export function MembersModalButton({
   title,
-  count,
+  total,
   criterion,
   ...buttonOptions
 }: MembersModalButtonProps) {
@@ -104,7 +103,10 @@ export function MembersModalButton({
             </List>
           </Flex>
           <Flex orientation="column" align="center">
-            <Caption size="xs" text={`Showing ${users.length} of ${count}`} />
+            <Caption
+              size="xs"
+              text={`Showing ${users.length} of ${total}`}
+            />
           </Flex>
         </Dialog.Body>
       </Dialog>

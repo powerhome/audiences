@@ -35,7 +35,7 @@ export const AudienceForm = ({
     <FormProvider {...form}>
       <Card margin="xs" padding="xs">
         <Card.Header headerColor="white">
-          <Header count={context.count} />
+          <Header total={context.count} />
         </Card.Header>
 
         {all || (

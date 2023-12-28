@@ -2,10 +2,10 @@ import { Caption } from "playbook-ui"
 import { useFormContext } from "react-hook-form"
 
 type MembersProps = {
-  count: number
+  total: number
 }
 
-export function Members({ count }: MembersProps) {
+export function Members({ total }: MembersProps) {
   const { formState } = useFormContext()
 
   return (
@@ -17,7 +17,7 @@ export function Members({ count }: MembersProps) {
           text="Audience total will update when the page is saved"
         />
       ) : (
-        <Caption marginLeft="xs" size="xs" tag="span" text={count} />
+        <Caption marginLeft="xs" size="xs" tag="span" text={total} />
       )}
     </div>
   )
