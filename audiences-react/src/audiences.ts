@@ -38,7 +38,7 @@ type UseAudienceContext = {
     criterion?: GroupCriterion,
     search?: string,
     offset?: number,
-  ) => Promise<ScimObject[]>
+  ) => Promise<{ count: number; users: ScimObject[] }>
 }
 export function useAudienceContext(): UseAudienceContext {
   const { context, setContext, get, put } = useContext(Context)!

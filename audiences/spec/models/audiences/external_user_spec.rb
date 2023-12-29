@@ -3,21 +3,6 @@
 require "rails_helper"
 
 RSpec.describe Audiences::ExternalUser do
-  describe ".search" do
-    it "searches through any serialized data attribute" do
-      john_doe = Audiences::ExternalUser.create(user_id: 123, data: { name: "John Doe" })
-      frank_doe = Audiences::ExternalUser.create(user_id: 321, data: { name: "Frank Doe", territory: "Philadelphia" })
-
-      john_search = Audiences::ExternalUser.search("John")
-      phila_search = Audiences::ExternalUser.search("Phila")
-
-      expect(john_search.count).to eql 1
-      expect(john_search.first).to eql john_doe
-      expect(phila_search.count).to eql 1
-      expect(phila_search.first).to eql frank_doe
-    end
-  end
-
   describe "#map" do
     it "takes a list of user data and creates ExternalUser instances, returning them" do
       john, joseph, mary, steve, *others = Audiences::ExternalUser.wrap([

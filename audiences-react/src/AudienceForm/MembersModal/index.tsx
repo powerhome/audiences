@@ -28,26 +28,31 @@ export function MembersModalButton({
   criterion,
   ...buttonOptions
 }: MembersModalButtonProps) {
-  const [loading, setLoading] = useState<boolean>()
-  const [users, setUsers] = useState<ScimObject[]>([])
-  const [search, setSearch] = useState("")
   const { fetchUsers } = useAudienceContext()
+  const [loading, setLoading] = useState<boolean>()
+  const [current, setUsers] = useState<
+    Awaited<ReturnType<typeof fetchUsers>> | undefined
+  >()
+  const [search, setSearch] = useState("")
   const [showMembers, setShowMembers] = useState(false)
 
   useEffect(() => {
-    loadUsers(0).then(setUsers)
+    load(0).then(setUsers)
   }, [search])
 
-  async function loadUsers(limit: number) {
+  async function load(offset: number) {
     setLoading(true)
-    const users = await fetchUsers(criterion, search, limit)
-    setLoading(false)
-    return users
+    return fetchUsers(criterion, search, offset).finally(() => {
+      setLoading(false)
+    })
   }
 
   async function handleLoadMore() {
-    const moreUsers = await loadUsers(users.length)
-    setUsers((users) => [...users, ...moreUsers])
+    const moreUsers = await load(current!.users.length)
+    setUsers((current) => ({
+      count: moreUsers.count,
+      users: [...current!.users, ...moreUsers.users],
+    }))
   }
 
   function handleMemberNameSearch({
@@ -70,45 +75,47 @@ export function MembersModalButton({
           </Flex>
         </Dialog.Header>
 
-        <Dialog.Body className="px-5">
-          <Flex orientation="column" align="stretch">
-            <TextInput
-              onChange={handleMemberNameSearch}
-              placeholder="Filter for members"
-              value={search}
-            />
-            <List className={styles.list}>
-              {users.map((user: ScimObject, index: number) => (
-                <ListItem key={`users-${index}`} padding="xs">
-                  <User
-                    avatar
-                    avatarUrl={get(user, "photos.0.value")}
-                    margin="none"
-                    name={user.displayName}
-                  />
+        {current && (
+          <Dialog.Body className="px-5">
+            <Flex orientation="column" align="stretch">
+              <TextInput
+                onChange={handleMemberNameSearch}
+                placeholder="Filter for members"
+                value={search}
+              />
+              <List className={styles.list}>
+                {current.users.map((user: ScimObject, index: number) => (
+                  <ListItem key={`users-${index}`} padding="xs">
+                    <User
+                      avatar
+                      avatarUrl={get(user, "photos.0.value")}
+                      margin="none"
+                      name={user.displayName}
+                    />
+                  </ListItem>
+                ))}
+                <ListItem>
+                  {current.users.length < current.count && (
+                    <Button
+                      key={`load-more-${loading}`}
+                      disabled={loading}
+                      flex="1"
+                      text="Load More"
+                      onClick={handleLoadMore}
+                      variant="link"
+                    />
+                  )}
                 </ListItem>
-              ))}
-              <ListItem>
-                {users.length < count && (
-                  <Button
-                    key={`load-more-${loading}`}
-                    disabled={loading}
-                    flex="1"
-                    text="Load More"
-                    onClick={handleLoadMore}
-                    variant="link"
-                  />
-                )}
-              </ListItem>
-            </List>
-          </Flex>
-          <Flex orientation="column" align="center">
-            <Caption
-              size="xs"
-              text={`Showing ${users.length} of ${total}`}
-            />
-          </Flex>
-        </Dialog.Body>
+              </List>
+            </Flex>
+            <Flex orientation="column" align="center">
+              <Caption
+                size="xs"
+                text={`Showing ${current.users.length} of ${total}`}
+              />
+            </Flex>
+          </Dialog.Body>
+        )}
       </Dialog>
     </>
   )

@@ -12,11 +12,12 @@ module Audiences
 
     def users
       users = (current_criterion || current_context).users
-                                                    .search(params[:search])
-                                                    .limit(params[:limit] || 20)
-                                                    .offset(params[:offset])
+      search = UsersSearch.new(scope: users,
+                               query: params[:search],
+                               limit: params[:limit],
+                               offset: params[:offset])
 
-      render json: users
+      render json: search
     end
 
   private
