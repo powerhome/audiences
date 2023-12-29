@@ -37,6 +37,7 @@ module_function
   # Params might contain:
   #
   # match_all: Boolean
+  # criteria: Array<{ <group_type>: Array<Integer> }>
   #
   # @param token [String] a signed token (see #sign)
   # @param params [Hash] the updated params

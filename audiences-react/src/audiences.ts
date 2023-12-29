@@ -34,13 +34,23 @@ export function useAudience(uri: string): ContextProps {
 type UseAudienceContext = {
   context?: AudienceContext
   update: (attrs: AudienceContext) => void
-  fetchUsers: (criterion?: GroupCriterion) => Promise<ScimObject[]>
+  fetchUsers: (
+    criterion?: GroupCriterion,
+    search?: string,
+    offset?: number,
+  ) => Promise<{ count: number; users: ScimObject[] }>
 }
 export function useAudienceContext(): UseAudienceContext {
   const { context, setContext, get, put } = useContext(Context)!
 
-  async function fetchUsers(criterion?: GroupCriterion) {
-    return get(`/users/${criterion?.id || ""}`)
+  async function fetchUsers(
+    criterion?: GroupCriterion,
+    search?: string,
+    offset?: number,
+  ) {
+    return get(
+      `/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
+    )
   }
 
   async function update(attrs: AudienceContext) {

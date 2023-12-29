@@ -136,11 +136,14 @@ RSpec.describe "/audiences", type: :request do
 
       get audiences.users_path(context_key)
 
-      expect(response.parsed_body).to match_array([
-                                                    { "id" => 123 },
-                                                    { "id" => 456 },
-                                                    { "id" => 789 },
-                                                  ])
+      expect(response.parsed_body).to match({
+                                              "count" => 3,
+                                              "users" => [
+                                                { "id" => 123 },
+                                                { "id" => 456 },
+                                                { "id" => 789 },
+                                              ],
+                                            })
     end
   end
 
@@ -154,11 +157,14 @@ RSpec.describe "/audiences", type: :request do
 
       get audiences.users_path(context_key, criterion_id: criterion.id)
 
-      expect(response.parsed_body).to match_array([
-                                                    { "id" => 1, "displayName" => "John" },
-                                                    { "id" => 2, "displayName" => "Jose" },
-                                                    { "id" => 3, "displayName" => "Nelson" },
-                                                  ])
+      expect(response.parsed_body).to match_array({
+                                                    "count" => 3,
+                                                    "users" => [
+                                                      { "id" => 1, "displayName" => "John" },
+                                                      { "id" => 2, "displayName" => "Jose" },
+                                                      { "id" => 3, "displayName" => "Nelson" },
+                                                    ],
+                                                  })
     end
   end
 end

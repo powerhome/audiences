@@ -1,0 +1,9 @@
+div.list {
+  height: 275px;
+  mask-image: linear-gradient(
+    to bottom,
+    black calc(100% - 48px),
+    transparent 100%
+  );
+  overflow: scroll;
+}
