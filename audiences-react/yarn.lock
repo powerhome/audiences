@@ -1325,24 +1325,24 @@
     "@volar/language-core" "1.11.1"
     path-browserify "^1.0.1"
 
-"@vue/compiler-core@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.4.0.tgz#2a35bc4b70afb5504ff62f916e22f9080d8149b6"
-  integrity sha512-cw4S15PkNGTKkP9OFFl4wnQoJJk+HqaYBafgrpDnSukiQGpcYJeRpzmqnCVCIkl6V6Eqsv58E0OAdl6b592vuA==
+"@vue/compiler-core@3.4.14":
+  version "3.4.14"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.4.14.tgz#c3efdf3be8b0c4bf30830063d505c8c7945b6f0d"
+  integrity sha512-ro4Zzl/MPdWs7XwxT7omHRxAjMbDFRZEEjD+2m3NBf8YzAe3HuoSEZosXQo+m1GQ1G3LQ1LdmNh1RKTYe+ssEg==
   dependencies:
     "@babel/parser" "^7.23.6"
-    "@vue/shared" "3.4.0"
+    "@vue/shared" "3.4.14"
     entities "^4.5.0"
     estree-walker "^2.0.2"
     source-map-js "^1.0.2"
 
 "@vue/compiler-dom@^3.3.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@vue/compiler-dom/-/compiler-dom-3.4.0.tgz#25d4c1e24a2e37c4136cdc593cd533d371bc573b"
-  integrity sha512-E957uOhpoE48YjZGWeAoLmNYd3UeU4oIP8kJi8Rcsb9l2tV8Z48Jn07Zgq1aW0v3vuhlmydEKkKKbhLpADHXEA==
+  version "3.4.14"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-dom/-/compiler-dom-3.4.14.tgz#ba7269996ef12a3b9293083ac109b52d14c9ccb5"
+  integrity sha512-nOZTY+veWNa0DKAceNWxorAbWm0INHdQq7cejFaWM1WYnoNSJbSEKYtE7Ir6lR/+mo9fttZpPVI9ZFGJ1juUEQ==
   dependencies:
-    "@vue/compiler-core" "3.4.0"
-    "@vue/shared" "3.4.0"
+    "@vue/compiler-core" "3.4.14"
+    "@vue/shared" "3.4.14"
 
 "@vue/language-core@1.8.27", "@vue/language-core@^1.8.26":
   version "1.8.27"
@@ -1359,10 +1359,10 @@
     path-browserify "^1.0.1"
     vue-template-compiler "^2.7.14"
 
-"@vue/shared@3.4.0", "@vue/shared@^3.3.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.4.0.tgz#b6e804a4742929f94f0159aafd0a2940621cd8de"
-  integrity sha512-Nhh3ed3G1R6HDAWiG6YYFt0Zmq/To6u5vjzwa9TIquGheCXPY6nEdIAO8ZdlwXsWqC2yNLj700FOvShpYt5CEA==
+"@vue/shared@3.4.14", "@vue/shared@^3.3.0":
+  version "3.4.14"
+  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.4.14.tgz#bc2d199a42a87f0349492fdfb83abc205ddd4d60"
+  integrity sha512-nmi3BtLpvqXAWoRZ6HQ+pFJOHBU4UnH3vD3opgmwXac7vhaHKA9nj1VeGjMggdB9eLtW83eHyPCmOU1qzdsC7Q==
 
 abbrev@^2.0.0:
   version "2.0.0"
@@ -5005,9 +5005,9 @@ validator@^13.7.0:
   integrity sha512-Ii+sehpSfZy+At5nPdnyMhx78fEoPDkR2XW/zimHEL3MyGJQOCQ7WeP20jPYRz7ZCpcKLB21NxuXHF3bxjStBQ==
 
 vite-plugin-dts@^3.5.1:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/vite-plugin-dts/-/vite-plugin-dts-3.7.0.tgz#654ee7c38c0cdd4589b9bc198a264f34172bd870"
-  integrity sha512-np1uPaYzu98AtPReB8zkMnbjwcNHOABsLhqVOf81b3ol9b5M2wPcAVs8oqPnOpr6Us+7yDXVauwkxsk5+ldmRA==
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-dts/-/vite-plugin-dts-3.7.1.tgz#b2c76749e78348d355c816c30583c2aa574c7986"
+  integrity sha512-VZJckNFpVfRAkmOxhGT5OgTUVWVXxkNQqLpBUuiNGAr9HbtvmvsPLo2JB3Xhn+o/Z9+CT6YZfYa4bX9SGR5hNw==
   dependencies:
     "@microsoft/api-extractor" "7.39.0"
     "@rollup/pluginutils" "^5.1.0"
