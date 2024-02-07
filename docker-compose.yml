@@ -9,7 +9,7 @@ services:
     environment:
       RAILS_ENV: development
       VITE_RUBY_HOST: dummy-vite
-      SCIM_V2_API: http://scim-stub:3002/api/scim/v2
+      SCIM_V2_API: http://scim-stub:3002/api/scim/v2/
     command:
       - /bin/sh
       - -c
