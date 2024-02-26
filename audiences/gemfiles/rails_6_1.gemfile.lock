@@ -73,9 +73,11 @@ GEM
       rake
       thor (>= 0.14.0)
     ast (2.4.2)
+    bigdecimal (3.1.6)
     builder (3.2.4)
     concurrent-ruby (1.2.2)
-    crack (0.4.5)
+    crack (1.0.0)
+      bigdecimal
       rexml
     crass (1.0.6)
     date (3.3.4)
@@ -266,7 +268,7 @@ GEM
       dry-cli (>= 0.7, < 2)
       rack-proxy (~> 0.6, >= 0.6.1)
       zeitwerk (~> 2.2)
-    webmock (3.19.1)
+    webmock (3.23.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -280,6 +282,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  arm64-darwin-23
   x86_64-linux
 
 DEPENDENCIES

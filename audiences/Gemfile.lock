@@ -69,7 +69,7 @@ GEM
       rake
       thor (>= 0.14.0)
     ast (2.4.2)
-    bigdecimal (1.4.4)
+    bigdecimal (3.1.6)
     builder (3.2.4)
     concurrent-ruby (1.2.2)
     crack (0.4.6)
@@ -279,6 +279,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  arm64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
