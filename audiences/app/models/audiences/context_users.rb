@@ -20,8 +20,8 @@ module Audiences
   private
 
     def all_users
-      Scim.resources(type: :Users, wrapper: ExternalUser)
-          .all
+      users = Scim.resources(type: :Users)
+      ExternalUser.wrap(users.all)
     end
 
     def matching_users

@@ -11,9 +11,8 @@ module Audiences
 
       attr_reader :query_options
 
-      def initialize(client, resource_type:, wrapper: SafeObject, **query_options)
+      def initialize(client, resource_type:, **query_options)
         @client = client
-        @wrapper = wrapper
         @resource_type = resource_type
         @query_options = query_options
       end
@@ -28,7 +27,7 @@ module Audiences
       end
 
       def resources
-        @resources ||= @wrapper.wrap(response.fetch("Resources", []))
+        @resources ||= response.fetch("Resources", [])
       end
 
       def next_page?
@@ -43,7 +42,7 @@ module Audiences
         return unless next_page?
 
         current_page = @query_options.fetch(:page, 1)
-        ResourcesQuery.new(@client, wrapper: @wrapper, resource_type: @resource_type, **@query_options,
+        ResourcesQuery.new(@client, resource_type: @resource_type, **@query_options,
                                     page: current_page + 1)
       end
 

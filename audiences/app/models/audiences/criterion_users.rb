@@ -20,8 +20,8 @@ module Audiences
 
     def groups_users(group_ids)
       filter = group_ids.map { "groups.value eq #{_1}" }.join(" OR ")
-      Audiences::Scim.resources(type: :Users, filter: filter, wrapper: ExternalUser)
-                     .all.to_a
+      users = Audiences::Scim.resources(type: :Users, filter: filter)
+      ExternalUser.wrap(users.all)
     end
   end
 end
