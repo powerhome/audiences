@@ -27,7 +27,7 @@ RSpec.describe "/audiences", type: :request do
     end
 
     it "updates the audience context to match all" do
-      stub_request(:get, "http://example.com/scim/v2/Users")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos")
         .to_return(status: 200, body: users_response.to_json, headers: {})
 
       put audiences.signed_context_path(context_key), as: :json, params: { match_all: true }
@@ -78,13 +78,17 @@ RSpec.describe "/audiences", type: :request do
       end
 
       it "allows updating the group criteria" do
-        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 123")
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+                           "&filter=groups.value eq 123")
           .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 321")
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+                           "&filter=groups.value eq 321")
           .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 789")
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+                           "&filter=groups.value eq 789")
           .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?filter=groups.value eq 987")
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+                           "&filter=groups.value eq 987")
           .to_return(status: 200, body: users_response.to_json, headers: {})
 
         put audience_context_path(example_owner),
