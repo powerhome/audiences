@@ -27,7 +27,7 @@ services:
       - .:/app
       - dummy_web_bundle:/usr/local/bundle
   dummy-vite:
-    image: node:21.7.2-alpine
+    image: node:21.7.3-alpine
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     command:
