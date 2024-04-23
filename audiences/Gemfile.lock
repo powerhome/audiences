@@ -87,7 +87,7 @@ GEM
     diff-lcs (1.5.1)
     dry-cli (1.0.0)
     erubi (1.12.0)
-    foreman (0.87.2)
+    foreman (0.88.1)
     globalid (1.1.0)
       activesupport (>= 5.0)
     hashdiff (1.1.0)
@@ -97,7 +97,7 @@ GEM
     irb (1.11.2)
       rdoc
       reline (>= 0.4.2)
-    json (2.7.1)
+    json (2.7.2)
     language_server-protocol (3.17.0.3)
     license_finder (7.1.0)
       bundler
@@ -204,7 +204,7 @@ GEM
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
     rspec-support (3.13.0)
-    rubocop (1.62.1)
+    rubocop (1.63.3)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -289,7 +289,7 @@ DEPENDENCIES
   appraisal (~> 2.5.0)
   audiences!
   debug (>= 1.0.0)
-  foreman (~> 0.87.2)
+  foreman (~> 0.88.0)
   license_finder (>= 7.0)
   puma (~> 6.3)
   rails (~> 6.1.7.0)
