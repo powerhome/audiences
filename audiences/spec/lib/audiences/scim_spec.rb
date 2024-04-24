@@ -16,7 +16,7 @@ RSpec.describe Audiences::Scim do
   end
 
   describe ".defaults" do
-    it "the default for any resource is to limit the attributes to id and displayName" do
+    it "limits the attributes to id and displayName by default" do
       expect(Audiences::Scim.defaults[:Anything]).to eql({ attributes: "id,displayName" })
     end
 
