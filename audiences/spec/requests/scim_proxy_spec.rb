@@ -5,9 +5,9 @@ require "rails_helper"
 RSpec.describe "/audiences/scim", type: :request do
   let(:resources) do
     [
-      { id: "1", displayName: "A Name", photos: "photo 1", anotherAttribute: "value" },
-      { id: "2", displayName: "Another Name", photos: "photo 2", anotherAttribute: "value" },
-      { id: "3", displayName: "YAN", photos: "photo 3", anotherAttribute: "value" },
+      { id: "1", displayName: "A Name", photos: "photo 1" },
+      { id: "2", displayName: "Another Name", photos: "photo 2" },
+      { id: "3", displayName: "YAN", photos: "photo 3" },
     ].as_json
   end
   let(:response_body) do

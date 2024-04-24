@@ -11,7 +11,7 @@ RSpec.describe Audiences::ContextUsers do
           { "id" => 1414 },
         ],
       }
-      stub_request(:get, "http://example.com/scim/v2/Users")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos")
         .to_return(status: 200, body: response.to_json)
 
       context = Audiences::Context.new(match_all: true)

@@ -5,7 +5,7 @@ module Audiences
     has_many :memberships
 
     def self.wrap(resources)
-      return [] if resources.blank?
+      return [] unless resources&.any?
 
       attrs = resources.map do |data|
         { user_id: data["id"], data: data, created_at: Time.current, updated_at: Time.current }
