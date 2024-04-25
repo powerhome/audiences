@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.version     = Audiences::VERSION
   spec.authors     = ["Carlos Palhares"]
   spec.email       = ["carlos.palhares@powerhrg.com"]
-  spec.homepage    = "https://github.com/powerhome/power-tools"
+  spec.homepage    = "https://github.com/powerhome/audiences"
   spec.summary     = "Audiences system"
   spec.description = "Audiences notify the Rails app when a SCIM backend updates a user affecting matching audiences"
   spec.license     = "MIT"
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/packages/audiences/docs/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "docs/*"]
+    Dir["{app,config,db,lib}/**/*", "Rakefile", "docs/*"]
   end
 
   spec.required_ruby_version = ">= 2.7"

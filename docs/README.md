@@ -4,8 +4,8 @@
 
 ## Installation
 
-1. Follow the [installation instructions](../audiences/docs/README.md#installation) for the audiences gem.
-1. Follow the [installation instructions](../audiences-react/docs/README.md#installation) for the `@powerhome/audiences` package for react.
+1. Follow the [installation instructions](../audiences/docs/README.md#installation) for the `audiences` gem.
+1. Follow the [installation instructions](../audiences-react/docs/README.md#installation) for the `audiences` package for react.
 
 ## How does it work
 
@@ -23,7 +23,7 @@ These packages are maintained by [Power's](https://github.com/powerhome) Heroes 
 
 ## Contributing 💙
 
-Contributions are welcome! Feel free to [open a ticket](https://github.com/powerhome/power-tools/issues/new) or a [PR](https://github.com/powerhome/power-tools/pulls).
+Contributions are welcome! Feel free to [open a ticket](https://github.com/powerhome/audiences/issues/new) or a [PR](https://github.com/powerhome/audiences/pulls).
 
 ## License
 

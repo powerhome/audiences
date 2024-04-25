@@ -1,6 +1,6 @@
 {
   "name": "audiences",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Audiences SCIM client",
   "files": [
     "dist"
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:powerhome/power-tools.git"
+    "url": "git@github.com:powerhome/audiences.git"
   },
   "keywords": [
     "audiences",

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "/audiences", type: :request do
+RSpec.describe "/audiences" do
   let(:example_owner) { ExampleOwner.create!(name: "Example Owner") }
   let(:context_key) { Audiences.sign(example_owner) }
 
