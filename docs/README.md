@@ -4,8 +4,8 @@
 
 ## Installation
 
-1. Follow the [installation instructions](../audiences/docs/README.md#installation) for the audiences gem.
-1. Follow the [installation instructions](../audiences-react/docs/README.md#installation) for the `@powerhome/audiences` package for react.
+1. Follow the [installation instructions](../audiences/docs/README.md#installation) for the `audiences` gem.
+1. Follow the [installation instructions](../audiences-react/docs/README.md#installation) for the `audiences` package for react.
 
 ## How does it work
 

@@ -1,6 +1,6 @@
-# `@powerhome/audiences`
+# `audiences`
 
-`@powerhome/audiences`` is a [SCIM](https://datatracker.ietf.org/doc/html/rfc7644)-integrated UI to create criteria based on SCIM groups and users.
+`audiences` is a [SCIM](https://datatracker.ietf.org/doc/html/rfc7644)-integrated UI to create criteria based on SCIM groups and users.
 
 ## Usage
 
@@ -27,13 +27,13 @@ Audiences assumes three peer dependencies are configured:
 ## Installation
 
 ```bash
-yarn add @powerhome/audiences
+yarn add audiences
 ```
 
 Or
 
 ```bash
-npm i -S @powerhome/audiences
+npm i -S audiences
 ```
 
 ## Contributing
