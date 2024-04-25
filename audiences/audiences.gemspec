@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/packages/audiences/docs/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "docs/*"]
+    Dir["{app,config,db,lib}/**/*", "Rakefile", "docs/*"]
   end
 
   spec.required_ruby_version = ">= 2.7"
