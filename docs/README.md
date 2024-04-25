@@ -23,7 +23,7 @@ These packages are maintained by [Power's](https://github.com/powerhome) Heroes 
 
 ## Contributing 💙
 
-Contributions are welcome! Feel free to [open a ticket](https://github.com/powerhome/power-tools/issues/new) or a [PR](https://github.com/powerhome/power-tools/pulls).
+Contributions are welcome! Feel free to [open a ticket](https://github.com/powerhome/audiences/issues/new) or a [PR](https://github.com/powerhome/audiences/pulls).
 
 ## License
 

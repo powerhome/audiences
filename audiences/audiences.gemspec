@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.version     = Audiences::VERSION
   spec.authors     = ["Carlos Palhares"]
   spec.email       = ["carlos.palhares@powerhrg.com"]
-  spec.homepage    = "https://github.com/powerhome/power-tools"
+  spec.homepage    = "https://github.com/powerhome/audiences"
   spec.summary     = "Audiences system"
   spec.description = "Audiences notify the Rails app when a SCIM backend updates a user affecting matching audiences"
   spec.license     = "MIT"
