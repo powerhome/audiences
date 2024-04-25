@@ -25,7 +25,6 @@ module Audiences
       subscriptions[owner_type] = job&.method(:perform_later) || cbk
     end
 
-
     # Notifies that a given audience context was changed
     #
     # @param context [Audiences::Context] updated context

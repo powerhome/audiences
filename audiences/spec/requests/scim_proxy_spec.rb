@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "/audiences/scim", type: :request do
+RSpec.describe "/audiences/scim" do
   let(:resources) do
     [
       { id: "1", displayName: "A Name", photos: "photo 1" },
