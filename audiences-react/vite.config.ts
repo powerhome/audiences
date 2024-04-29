@@ -11,7 +11,7 @@ module.exports = defineConfig({
     }),
   ],
   build: {
-    target: ['es2018'],
+    target: ["es2018"],
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
       name: "audiences",
