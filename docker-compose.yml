@@ -1,5 +1,6 @@
 volumes:
   dummy_web_bundle:
+  dummy_web_db:
   scim_stub_db:
 services:
   dummy-web:
@@ -10,6 +11,7 @@ services:
       RAILS_ENV: development
       VITE_RUBY_HOST: dummy-vite
       SCIM_V2_API: http://scim-stub:3002/api/scim/v2/
+      MYSQL_HOST: mysql
     command:
       - /bin/sh
       - -c
@@ -23,6 +25,7 @@ services:
     depends_on:
       - dummy-vite
       - scim-stub
+      - mysql
     volumes:
       - .:/app
       - dummy_web_bundle:/usr/local/bundle
@@ -54,3 +57,12 @@ services:
       - "3002:3002"
     volumes:
       - scim_stub_db:/app/db/development.sqlite3
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - dummy_web_db:/var/lib/mysql

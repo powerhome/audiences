@@ -10,7 +10,7 @@ module Audiences
       attrs = resources.map do |data|
         { user_id: data["id"], data: data, created_at: Time.current, updated_at: Time.current }
       end
-      upsert_all(attrs, unique_by: :user_id) # rubocop:disable Rails/SkipsModelValidations
+      upsert_all(attrs) # rubocop:disable Rails/SkipsModelValidations
       where(user_id: attrs.pluck(:user_id))
     end
 
