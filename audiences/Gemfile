@@ -22,4 +22,4 @@ gem "webmock", "~> 3.18"
 
 # Development environment dependencies
 gem "puma", "~> 6.3"
-gem "sqlite3", "< 2.0"
+gem "sqlite3", "< 2.1"
