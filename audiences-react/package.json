@@ -58,7 +58,7 @@
     "eslint-plugin-flowtype": "8.0.3",
     "eslint-plugin-jsx-control-statements": "3.0.0",
     "eslint-plugin-react": "7.34.1",
-    "eslint-plugin-react-hooks": "4.6.1",
+    "eslint-plugin-react-hooks": "4.6.2",
     "eslint-webpack-plugin": "4.1.0",
     "npm": "^10.0.0",
     "playbook-ui": "12.38.0-alpha.audiencesalpha1083",
