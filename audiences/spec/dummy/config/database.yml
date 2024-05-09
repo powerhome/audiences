@@ -1,19 +1,19 @@
 development:
-  adapter: mysql2
+  adapter: <%= ENV.fetch("DATABASE_ADAPTER") { "mysql2" } %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
-  username: <%= ENV.fetch("MYSQL_USER", "root") %>
-  password: <%= ENV.fetch("MYSQL_PASS", "root") %>
-  host: <%= ENV.fetch("MYSQL_HOST", "127.0.0.1") %>
-  port: 3306
+  username: <%= ENV.fetch("DATABASE_USER") { "root" } %>
+  password: <%= ENV.fetch("DATABASE_PASS") { "root" } %>
+  host: <%= ENV.fetch("DATABASE_HOST") { "127.0.0.1" } %>
+  port: <%= ENV.fetch("DATABASE_PORT") { "3306" } %>
   database: development
 
 test:
-  adapter: mysql2
+  adapter: <%= ENV.fetch("DATABASE_ADAPTER") { "mysql2" } %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
-  username: <%= ENV.fetch("MYSQL_USER", "root") %>
-  password: <%= ENV.fetch("MYSQL_PASS", "root") %>
-  host: <%= ENV.fetch("MYSQL_HOST", "127.0.0.1") %>
-  port: 3306
+  username: <%= ENV.fetch("DATABASE_USER") { "root" } %>
+  password: <%= ENV.fetch("DATABASE_PASS") { "root" } %>
+  host: <%= ENV.fetch("DATABASE_HOST") { "127.0.0.1" } %>
+  port: <%= ENV.fetch("DATABASE_PORT") { "3306" } %>
   database: test
