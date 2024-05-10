@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::ExternalUser do
+RSpec.describe Audiences::ExternalUser, :aggregate_failures do
   describe "#map" do
     it "takes a list of user data and creates ExternalUser instances, returning them" do
       john, joseph, mary, steve, *others = Audiences::ExternalUser.wrap([
