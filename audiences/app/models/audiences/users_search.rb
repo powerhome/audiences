@@ -27,7 +27,14 @@ module Audiences
   private
 
     def result
-      @result ||= @scope.where("data LIKE ?", "%#{@query}%")
+      @result ||= @scope.where("#{data_attribute_query} LIKE ?", "%#{@query}%")
+    end
+
+    def data_attribute_query
+      case @scope.connection.adapter_name
+      when "PostgreSQL" then "CAST(data AS TEXT)"
+      else "CAST(data AS CHAR)"
+      end
     end
   end
 end
