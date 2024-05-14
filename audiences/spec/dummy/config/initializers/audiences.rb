@@ -2,7 +2,7 @@
 
 Audiences::Scim.client = Audiences::Scim::Client.new(
   uri: ENV.fetch("SCIM_V2_API", "http://example.com/scim/v2/"),
-  headers: { "Authorization" => "Bearer 123456789" }
+  headers: { "Authorization" => ENV.fetch("SCIM_AUTHORIZATION", "Bearer 123456789") }
 )
 
 Audiences::Scim.defaults[:Users] = { attributes: "id,displayName,photos" }

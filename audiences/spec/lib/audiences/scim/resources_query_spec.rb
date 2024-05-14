@@ -40,7 +40,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
         )
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { page: 2 })
+            .with(method: :Get, path: :Users, query: { startIndex: 3 })
             .and_return("Resources" => [
                           { "id" => 333, "displayName" => "John Doe the 3rd" },
                           { "id" => 444, "displayName" => "John Doe the 4th" },
@@ -51,7 +51,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
         )
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { page: 3 })
+            .with(method: :Get, path: :Users, query: { startIndex: 5 })
             .and_return("Resources" => [
                           { "id" => 555, "displayName" => "John Doe the 5th" },
                         ],
@@ -139,19 +139,19 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
         query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users, filters: "displayName eq John")
         next_page = query.next_page
 
-        expect(next_page.query_options.delete(:page)).to eql 2
+        expect(next_page.query_options.delete(:startIndex)).to eql 26
         expect(query.query_options).to eql(next_page.query_options)
       end
 
       it "is nil when there is no next page" do
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { page: 2 })
+            .with(method: :Get, path: :Users, query: { startIndex: 26 })
             .and_return("totalResults" => 40,
                         "startIndex" => 26,
                         "itemsPerPage" => 25)
         )
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users, page: 2)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users, startIndex: 26)
 
         expect(query.next_page?).to be false
         expect(query.next_page).to be_nil
