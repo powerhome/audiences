@@ -31,19 +31,30 @@ module Audiences
       end
 
       def next_page?
-        start_index = response.fetch("startIndex", 1)
-        per_page = response["itemsPerPage"].to_i
-        total_results = response["totalResults"].to_i
-
         start_index + per_page <= total_results
+      end
+
+      def start_index
+        response.fetch("startIndex", 1)
+      end
+
+      def per_page
+        response["itemsPerPage"].to_i
+      end
+
+      def total_results
+        response["totalResults"].to_i
+      end
+
+      def next_index
+        start_index + per_page
       end
 
       def next_page
         return unless next_page?
 
-        current_page = @query_options.fetch(:page, 1)
         ResourcesQuery.new(@client, resource_type: @resource_type, **@query_options,
-                                    page: current_page + 1)
+                                    startIndex: next_index)
       end
 
     private
