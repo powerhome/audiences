@@ -4,8 +4,14 @@ require "rails_helper"
 
 RSpec.describe Audiences::UsersSearch do
   it "searches through any serialized data attribute" do
-    john_doe = Audiences::ExternalUser.create(user_id: 123, data: { name: "John Doe" })
-    frank_doe = Audiences::ExternalUser.create(user_id: 321, data: { name: "Frank Doe", territory: "Philadelphia" })
+    john_doe = Audiences::ExternalUser.create(
+      user_id: 123,
+      data: { displayName: "John Doe" }
+    )
+    frank_doe = Audiences::ExternalUser.create(
+      user_id: 321,
+      data: { displayName: "Frank Doe", territory: "Philadelphia" }
+    )
 
     john_search = Audiences::UsersSearch.new(query: "John")
     phila_search = Audiences::UsersSearch.new(query: "Phila")

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::ExternalUser do
+RSpec.describe Audiences::ExternalUser, :aggregate_failures do
   describe "#map" do
     it "takes a list of user data and creates ExternalUser instances, returning them" do
       john, joseph, mary, steve, *others = Audiences::ExternalUser.wrap([
@@ -26,13 +26,12 @@ RSpec.describe Audiences::ExternalUser do
 
     it "updates existing users" do
       joseph = Audiences::ExternalUser.create(user_id: 456, data: { "id" => 456, displayName: "Joseph F. Doe" })
+      user_data = [
+        { "id" => 123, "displayName" => "John Doe" },
+        { "id" => 456, "displayName" => "Joseph Doe" },
+      ]
 
-      john, updated_joseph, *others = Audiences::ExternalUser.wrap([
-                                                                     { "id" => 123,
-                                                                       "displayName" => "John Doe" },
-                                                                     { "id" => 456,
-                                                                       "displayName" => "Joseph Doe" },
-                                                                   ])
+      john, updated_joseph, *others = Audiences::ExternalUser.wrap(user_data).order(:user_id)
 
       expect(others).to be_empty
       expect(john.user_id).to eql "123"

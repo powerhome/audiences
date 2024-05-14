@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fix PostgreSQL compability [#312](https://github.com/powerhome/audiences/pull/312)
+
 # Version 1.0.2 (2024-04-30)
 
 - Fix mysql2 compability – drop sqlite3 [#292](https://github.com/powerhome/audiences/pull/292)
