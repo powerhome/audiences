@@ -1,5 +1,6 @@
 # Unreleased
 
+- Fix typeahead glitch [#314](https://github.com/powerhome/audiences/pull/314)
 - Wrap SCIM resource typeahead search as a string [#308](https://github.com/powerhome/audiences/pull/308)
 
 # Version 1.0.2 (2024-04-30)

@@ -43,12 +43,8 @@ export function ScimResourceTypeahead({
     search: string,
     callback: (options: PlaybookOption[]) => void,
   ) => {
-    if (search.length > 2) {
-      const options = await filter<ScimObject>(resourceId, search)
-      callback(playbookOptions(options))
-    } else {
-      callback([])
-    }
+    const options = await filter<ScimObject>(resourceId, search)
+    callback(playbookOptions(options))
   }
 
   return (
