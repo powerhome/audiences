@@ -80,6 +80,7 @@ export function CriteriaListFields({
 
       <FlexItem grow alignSelf="center">
         <Button
+          marginTop="md"
           fixedWidth
           onClick={handleCreateCriteria}
           text={`Add Members by ${toSentence(groupResources)}`}

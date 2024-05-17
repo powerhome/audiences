@@ -22,7 +22,7 @@ export function CriteriaCard({
   }
 
   return (
-    <Card padding="sm">
+    <Card padding="sm" marginBottom="xs">
       <Flex justify="between">
         <FlexItem>
           <CriteriaDescription groups={criterion.groups} />
