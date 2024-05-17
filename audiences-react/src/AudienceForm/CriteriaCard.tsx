@@ -32,7 +32,7 @@ export function CriteriaCard({
               marginLeft="xs"
               size="xs"
               tag="span"
-              text={criterion.count?.toString()}
+              text={`Members ${criterion.count?.toString()}`}
             />
           )}
         </FlexItem>
