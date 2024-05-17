@@ -17,7 +17,7 @@ export function Members({ total }: MembersProps) {
           text="Audience members will update when the page is saved"
         />
       ) : (
-        <Caption marginLeft="xs" size="xs" tag="span" text={total} />
+        <Caption marginLeft="xs" tag="span" text={total} />
       )}
     </div>
   )
