@@ -40,18 +40,18 @@ export const AudienceForm = ({
 
         {all || (
           <Card.Body>
-            <CriteriaListFields
-              groupResources={groupResources}
-              name="criteria"
-            />
-
             {allowIndividuals && userResource && (
               <ScimResourceTypeahead
-                label="Other Members"
+                label="Add Individuals"
                 name="extra_users"
                 resourceId={userResource}
               />
             )}
+
+            <CriteriaListFields
+              groupResources={groupResources}
+              name="criteria"
+            />
           </Card.Body>
         )}
 
