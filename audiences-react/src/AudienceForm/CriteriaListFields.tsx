@@ -8,6 +8,7 @@ import omitBy from "lodash/omitBy"
 import { CriteriaCard } from "./CriteriaCard"
 import { CriteriaFieldsModal } from "./CriteriaFieldsModal"
 import { GroupCriterion } from "../types"
+import { toSentence } from "./toSentence"
 
 type GroupCriterionField = GroupCriterion & {
   id: string
@@ -81,7 +82,7 @@ export function CriteriaListFields({
         <Button
           fixedWidth
           onClick={handleCreateCriteria}
-          text="Add Audience Criteria"
+          text={`Add Members by ${toSentence(groupResources)}`}
           variant="link"
         />
       </FlexItem>

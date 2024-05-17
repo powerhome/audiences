@@ -6,8 +6,9 @@ export function toSentence(names: string[]) {
   } else if (names.length == 2) {
     return join(names, " and ");
   } else {
-    const lastOne = names.pop();
+    const all = [...names]
+    const lastOne = all.pop();
 
-    return `${join(names, ", ")}, and ${lastOne}`;
+    return `${join(all, ", ")}, and ${lastOne}`;
   }
 }
