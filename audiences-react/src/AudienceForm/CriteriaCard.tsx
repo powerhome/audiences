@@ -1,4 +1,4 @@
-import { Card, Body, Flex, FlexItem, Caption } from "playbook-ui"
+import { Card, Flex, FlexItem, Caption } from "playbook-ui"
 
 import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
@@ -21,19 +21,12 @@ export function CriteriaCard({
   }
 
   return (
-    <Card padding="xs" margin="xs">
+    <Card padding="sm">
       <Flex justify="between">
         <FlexItem>
-          <Body className="mr-3">
-            <CriteriaDescription groups={criterion.groups} />
-          </Body>
+          <CriteriaDescription groups={criterion.groups} />
           {viewUsers && (
-            <Caption
-              marginLeft="xs"
-              size="xs"
-              tag="span"
-              text={`Members ${criterion.count?.toString()}`}
-            />
+            <Caption text={`Members ${criterion.count?.toString()}`} />
           )}
         </FlexItem>
 

@@ -1,4 +1,5 @@
 import React from "react"
+import { Body, Title } from "playbook-ui"
 import map from "lodash/map"
 import isEmpty from "lodash/isEmpty"
 
@@ -19,16 +20,16 @@ export function CriteriaDescription({ groups }: CriteriaDescriptionProps) {
 
   return (
     <div>
-      {"All "}
+      <Body tag="span" text="All" />
       {map(Prepositions, (prep, key) =>
         isEmpty(groups[key]) ? null : (
           <React.Fragment key={`groups-${key}`}>
-            {` ${prep} `}
-            <strong>{toSentence(map(groups[key], "displayName"))}</strong>
+            <Body tag="span" text={` ${prep} `} />
+            <Title tag="span" size={4} text={toSentence(map(groups[key], "displayName"))} />
           </React.Fragment>
         ),
       )}
-      {"."}
+      <Body tag="span">{"."}</Body>
     </div>
   )
 }
