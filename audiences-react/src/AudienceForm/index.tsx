@@ -57,7 +57,12 @@ export const AudienceForm = ({
 
         <Card.Body>
           <div className="mt-5 pt-5">
-            <Button onClick={form.handleSubmit(update)} text="Save" />
+            <Button
+              disabled={!form.formState.isDirty || !form.formState.isValid || form.formState.isSubmitting}
+              loading={form.formState.isSubmitting}
+              onClick={form.handleSubmit(update)}
+              text="Save"
+            />
             {form.formState.isDirty && (
               <Button
                 marginLeft="sm"
