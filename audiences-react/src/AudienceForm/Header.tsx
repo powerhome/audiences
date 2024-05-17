@@ -1,6 +1,5 @@
 import { Flex, FlexItem, Caption, Toggle } from "playbook-ui"
 
-import { Members } from "./Members"
 import { useFormContext } from "react-hook-form"
 import { MembersModalButton } from "./MembersModal"
 
@@ -13,9 +12,15 @@ export function Header({ total }: HeaderProps) {
   return (
     <Flex orientation="row" spacing="between" wrap>
       <FlexItem>
-        <Members total={total} />
+        <Caption text={`Members ${formState.isDirty ? '' : total}`} />
 
-        {formState.isDirty || (
+        {formState.isDirty ? (
+          <Caption
+            size="xs"
+            marginTop="sm"
+            text="Audience members will update when the page is saved"
+          />
+        ) : (
           <MembersModalButton
             text="View All"
             title="All Members"
