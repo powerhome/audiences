@@ -1,4 +1,5 @@
 import { Card, Flex, FlexItem, Caption } from "playbook-ui"
+import isEmpty from "lodash/isEmpty"
 
 import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
@@ -16,7 +17,7 @@ export function CriteriaCard({
   onRequestRemove,
   onRequestEdit,
 }: CriteriaCardProps) {
-  if (!criterion) {
+  if (!criterion || isEmpty(criterion.groups)) {
     return null
   }
 
