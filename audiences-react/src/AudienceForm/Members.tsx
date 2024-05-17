@@ -10,11 +10,11 @@ export function Members({ total }: MembersProps) {
 
   return (
     <div>
-      <Caption tag="span" text="Audience Total" />
+      <Caption tag="span" text="Members" />
       {formState.isDirty ? (
         <Caption
           size="xs"
-          text="Audience total will update when the page is saved"
+          text="Audience members will update when the page is saved"
         />
       ) : (
         <Caption marginLeft="xs" size="xs" tag="span" text={total} />

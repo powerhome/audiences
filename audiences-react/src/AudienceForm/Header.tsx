@@ -17,8 +17,8 @@ export function Header({ total }: HeaderProps) {
 
         {formState.isDirty || (
           <MembersModalButton
-            text="View All Members"
-            title="All users"
+            text="View All"
+            title="All Members"
             padding="none"
             total={total}
           />
