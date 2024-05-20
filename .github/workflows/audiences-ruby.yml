@@ -1,4 +1,4 @@
-name: audiences-multi
+name: audiences-ruby
 
 on:
   push:
@@ -72,6 +72,18 @@ jobs:
           gemfile: ${{ matrix.gemfile }}
 
   license-compliance:
-    uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@master
+    uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@main
     with:
       workdir: audiences
+
+  release:
+    needs: [build, license-compliance]
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cadwallion/publish-rubygems-action@master
+        env:
+          RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
+          RUBYGEMS_API_KEY: ${{ secrets.rubygems_api_key }}
+          WORKDIR: audiences
