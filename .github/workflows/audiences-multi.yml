@@ -70,3 +70,8 @@ jobs:
           workdir: audiences
           ruby: ${{ matrix.ruby }}
           gemfile: ${{ matrix.gemfile }}
+
+  license-compliance:
+    uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@master
+    with:
+      workdir: audiences
