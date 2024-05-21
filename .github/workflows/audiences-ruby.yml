@@ -49,7 +49,7 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install non-ruby dependencies
         run: sudo apt-get install libpq-dev
       - name: 'mysql2 adapter'
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: cadwallion/publish-rubygems-action@master
         env:
           RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
