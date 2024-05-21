@@ -157,6 +157,7 @@ GEM
     parser (3.3.1.0)
       ast (~> 2.4.1)
       racc
+    pg (1.5.6)
     psych (5.1.2)
       stringio
     public_suffix (5.0.5)
@@ -313,6 +314,7 @@ DEPENDENCIES
   foreman (~> 0.88.0)
   license_finder (>= 7.0)
   mysql2 (~> 0.5.6)
+  pg (~> 1.0)
   puma (~> 6.3)
   rails (~> 7.1, < 7.2)
   rake (>= 13.0)
