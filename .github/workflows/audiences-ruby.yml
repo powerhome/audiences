@@ -53,7 +53,7 @@ jobs:
       - name: Install non-ruby dependencies
         run: sudo apt-get install libpq-dev
       - name: 'mysql2 adapter'
-        uses: powerhome/github-actions-workflows/ruby-gem@rubygem-action
+        uses: powerhome/github-actions-workflows/ruby-gem@main
         env:
           DATABASE_ADAPTER: mysql2
           DATABASE_PORT: 3306
@@ -62,7 +62,7 @@ jobs:
           ruby: ${{ matrix.ruby }}
           gemfile: ${{ matrix.gemfile }}
       - name: 'postgresql adapter'
-        uses: powerhome/github-actions-workflows/ruby-gem@rubygem-action
+        uses: powerhome/github-actions-workflows/ruby-gem@main
         env:
           DATABASE_ADAPTER: postgresql
           DATABASE_PORT: 5432
