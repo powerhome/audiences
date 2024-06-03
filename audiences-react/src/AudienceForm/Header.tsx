@@ -1,12 +1,13 @@
 import { Flex, FlexItem, Caption, Toggle } from "playbook-ui"
-
 import { useFormContext } from "react-hook-form"
+
 import { MembersModalButton } from "./MembersModal"
 
 type HeaderProps = {
-  total: number
+  name: string
+  total?: number
 }
-export function Header({ total }: HeaderProps) {
+export function Header({ name, total }: HeaderProps) {
   const { register, formState } = useFormContext()
 
   return (
@@ -33,7 +34,7 @@ export function Header({ total }: HeaderProps) {
         <Flex justify="right" orientation="row">
           <Flex align="center">
             <Toggle>
-              <input {...register("match_all")} type="checkbox" />
+              <input {...register(name)} type="checkbox" />
             </Toggle>
             <Caption marginLeft="xs" size="xs" text="All Employees" />
           </Flex>

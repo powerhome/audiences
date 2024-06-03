@@ -28,6 +28,25 @@ export function useAudience(uri: string): ContextProps {
     [uri],
   )
 
+  async function fetchUsers(
+    criterion?: GroupCriterion,
+    search?: string,
+    offset?: number,
+  ) {
+    return fetch.get(
+      `/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
+    )
+  }
+
+  async function update(attrs: AudienceContext) {
+    try {
+      const updatedContext = await fetch.put(attrs)
+      setContext(updatedContext)
+    } catch (e) {
+      console.log(attrs, e)
+    }
+  }
+
   return { context, setContext, ...fetch }
 }
 

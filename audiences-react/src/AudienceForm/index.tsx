@@ -1,11 +1,16 @@
 import { FormProvider, useForm } from "react-hook-form"
-import { Button, Card, Flex, Icon } from "playbook-ui"
+import { Card, Flex, Icon } from "playbook-ui"
 
-import { Header } from "./Header"
-import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
-import { CriteriaListFields } from "./CriteriaListFields"
 import { AudienceContext } from "../types"
+
 import { useAudienceContext } from "../audiences"
+import { toSentence } from "./toSentence"
+
+import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
+import { CriteriaList } from "./CriteriaList"
+import { AllToggle } from "./AllToggle"
+import { CriteriaForm } from "./CriteriaForm"
+import { useCriteriaEditForm } from "./useCriteriaEditForm"
 
 type AudienceFormProps = {
   userResource: string
@@ -19,61 +24,45 @@ export const AudienceForm = ({
   allowIndividuals = true,
 }: AudienceFormProps) => {
   const { context, update } = useAudienceContext()
-  const form = useForm<AudienceContext>({ values: context })
-
-  const all = form.watch("match_all")
+  const form = useForm<AudienceContext>({ values: context, mode: "onChange" })
+  const { currentEditing, addNewCriteria, editCriteria, removeCriteria, closeCriteria } = useCriteriaEditForm({ form, groupResources })
 
   if (!context) {
     return (
-      <Flex justify="center">
-        <Icon fontStyle="fas" icon="spinner" spin />
-      </Flex>
+      <Card>
+        <Flex justify="center">
+          <Icon fontStyle="fas" icon="spinner" spin />
+        </Flex>
+      </Card>
     )
   }
 
   return (
     <FormProvider {...form}>
-      <Card margin="xs" padding="xs">
-        <Card.Header headerColor={all ? "none" : "white"}>
-          <Header total={context.count} />
-        </Card.Header>
-
-        {all || (
-          <Card.Body>
-            {allowIndividuals && userResource && (
+      <form onSubmit={form.handleSubmit(update)} onReset={() => form.reset()}>
+        {currentEditing === undefined ? (
+          <AllToggle total={context.count} name="match_all">
+            {allowIndividuals && (
               <ScimResourceTypeahead
                 label="Add Individuals"
                 name="extra_users"
-                resourceId={userResource}
-              />
+                resourceId={userResource} />
             )}
 
-            <CriteriaListFields
-              groupResources={groupResources}
-              name="criteria"
+            <CriteriaList
+              addCriteriaLabel={`Add Members by ${toSentence(groupResources)}`}
+              onAddCriteria={addNewCriteria}
+              onRemoveCriteria={removeCriteria}
+              onEditCriteria={editCriteria}
             />
-          </Card.Body>
+          </AllToggle>
+        ) : (
+          <CriteriaForm
+            current={`criteria.${currentEditing}`}
+            onClose={closeCriteria}
+          />
         )}
-
-        <Card.Body>
-          <div className="mt-5 pt-5">
-            <Button
-              disabled={!form.formState.isDirty || !form.formState.isValid || form.formState.isSubmitting}
-              loading={form.formState.isSubmitting}
-              onClick={form.handleSubmit(update)}
-              text="Save"
-            />
-            {form.formState.isDirty && (
-              <Button
-                marginLeft="sm"
-                onClick={() => form.reset()}
-                text="Cancel"
-                variant="link"
-              />
-            )}
-          </div>
-        </Card.Body>
-      </Card>
+      </form>
     </FormProvider>
   )
 }

@@ -1,7 +1,6 @@
 import React from "react"
 import { Body, Title } from "playbook-ui"
-import map from "lodash/map"
-import isEmpty from "lodash/isEmpty"
+import { isEmpty, map } from "lodash"
 
 import { Groups } from "../types"
 import { toSentence } from "./toSentence"
@@ -13,11 +12,9 @@ const Prepositions = {
 }
 
 type CriteriaDescriptionProps = {
-  groups?: Groups
+  groups: Groups
 }
 export function CriteriaDescription({ groups }: CriteriaDescriptionProps) {
-  if (!groups || groups.groups) return null
-
   return (
     <div>
       <Body tag="span" text="All" />
