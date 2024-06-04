@@ -50,14 +50,14 @@ export function CriteriaActions({
             size="xs"
             padding="xs"
             onClick={handleAndClose(onRequestEdit)}
-            text="Edit"
+            text="Edit Filter"
           />
         </ListItem>
         <ListItem padding="none">
           {viewUsers && (
             <MembersModalButton
               padding="xs"
-              text="Users"
+              text="View Members"
               title={<CriteriaDescription groups={criterion.groups} />}
               total={criterion.count}
               criterion={criterion}
@@ -70,7 +70,7 @@ export function CriteriaActions({
             size="xs"
             padding="xs"
             onClick={handleAndClose(onRequestRemove)}
-            text="Delete"
+            text="Delete Filter"
           />
         </ListItem>
       </List>
