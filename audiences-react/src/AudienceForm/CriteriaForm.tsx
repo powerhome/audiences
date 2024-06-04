@@ -6,14 +6,14 @@ import { CriteriaDescription } from "./CriteriaDescription"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { useMemo } from "react"
 
-export type CriteriaFieldsModalProps = {
+export type CriteriaFormProps = {
   current: string
   onClose: () => void
 }
 export function CriteriaForm({
   current,
   onClose,
-}: CriteriaFieldsModalProps) {
+}: CriteriaFormProps) {
   const { setValue, watch } = useFormContext()
   const value = watch(`${current}.groups`)
   const initialValue = useMemo(() => ({ ...value }), [current])
@@ -28,13 +28,15 @@ export function CriteriaForm({
   return (
     <Card>
       <Card.Header headerColor="white">
-        <IconValue
-          fixedWidth
-          icon="chevron-left"
-          align="left"
-          size="1x"
-          text="Filter Members"
-        />
+        <Button onClick={handleCancel} variant="link" padding="none">
+          <IconValue
+            fixedWidth
+            icon="chevron-left"
+            align="left"
+            size="1x"
+            text="Filter Members"
+          />
+        </Button>
       </Card.Header>
 
       <Card.Body>
