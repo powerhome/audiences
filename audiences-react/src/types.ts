@@ -12,7 +12,7 @@ export interface Groups {
 }
 
 export interface GroupCriterion {
-  id: number
+  id?: number
   groups: Groups
   count?: number
 }
