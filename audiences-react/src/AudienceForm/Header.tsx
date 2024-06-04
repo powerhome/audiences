@@ -13,7 +13,7 @@ export function Header({ name, total }: HeaderProps) {
   return (
     <Flex orientation="row" spacing="between" wrap>
       <FlexItem>
-        <Caption text={`Members ${formState.isDirty ? '' : total}`} />
+        <Caption text={`Members ${formState.isDirty ? "" : total}`} />
 
         {formState.isDirty ? (
           <Caption

@@ -22,7 +22,11 @@ export function CriteriaDescription({ groups }: CriteriaDescriptionProps) {
         isEmpty(groups[key]) ? null : (
           <React.Fragment key={`groups-${key}`}>
             <Body tag="span" text={` ${prep} `} />
-            <Title tag="span" size={4} text={toSentence(map(groups[key], "displayName"))} />
+            <Title
+              tag="span"
+              size={4}
+              text={toSentence(map(groups[key], "displayName"))}
+            />
           </React.Fragment>
         ),
       )}

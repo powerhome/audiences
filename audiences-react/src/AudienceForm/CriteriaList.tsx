@@ -11,24 +11,28 @@ type CriteriaListFieldsProps = {
   onRemoveCriteria: (index: number) => void
   onEditCriteria: (index: number) => void
 }
-export function CriteriaList({ addCriteriaLabel, onAddCriteria, onRemoveCriteria, onEditCriteria }: CriteriaListFieldsProps) {
+export function CriteriaList({
+  addCriteriaLabel,
+  onAddCriteria,
+  onRemoveCriteria,
+  onEditCriteria,
+}: CriteriaListFieldsProps) {
   const { watch, getFieldState } = useFormContext()
   const currentCriteria = (watch("criteria") || []) as GroupCriterion[]
-  const isCriterionDirty = (index: number) => getFieldState(`criteria.${index}`).isDirty
+  const isCriterionDirty = (index: number) =>
+    getFieldState(`criteria.${index}`).isDirty
 
   return (
     <Flex orientation="column" align="stretch">
-      {currentCriteria.map(
-        (criterion, index: number) => (
-          <CriteriaCard
-            key={`criterion-${criterion.id}`}
-            criterion={criterion}
-            viewUsers={!isCriterionDirty(index)}
-            onRequestEdit={() => onEditCriteria(index)}
-            onRequestRemove={() => onRemoveCriteria(index)}
-          />
-        ),
-      )}
+      {currentCriteria.map((criterion, index: number) => (
+        <CriteriaCard
+          key={`criterion-${criterion.id}`}
+          criterion={criterion}
+          viewUsers={!isCriterionDirty(index)}
+          onRequestEdit={() => onEditCriteria(index)}
+          onRequestRemove={() => onRemoveCriteria(index)}
+        />
+      ))}
 
       <FlexItem alignSelf="center">
         <Button

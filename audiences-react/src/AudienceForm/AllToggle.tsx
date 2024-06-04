@@ -4,9 +4,9 @@ import { Button, Card, Flex } from "playbook-ui"
 import { Header } from "./Header"
 
 type MainProps = {
-  total: number,
-  name: string,
-  children: React.ReactNode,
+  total: number
+  name: string
+  children: React.ReactNode
 }
 
 export function AllToggle({ total, name, children }: MainProps) {
@@ -25,17 +25,23 @@ export function AllToggle({ total, name, children }: MainProps) {
 
           <Flex justify="between" marginTop="md">
             <Button
-              disabled={!formState.isDirty || !formState.isValid || formState.isSubmitting}
+              disabled={
+                !formState.isDirty ||
+                !formState.isValid ||
+                formState.isSubmitting
+              }
               loading={formState.isSubmitting}
               text="Save"
-              htmlType="submit" />
+              htmlType="submit"
+            />
 
             {formState.isDirty && (
               <Button
                 marginLeft="sm"
                 text="Cancel"
                 variant="link"
-                htmlType="reset" />
+                htmlType="reset"
+              />
             )}
           </Flex>
         </Flex>

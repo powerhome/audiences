@@ -10,10 +10,7 @@ export type CriteriaFormProps = {
   current: string
   onClose: () => void
 }
-export function CriteriaForm({
-  current,
-  onClose,
-}: CriteriaFormProps) {
+export function CriteriaForm({ current, onClose }: CriteriaFormProps) {
   const { setValue, watch } = useFormContext()
   const value = watch(`${current}.groups`)
   const initialValue = useMemo(() => ({ ...value }), [current])
@@ -24,7 +21,7 @@ export function CriteriaForm({
     setValue(`${current}.groups`, initialValue)
     onClose()
   }
-  
+
   return (
     <Card>
       <Card.Header headerColor="white">

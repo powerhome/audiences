@@ -25,7 +25,13 @@ export const AudienceForm = ({
 }: AudienceFormProps) => {
   const { context, update } = useAudienceContext()
   const form = useForm<AudienceContext>({ values: context, mode: "onChange" })
-  const { currentEditing, addNewCriteria, editCriteria, removeCriteria, closeCriteria } = useCriteriaEditForm({ form, groupResources })
+  const {
+    currentEditing,
+    addNewCriteria,
+    editCriteria,
+    removeCriteria,
+    closeCriteria,
+  } = useCriteriaEditForm({ form, groupResources })
 
   if (!context) {
     return (
@@ -46,7 +52,8 @@ export const AudienceForm = ({
               <ScimResourceTypeahead
                 label="Add Individuals"
                 name="extra_users"
-                resourceId={userResource} />
+                resourceId={userResource}
+              />
             )}
 
             <CriteriaList
