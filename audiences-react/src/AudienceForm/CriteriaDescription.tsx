@@ -1,23 +1,9 @@
 import React from "react"
-import join from "lodash/join"
-import map from "lodash/map"
-import isEmpty from "lodash/isEmpty"
+import { Body, Title } from "playbook-ui"
+import { isEmpty, map } from "lodash"
 
-import { Groups, ScimObject } from "../types"
-
-function toSentence(resources: ScimObject[]) {
-  const names = map(resources, "displayName")
-
-  if (names.length == 1) {
-    return names
-  } else if (names.length == 2) {
-    return join(names, " and ")
-  } else {
-    const lastOne = names.pop()
-
-    return `${join(names, ", ")}, and ${lastOne}`
-  }
-}
+import { Groups } from "../types"
+import { toSentence } from "./toSentence"
 
 const Prepositions = {
   Titles: "",
@@ -26,23 +12,25 @@ const Prepositions = {
 }
 
 type CriteriaDescriptionProps = {
-  groups?: Groups
+  groups: Groups
 }
 export function CriteriaDescription({ groups }: CriteriaDescriptionProps) {
-  if (!groups || groups.groups) return null
-
   return (
     <div>
-      {"All "}
+      <Body tag="span" text="All" />
       {map(Prepositions, (prep, key) =>
         isEmpty(groups[key]) ? null : (
           <React.Fragment key={`groups-${key}`}>
-            {` ${prep} `}
-            <strong>{toSentence(groups[key])}</strong>
+            <Body tag="span" text={` ${prep} `} />
+            <Title
+              tag="span"
+              size={4}
+              text={toSentence(map(groups[key], "displayName"))}
+            />
           </React.Fragment>
         ),
       )}
-      {"."}
+      <Body tag="span">{"."}</Body>
     </div>
   )
 }

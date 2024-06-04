@@ -11,7 +11,7 @@ services:
       RAILS_ENV: development
       VITE_RUBY_HOST: dummy-vite
       SCIM_V2_API: http://scim-stub:3002/api/scim/v2/
-      MYSQL_HOST: mysql
+      DATABASE_HOST: mysql
     command:
       - /bin/sh
       - -c
