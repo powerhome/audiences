@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.1.0 (2024-06-10)
+
+- Bump a number of libraries (see release notes)
+
 # Version 1.0.3 (2024-05-14)
 
 - Fix PostgreSQL compability [#312](https://github.com/powerhome/audiences/pull/312)

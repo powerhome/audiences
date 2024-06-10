@@ -1,6 +1,6 @@
 {
   "name": "audiences",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Audiences SCIM client",
   "files": [
     "dist"
