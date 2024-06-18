@@ -9,9 +9,13 @@ RSpec.describe Audiences::Scim do
 
       query = Audiences::Scim.resources(type: :Test)
 
-      expect(query.query_options).to eql({
-                                           attributes: "id,photos",
-                                         })
+      expect(query.query_options).to eql({ attributes: "id,photos" })
+    end
+
+    it "applies the default attributes if no default is set" do
+      query = Audiences::Scim.resources(type: :Anything)
+
+      expect(query.query_options).to eql({ attributes: "id,displayName" })
     end
   end
 

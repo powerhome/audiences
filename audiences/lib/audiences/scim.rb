@@ -11,7 +11,7 @@ module Audiences
   module_function
 
     def resources(type:, client: Scim.client, **options)
-      options = defaults.fetch(type, {}).merge(options)
+      options = (defaults[type] || {}).merge(options)
 
       ResourcesQuery.new(client, resource_type: type, **options)
     end

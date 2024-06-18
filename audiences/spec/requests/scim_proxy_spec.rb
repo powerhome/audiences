@@ -16,7 +16,7 @@ RSpec.describe "/audiences/scim" do
 
   context "GET /audiences/scim" do
     it "returns the Resources key from the response" do
-      stub_request(:get, "http://example.com/scim/v2/MyResources?filter=name eq John")
+      stub_request(:get, "http://example.com/scim/v2/MyResources?attributes=id,displayName&filter=name eq John")
         .to_return(status: 200, body: response_body, headers: {})
 
       get audience_scim_proxy_path(scim_path: "MyResources", filter: "name eq John")
