@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.1.1 (2024-06-18)
+
+- Fix default resource attributes [#342](https://github.com/powerhome/audiences/pull/342)
+
 # Version 1.1.0 (2024-06-10)
 
 - Bump a number of libraries (see release notes)
