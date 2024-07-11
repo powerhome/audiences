@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.1.2 (2024-06-18)
+
+- Ignore empty groups in criterion [#354](https://github.com/powerhome/audiences/pull/354)
+
 # Version 1.1.1 (2024-06-18)
 
 - Fix default resource attributes [#342](https://github.com/powerhome/audiences/pull/342)
