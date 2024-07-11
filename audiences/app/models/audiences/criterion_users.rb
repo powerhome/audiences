@@ -11,6 +11,7 @@ module Audiences
 
     def each(...)
       @groups.values
+             .reject(&:empty?)
              .map { |groups| groups_users(groups.pluck("id")) }
              .reduce(&:&)
              &.each(...)
