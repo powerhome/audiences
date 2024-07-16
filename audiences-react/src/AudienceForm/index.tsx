@@ -30,7 +30,8 @@ export const AudienceForm = ({
     addNewCriteria,
     editCriteria,
     removeCriteria,
-    closeCriteria,
+    cancelEdit,
+    saveCriteria,
   } = useCriteriaEditForm({ form, groupResources })
 
   if (!context) {
@@ -66,7 +67,8 @@ export const AudienceForm = ({
         ) : (
           <CriteriaForm
             current={`criteria.${currentEditing}`}
-            onClose={closeCriteria}
+            onCancel={cancelEdit}
+            onSave={saveCriteria}
           />
         )}
       </form>

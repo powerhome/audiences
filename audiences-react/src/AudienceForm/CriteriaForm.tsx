@@ -8,9 +8,10 @@ import { useMemo } from "react"
 
 export type CriteriaFormProps = {
   current: string
-  onClose: () => void
+  onSave: () => void
+  onCancel: () => void
 }
-export function CriteriaForm({ current, onClose }: CriteriaFormProps) {
+export function CriteriaForm({ current, onSave, onCancel }: CriteriaFormProps) {
   const { setValue, watch } = useFormContext()
   const value = watch(`${current}.groups`)
   const initialValue = useMemo(() => ({ ...value }), [current])
@@ -19,7 +20,7 @@ export function CriteriaForm({ current, onClose }: CriteriaFormProps) {
 
   const handleCancel = () => {
     setValue(`${current}.groups`, initialValue)
-    onClose()
+    onCancel()
   }
 
   return (
@@ -49,7 +50,7 @@ export function CriteriaForm({ current, onClose }: CriteriaFormProps) {
         {emptyCriteria || <CriteriaDescription groups={value} />}
 
         <Flex justify="between" marginTop="md">
-          <Button onClick={onClose} text="Save" disabled={emptyCriteria} />
+          <Button onClick={onSave} text="Save" disabled={emptyCriteria} />
           <Button onClick={handleCancel} text="Cancel" variant="link" />
         </Flex>
       </Card.Body>

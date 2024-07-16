@@ -40,10 +40,13 @@ export function useCriteriaEditForm({
   const editCriteria = (index: number) => {
     setCurrentEditing(index)
   }
-  const closeCriteria = () => {
-    if (!form.formState.isValid) {
+  const cancelEdit = () => {
+    if (currentEditing && currentCriteria[currentEditing].count == undefined) {
       remove(currentEditing)
     }
+    setCurrentEditing(undefined)
+  }
+  const saveCriteria = () => {
     setCurrentEditing(undefined)
   }
 
@@ -52,6 +55,7 @@ export function useCriteriaEditForm({
     addNewCriteria,
     editCriteria,
     removeCriteria,
-    closeCriteria,
+    cancelEdit,
+    saveCriteria
   }
 }
