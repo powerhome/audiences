@@ -1,77 +1,118 @@
-import { FormProvider, useForm } from "react-hook-form"
-import { Card, Flex, Icon } from "playbook-ui"
+import { useState } from "react"
+import { Button, Flex } from "playbook-ui"
 
-import { AudienceContext } from "../types"
-
-import { useAudienceContext } from "../audiences"
+import { GroupCriterion, ScimObject } from "../types"
 import { toSentence } from "./toSentence"
 
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { CriteriaList } from "./CriteriaList"
-import { AllToggle } from "./AllToggle"
 import { CriteriaForm } from "./CriteriaForm"
-import { useCriteriaEditForm } from "./useCriteriaEditForm"
+import { useAudiences } from "../audiences"
+import { MatchAllToggleCard } from "./MatchAllToggleHeader"
 
 type AudienceFormProps = {
+  uri: string
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
 }
 
 export const AudienceForm = ({
+  uri,
   userResource,
   groupResources,
   allowIndividuals = true,
 }: AudienceFormProps) => {
-  const { context, update } = useAudienceContext()
-  const form = useForm<AudienceContext>({ values: context, mode: "onChange" })
+  const [editing, setEditing] = useState<number>()
+
   const {
-    currentEditing,
-    addNewCriteria,
-    editCriteria,
+    saving,
+    fetchUsers,
+    save,
+    value: context,
+    isDirty,
+    change,
+    reset,
     removeCriteria,
-    cancelEdit,
-    saveCriteria,
-  } = useCriteriaEditForm({ form, groupResources })
+    updateCriteria,
+  } = useAudiences(uri)
+
+  const handleRemoveCriteria = (index: number) => {
+    if (confirm("Remove criteria?")) {
+      removeCriteria(index)
+    }
+  }
+
+  const handleSaveCriteria = (criterion: GroupCriterion) => {
+    updateCriteria(editing!, criterion)
+    setEditing(undefined)
+  }
+
+  const handleCreateCriteria = () => {
+    setEditing(context.criteria.length)
+  }
 
   if (!context) {
+    return null
+  }
+
+  if (editing !== undefined) {
     return (
-      <Card>
-        <Flex justify="center">
-          <Icon fontStyle="fas" icon="spinner" spin />
-        </Flex>
-      </Card>
+      <CriteriaForm
+        resources={groupResources}
+        criterion={context.criteria[editing]}
+        onSave={handleSaveCriteria}
+        onCancel={() => setEditing(undefined)}
+      />
     )
   }
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(update)} onReset={() => form.reset()}>
-        {currentEditing === undefined ? (
-          <AllToggle total={context.count} name="match_all">
-            {allowIndividuals && (
-              <ScimResourceTypeahead
-                label="Add Individuals"
-                name="extra_users"
-                resourceId={userResource}
-              />
-            )}
+    <MatchAllToggleCard
+      count={context.count}
+      enabled={context.match_all}
+      fetchUsers={fetchUsers}
+      isDirty={isDirty()}
+      onToggle={(all: boolean) => change("match_all", all)}
+    >
+      {allowIndividuals && !context.match_all && (
+        <ScimResourceTypeahead
+          label="Add Individuals"
+          value={context.extra_users || []}
+          onChange={(users: ScimObject[]) => change("extra_users", users)}
+          resourceId={userResource}
+        />
+      )}
+      {!context.match_all && (
+        <CriteriaList
+          addCriteriaLabel={`Add Members by ${toSentence(groupResources)}`}
+          context={context}
+          fetchUsers={fetchUsers}
+          onAddCriteria={handleCreateCriteria}
+          onEditCriteria={setEditing}
+          onRemoveCriteria={handleRemoveCriteria}
+        />
+      )}
 
-            <CriteriaList
-              addCriteriaLabel={`Add Members by ${toSentence(groupResources)}`}
-              onAddCriteria={addNewCriteria}
-              onRemoveCriteria={removeCriteria}
-              onEditCriteria={editCriteria}
-            />
-          </AllToggle>
-        ) : (
-          <CriteriaForm
-            current={`criteria.${currentEditing}`}
-            onCancel={cancelEdit}
-            onSave={saveCriteria}
+      <Flex justify="between" marginTop="md">
+        <Button
+          disabled={!isDirty}
+          text="Save"
+          htmlType="submit"
+          loading={saving}
+          onClick={() => save()}
+        />
+
+        {isDirty() && (
+          <Button
+            marginLeft="sm"
+            text="Cancel"
+            variant="link"
+            htmlType="reset"
+            onClick={() => reset()}
           />
         )}
-      </form>
-    </FormProvider>
+      </Flex>
+    </MatchAllToggleCard>
   )
 }

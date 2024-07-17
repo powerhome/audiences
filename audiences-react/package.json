@@ -35,7 +35,6 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.21",
-    "react-hook-form": "^7.45.2",
     "use-http": "^1.0.28"
   },
   "prettier": "@powerhome/eslint-config/prettier",

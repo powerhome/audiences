@@ -13,7 +13,7 @@ module.exports = defineConfig({
   build: {
     target: ["es2018"],
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: path.resolve(__dirname, "src/index.tsx"),
       name: "audiences",
       fileName: (format) => `audiences.${format}.js`,
     },

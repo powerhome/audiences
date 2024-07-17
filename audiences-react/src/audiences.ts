@@ -1,47 +1,62 @@
-import { useState, useEffect, useContext } from "react"
-import { CachePolicies, UseFetchObjectReturn, useFetch } from "use-http"
+import { useEffect } from "react"
+import useFetch from "use-http"
 
+import useFormReducer, {
+  RegistryAction,
+  UseFormReducer,
+} from "./useFormReducer"
 import { AudienceContext, GroupCriterion, ScimObject } from "./types"
-import { createContext } from "react"
+import { set } from "lodash/fp"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ContextProps = UseFetchObjectReturn<any> & {
-  context?: AudienceContext
-  setContext: (newContext: AudienceContext) => void
+type RemoveCriteriaAction = RegistryAction & {
+  index: number
+}
+type UpdateCriteriaAction = RegistryAction & {
+  index: number
+  criterion: GroupCriterion
 }
 
-const Context = createContext<ContextProps | undefined>(undefined)
-
-export function useAudience(uri: string): ContextProps {
-  const [context, setContext] = useState<AudienceContext | undefined>()
-  const fetch = useFetch(uri, {
-    cachePolicy: CachePolicies.NO_CACHE,
-    onError({ error }) {
-      throw error.message
-    },
-  })
-
-  useEffect(
-    function () {
-      fetch.get().then(setContext)
-    },
-    [uri],
-  )
-
-  return { context, setContext, ...fetch }
-}
-
-type UseAudienceContext = {
-  context?: AudienceContext
-  update: (attrs: AudienceContext) => void
+type UseAudienceContext = UseFormReducer<AudienceContext> & {
+  saving: boolean
+  save: () => void
   fetchUsers: (
     criterion?: GroupCriterion,
     search?: string,
     offset?: number,
   ) => Promise<{ count: number; users: ScimObject[] }>
+  removeCriteria: (index: number) => void
+  updateCriteria: (index: number, criteria: GroupCriterion) => void
 }
-export function useAudienceContext(): UseAudienceContext {
-  const { context, setContext, get, put } = useContext(Context)!
+
+export function useAudiences(uri: string): UseAudienceContext {
+  const { data } = useFetch(uri, [uri])
+  const { get, put, loading: saving } = useFetch(uri)
+  const criteriaForm = useFormReducer<AudienceContext>(data, {
+    "remove-criteria": (
+      context,
+      _,
+      action = _ as RemoveCriteriaAction,
+    ): AudienceContext => ({
+      ...context,
+      criteria: [
+        ...context.criteria.slice(0, action.index),
+        ...context.criteria.slice(action.index + 1),
+      ],
+    }),
+    "update-criteria": (
+      context,
+      _,
+      action = _ as UpdateCriteriaAction,
+    ): AudienceContext =>
+      set(
+        `criteria.${action.index}`,
+        action.criterion,
+        context,
+      ) as AudienceContext,
+  })
+  useEffect(() => {
+    criteriaForm.reset(data)
+  }, [data])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
@@ -53,16 +68,19 @@ export function useAudienceContext(): UseAudienceContext {
     )
   }
 
-  async function update(attrs: AudienceContext) {
-    try {
-      const updatedContext = await put(attrs)
-      setContext(updatedContext)
-    } catch (e) {
-      console.log(attrs, e)
-    }
+  async function save() {
+    const updatedContext = await put(criteriaForm.value)
+    criteriaForm.reset(updatedContext)
   }
 
-  return { context, update, fetchUsers }
+  return {
+    saving,
+    fetchUsers,
+    save,
+    ...criteriaForm,
+    removeCriteria: (index: number) =>
+      criteriaForm.dispatch({ type: "remove-criteria", index }),
+    updateCriteria: (index: number, criterion: GroupCriterion) =>
+      criteriaForm.dispatch({ type: "update-criteria", index, criterion }),
+  }
 }
-
-export default Context

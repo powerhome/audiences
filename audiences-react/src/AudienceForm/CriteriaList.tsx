@@ -1,36 +1,34 @@
 import { Button, Flex, FlexItem } from "playbook-ui"
-import { useFormContext } from "react-hook-form"
-
-import { GroupCriterion } from "../types"
-
+import { AudienceContext } from "../types"
 import { CriteriaCard } from "./CriteriaCard"
+import { useAudiences } from "../audiences"
 
-type CriteriaListFieldsProps = {
+type CriteriaListProps = {
   addCriteriaLabel: string
+  context: AudienceContext
+  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   onAddCriteria: () => void
-  onRemoveCriteria: (index: number) => void
   onEditCriteria: (index: number) => void
+  onRemoveCriteria: (index: number) => void
 }
 export function CriteriaList({
+  context,
+  fetchUsers,
   addCriteriaLabel,
   onAddCriteria,
   onRemoveCriteria,
   onEditCriteria,
-}: CriteriaListFieldsProps) {
-  const { watch, getFieldState } = useFormContext()
-  const currentCriteria = (watch("criteria") || []) as GroupCriterion[]
-  const isCriterionDirty = (index: number) =>
-    getFieldState(`criteria.${index}`).isDirty
-
+}: CriteriaListProps) {
   return (
     <Flex orientation="column" align="stretch">
-      {currentCriteria.map((criterion, index: number) => (
+      {context.criteria.map((criterion, index: number) => (
         <CriteriaCard
-          key={`criterion-${criterion.id}`}
           criterion={criterion}
-          viewUsers={!isCriterionDirty(index)}
+          fetchUsers={fetchUsers}
+          key={`criterion-${index}`}
           onRequestEdit={() => onEditCriteria(index)}
           onRequestRemove={() => onRemoveCriteria(index)}
+          viewUsers={criterion.count !== undefined}
         />
       ))}
 

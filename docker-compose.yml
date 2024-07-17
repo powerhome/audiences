@@ -17,7 +17,7 @@ services:
       - -c
       - |
         bundle check || bundle install
-        bundle exec rails db:setup
+        # bundle exec rails db:setup
         rm -f tmp/pids/server.pid
         bundle exec rails server --binding '0.0.0.0' --port '3000'
     ports:
