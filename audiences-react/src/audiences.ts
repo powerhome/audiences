@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import useFetch from "use-http"
+import useFetch, { CachePolicies } from "use-http"
 
 import useFormReducer, {
   RegistryAction,
@@ -30,7 +30,11 @@ type UseAudienceContext = UseFormReducer<AudienceContext> & {
 
 export function useAudiences(uri: string): UseAudienceContext {
   const { data } = useFetch(uri, [uri])
-  const { get, put, loading: saving } = useFetch(uri)
+  const {
+    get,
+    put,
+    loading: saving,
+  } = useFetch(uri, { cachePolicy: CachePolicies.NO_CACHE })
   const criteriaForm = useFormReducer<AudienceContext>(data, {
     "remove-criteria": (
       context,
