@@ -1,9 +1,11 @@
 {
   "name": "audiences",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Audiences SCIM client",
   "files": [
-    "dist"
+    "dist/*.*",
+    "docs/README.md",
+    "docs/CHANGELOG.md"
   ],
   "main": "./dist/audiences.umd.js",
   "module": "./dist/audiences.es.js",
@@ -35,7 +37,6 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.21",
-    "react-hook-form": "^7.45.2",
     "use-http": "^1.0.28"
   },
   "prettier": "@powerhome/eslint-config/prettier",

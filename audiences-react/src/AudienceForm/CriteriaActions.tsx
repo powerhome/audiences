@@ -1,18 +1,21 @@
 import { Button, Icon, PbReactPopover, List, ListItem } from "playbook-ui"
 import { useState } from "react"
-import { MembersModalButton } from "./MembersModal"
+import { MembersModalButton } from "./MembersModalButton"
 import { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
+import { useAudiences } from "../audiences"
 
 type CriteriaActionsProps = {
-  viewUsers: boolean
   criterion: GroupCriterion
-  onRequestRemove: () => void
+  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   onRequestEdit: () => void
+  onRequestRemove: () => void
+  viewUsers: boolean
 }
 export function CriteriaActions({
   viewUsers,
   criterion,
+  fetchUsers,
   onRequestRemove,
   onRequestEdit,
 }: CriteriaActionsProps) {
@@ -59,6 +62,7 @@ export function CriteriaActions({
               padding="xs"
               text="View Members"
               title={<CriteriaDescription groups={criterion.groups} />}
+              fetchUsers={fetchUsers}
               total={criterion.count}
               criterion={criterion}
             />

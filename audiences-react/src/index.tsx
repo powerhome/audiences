@@ -1,5 +1,4 @@
 import { AudienceForm } from "./AudienceForm"
-import Audiences, { useAudience } from "./audiences"
 import Scim from "./scim"
 
 const UserResourceId = "Users"
@@ -15,17 +14,14 @@ export function AudienceEditor({
   scimUri,
   allowIndividuals = true,
 }: AudienceEditorProps) {
-  const context = useAudience(uri)
-
   return (
     <Scim.Provider value={scimUri}>
-      <Audiences.Provider value={context}>
-        <AudienceForm
-          userResource={UserResourceId}
-          groupResources={AllowedGroupIds}
-          allowIndividuals={allowIndividuals}
-        />
-      </Audiences.Provider>
+      <AudienceForm
+        uri={uri}
+        userResource={UserResourceId}
+        groupResources={AllowedGroupIds}
+        allowIndividuals={allowIndividuals}
+      />
     </Scim.Provider>
   )
 }

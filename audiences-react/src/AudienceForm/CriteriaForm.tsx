@@ -1,25 +1,39 @@
-import { flatten, isEmpty, keys, values } from "lodash"
 import { Button, Card, Flex, IconValue } from "playbook-ui"
-import { useFormContext } from "react-hook-form"
+import { flatten, isEmpty, keyBy, mapValues, values } from "lodash"
 
 import { CriteriaDescription } from "./CriteriaDescription"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
-import { useMemo } from "react"
+import { GroupCriterion } from "../types"
+import useFormReducer from "../useFormReducer"
 
 export type CriteriaFormProps = {
-  current: string
-  onClose: () => void
+  resources: string[]
+  criterion: GroupCriterion | undefined
+  onSave: (criterion: GroupCriterion) => void
+  onCancel: () => void
 }
-export function CriteriaForm({ current, onClose }: CriteriaFormProps) {
-  const { setValue, watch } = useFormContext()
-  const value = watch(`${current}.groups`)
-  const initialValue = useMemo(() => ({ ...value }), [current])
+function buildCriterion(resources: string[]) {
+  const emptyGroups = mapValues(keyBy(resources), () => [])
+  return { groups: emptyGroups }
+}
+export function CriteriaForm({
+  resources,
+  criterion,
+  onSave,
+  onCancel,
+}: CriteriaFormProps) {
+  const { value, change } = useFormReducer<GroupCriterion>(
+    criterion || buildCriterion(resources),
+  )
 
-  const emptyCriteria = isEmpty(flatten(values(value)))
+  const emptyCriteria = isEmpty(flatten(values(value.groups)))
+
+  const handleSave = () => {
+    onSave(value)
+  }
 
   const handleCancel = () => {
-    setValue(`${current}.groups`, initialValue)
-    onClose()
+    onCancel()
   }
 
   return (
@@ -37,19 +51,20 @@ export function CriteriaForm({ current, onClose }: CriteriaFormProps) {
       </Card.Header>
 
       <Card.Body>
-        {keys(value).map((resourceId) => (
+        {resources.map((resourceId) => (
           <ScimResourceTypeahead
             resourceId={resourceId}
-            key={`${current}.${resourceId}`}
+            key={`criterion.groups.${resourceId}`}
             label={resourceId}
-            name={`${current}.groups.${resourceId}`}
+            value={value.groups[resourceId]}
+            onChange={(values) => change(`groups.${resourceId}`, values)}
           />
         ))}
 
-        {emptyCriteria || <CriteriaDescription groups={value} />}
+        {emptyCriteria || <CriteriaDescription groups={value.groups} />}
 
         <Flex justify="between" marginTop="md">
-          <Button onClick={onClose} text="Save" disabled={emptyCriteria} />
+          <Button onClick={handleSave} text="Save" disabled={emptyCriteria} />
           <Button onClick={handleCancel} text="Cancel" variant="link" />
         </Flex>
       </Card.Body>

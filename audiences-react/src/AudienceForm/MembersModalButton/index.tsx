@@ -13,22 +13,22 @@ import {
 } from "playbook-ui"
 
 import type { GroupCriterion, ScimObject } from "../../types"
-import { useAudienceContext } from "../../audiences"
 import styles from "./style.module.css"
+import { useAudiences } from "../../audiences"
 
 type MembersModalButtonProps = any & {
-  title: React.ReactNode
   criterion?: GroupCriterion
+  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
+  title: React.ReactNode
   total: number
 }
-
 export function MembersModalButton({
   title,
   total,
   criterion,
+  fetchUsers,
   ...buttonOptions
 }: MembersModalButtonProps) {
-  const { fetchUsers } = useAudienceContext()
   const [loading, setLoading] = useState<boolean>()
   const [current, setUsers] = useState<
     Awaited<ReturnType<typeof fetchUsers>> | undefined
@@ -37,8 +37,10 @@ export function MembersModalButton({
   const [showMembers, setShowMembers] = useState(false)
 
   useEffect(() => {
-    load(0).then(setUsers)
-  }, [search])
+    if (showMembers) {
+      load(0).then(setUsers)
+    }
+  }, [search, showMembers])
 
   async function load(offset: number) {
     setLoading(true)
@@ -49,7 +51,7 @@ export function MembersModalButton({
 
   async function handleLoadMore() {
     const moreUsers = await load(current!.users.length)
-    setUsers((current) => ({
+    setUsers((current: any) => ({
       count: moreUsers.count,
       users: [...current!.users, ...moreUsers.users],
     }))

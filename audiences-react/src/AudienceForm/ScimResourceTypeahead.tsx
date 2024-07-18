@@ -1,7 +1,6 @@
-import debounce from "lodash/debounce"
-import { useController } from "react-hook-form"
-import get from "lodash/get"
+import { debounce, get } from "lodash"
 import { Typeahead } from "playbook-ui"
+
 import { useScim } from "../scim"
 import { ScimObject } from "../types"
 
@@ -24,19 +23,20 @@ function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
 
 type ScimResourceTypeaheadProps = {
   label: string
-  name: string
+  value: ScimObject[]
+  onChange: (values: ScimObject[]) => void
   resourceId: string
 }
 export function ScimResourceTypeahead({
-  name,
   resourceId,
+  onChange,
+  value,
   ...typeaheadProps
 }: ScimResourceTypeaheadProps) {
-  const { field } = useController({ name })
   const { filter } = useScim()
 
-  function onChange(value: any, ...event: any[]) {
-    field.onChange(value || [], ...event)
+  function handleChange(value: any, ...event: any[]) {
+    onChange(value || [])
   }
 
   const searchResourceOptions = async (
@@ -54,10 +54,9 @@ export function ScimResourceTypeahead({
       loadOptions={debounce(searchResourceOptions, 600)}
       placeholder=""
       {...typeaheadProps}
-      {...field}
       ref={undefined} // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
-      value={playbookOptions(field.value)}
-      onChange={onChange}
+      value={playbookOptions(value)}
+      onChange={handleChange}
     />
   )
 }

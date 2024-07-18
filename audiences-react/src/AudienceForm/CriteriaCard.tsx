@@ -1,18 +1,21 @@
 import { Card, Flex, FlexItem, Caption } from "playbook-ui"
-import isEmpty from "lodash/isEmpty"
+import { isEmpty } from "lodash"
 
 import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
 import { CriteriaActions } from "./CriteriaActions"
+import { useAudiences } from "../audiences"
 
 type CriteriaCardProps = {
-  viewUsers: boolean
   criterion?: GroupCriterion
-  onRequestRemove: () => void
+  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   onRequestEdit: () => void
+  onRequestRemove: () => void
+  viewUsers: boolean
 }
 export function CriteriaCard({
   criterion,
+  fetchUsers,
   viewUsers,
   onRequestRemove,
   onRequestEdit,
@@ -34,6 +37,7 @@ export function CriteriaCard({
         <FlexItem>
           <CriteriaActions
             criterion={criterion}
+            fetchUsers={fetchUsers}
             onRequestRemove={onRequestRemove}
             onRequestEdit={onRequestEdit}
             viewUsers={viewUsers}
