@@ -3,7 +3,9 @@
   "version": "1.2.0-alpha",
   "description": "Audiences SCIM client",
   "files": [
-    "dist/*.ts"
+    "dist/*.ts",
+    "docs/README.md",
+    "docs/CHANGELOG.md"
   ],
   "main": "./dist/audiences.umd.js",
   "module": "./dist/audiences.es.js",
