@@ -20,7 +20,7 @@ module Audiences
   private
 
     def all_users
-      users = Scim.resources(type: :Users)
+      users = Scim.query(type: :Users)
       ExternalUser.wrap(users.all)
     end
 

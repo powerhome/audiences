@@ -21,7 +21,7 @@ module Audiences
 
     def groups_users(group_ids)
       filter = group_ids.map { "groups.value eq #{_1}" }.join(" OR ")
-      users = Audiences::Scim.resources(type: :Users, filter: filter)
+      users = Audiences::Scim.query(type: :Users, filter: filter)
       ExternalUser.wrap(users.all)
     end
   end

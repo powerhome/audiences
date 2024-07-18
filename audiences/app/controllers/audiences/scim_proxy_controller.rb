@@ -3,7 +3,7 @@
 module Audiences
   class ScimProxyController < ApplicationController
     def get
-      resources = Audiences::Scim.resources(
+      resources = Audiences::Scim.query(
         type: params[:scim_path].to_sym,
         filter: params[:filter]
       )
