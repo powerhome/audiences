@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require "audiences/version"
-require "audiences/scim"
-require "audiences/notifications"
-
 # Audiences system
 # Audiences pushes notifications to your rails app when a
 # SCIM backend updates a user, notifying matching audiences.
 #
 module Audiences
+  autoload :Notifications, "audiences/notifications"
+  autoload :Scim, "audiences/scim"
+  autoload :VERSION, "audiences/version"
+
   GID_RESOURCE = "audiences"
 
 module_function
@@ -59,3 +59,5 @@ module_function
     ::Audiences::Context.for(owner).tap(&block)
   end
 end
+
+require "audiences/configuration"
