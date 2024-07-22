@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Audiences::Scim::ResourcesQuery do
+  let(:users_resource) { Audiences::Scim::Resource.new(type: :Users) }
+  let(:groups_resource) { Audiences::Scim::Resource.new(type: :Groups) }
   let(:client) { instance_double(Audiences::Scim::Client) }
 
   describe "data fetching" do
@@ -18,7 +20,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                       ])
       )
 
-      resources = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Groups).to_a
+      resources = Audiences::Scim::ResourcesQuery.new(client, resource: groups_resource).to_a
 
       expect(resources.size).to eql 4
       expect(resources.first["id"]).to eql 123
@@ -60,7 +62,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "itemsPerPage" => 2)
         )
 
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: users_resource)
 
         expect(query.all.count).to eql 5 # rubocop:disable Rails/RedundantActiveRecordAllMethod
       end
@@ -78,7 +80,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "itemsPerPage" => 25)
         )
 
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Groups)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: groups_resource)
 
         expect(query.next_page?).to be true
       end
@@ -92,7 +94,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "itemsPerPage" => 2)
         )
 
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Groups)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: groups_resource)
 
         expect(query.next_page?).to be true
       end
@@ -106,7 +108,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "itemsPerPage" => 25)
         )
 
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Groups)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: groups_resource)
 
         expect(query.next_page?).to be false
       end
@@ -120,7 +122,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "itemsPerPage" => 25)
         )
 
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Groups)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: groups_resource)
 
         expect(query.next_page?).to be false
       end
@@ -136,11 +138,11 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "itemsPerPage" => 25)
         )
 
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users, filters: "displayName eq John")
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: users_resource, filters: "displayName eq John")
         next_page = query.next_page
 
-        expect(next_page.query_options.delete(:startIndex)).to eql 26
-        expect(query.query_options).to eql(next_page.query_options)
+        expect(next_page.options.delete(:startIndex)).to eql 26
+        expect(query.options).to eql(next_page.options)
       end
 
       it "is nil when there is no next page" do
@@ -151,7 +153,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
                         "startIndex" => 26,
                         "itemsPerPage" => 25)
         )
-        query = Audiences::Scim::ResourcesQuery.new(client, resource_type: :Users, startIndex: 26)
+        query = Audiences::Scim::ResourcesQuery.new(client, resource: users_resource, startIndex: 26)
 
         expect(query.next_page?).to be false
         expect(query.next_page).to be_nil

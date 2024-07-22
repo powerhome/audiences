@@ -9,12 +9,12 @@ module Audiences
     class ResourcesQuery
       include Enumerable
 
-      attr_reader :query_options
+      attr_reader :options, :resource
 
-      def initialize(client, resource_type:, **query_options)
+      def initialize(client, resource:, **options)
         @client = client
-        @resource_type = resource_type
-        @query_options = query_options
+        @resource = resource
+        @options = options
       end
 
       def all
@@ -53,14 +53,13 @@ module Audiences
       def next_page
         return unless next_page?
 
-        ResourcesQuery.new(@client, resource_type: @resource_type, **@query_options,
-                                    startIndex: next_index)
+        ResourcesQuery.new(@client, resource: @resource, **@options, startIndex: next_index)
       end
 
     private
 
       def response
-        @response ||= @client.perform_request(path: @resource_type, method: :Get, query: @query_options)
+        @response ||= @client.perform_request(path: @resource.type, method: :Get, query: @options)
       end
     end
   end

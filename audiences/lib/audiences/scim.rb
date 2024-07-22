@@ -1,19 +1,21 @@
 # frozen_string_literal: true
 
-require_relative "scim/client"
-require_relative "scim/resources_query"
-
 module Audiences
   module Scim
-    mattr_accessor :client
-    mattr_accessor :defaults, default: Hash.new(attributes: "id,externalId,displayName")
+    autoload :Client, "audiences/scim/client"
+    autoload :Resource, "audiences/scim/resource"
+    autoload :ResourcesQuery, "audiences/scim/resources_query"
 
   module_function
 
-    def resources(type:, client: Scim.client, **options)
-      options = (defaults[type] || {}).merge(options)
+    def client
+      Client.new(**Audiences.config.scim)
+    end
 
-      ResourcesQuery.new(client, resource_type: type, **options)
+    def resource(type, **options)
+      Audiences.config.resources.fetch(type) do
+        Resource.new(type: type, **options)
+      end
     end
   end
 end

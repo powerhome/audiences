@@ -4,24 +4,19 @@ require "rails_helper"
 
 RSpec.describe Audiences::Scim do
   describe ".resources" do
-    it "applies the defaults to the given options" do
-      Audiences::Scim.defaults[:Test] = { attributes: "id,photos" }
+    it "fetches the resource definition by the type key" do
+      Audiences.config.resources[:Test] = Audiences::Scim::Resource.new(type: :Test, attributes: "id,photos")
 
-      query = Audiences::Scim.resources(type: :Test)
+      resource = Audiences::Scim.resource(:Test)
 
-      expect(query.query_options).to eql({ attributes: "id,photos" })
+      expect(resource.type).to be :Test
+      expect(resource.options).to match({ attributes: "id,photos" })
     end
 
-    it "applies the default attributes if no default is set" do
-      query = Audiences::Scim.resources(type: :Anything)
+    it "creates a new resource definition when one doesn't exist" do
+      resource = Audiences::Scim.resource(:Anything)
 
-      expect(query.query_options).to eql({ attributes: "id,externalId,displayName" })
-    end
-  end
-
-  describe ".defaults" do
-    it "limits the attributes to id and displayName by default" do
-      expect(Audiences::Scim.defaults[:Anything]).to eql({ attributes: "id,externalId,displayName" })
+      expect(resource.type).to be :Anything
     end
   end
 end
