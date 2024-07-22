@@ -2,7 +2,13 @@
 
 module Audiences
   class ExternalUser < ApplicationRecord
-    has_many :memberships
+    if Audiences.config.identity_class
+      belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
+                            primary_key: Audiences.config.identity_key,
+                            foreign_key: :user_id,
+                            optional: true,
+                            inverse_of: false
+    end
 
     def self.wrap(resources)
       return [] unless resources&.any?
