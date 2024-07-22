@@ -10,8 +10,8 @@ end
 Rails.application.routes.draw do
   mount Audiences::Engine, at: "/audiences", as: :audiences
 
-  direct :audience_context do |owner, options|
-    audiences.route_for(:signed_context, key: Audiences.sign(owner), **options)
+  direct :audience_context do |owner, relation: nil|
+    audiences.route_for(:signed_context, key: Audiences.sign(owner, relation: relation))
   end
 
   direct :audience_scim_proxy do |options|

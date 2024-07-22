@@ -22,8 +22,8 @@ module Audiences
     #
     # @private
     # @return [Audiences::Context]
-    def self.for(owner)
-      where(owner: owner).first_or_create!
+    def self.for(owner, relation: nil)
+      where(owner: owner, relation: relation).first_or_create!
     end
 
     def refresh_users!

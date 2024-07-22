@@ -19,8 +19,9 @@ module_function
   # @param owner [GlobalID::Identification] an owning model
   # @return [String] context key
   #
-  def sign(owner)
-    ::Audiences::Context.for(owner).to_sgid(for: GID_RESOURCE)
+  def sign(owner, relation: nil)
+    ::Audiences::Context.for(owner, relation: relation)
+                        .to_sgid(for: GID_RESOURCE)
   end
 
   # Loads a context for the given context key
