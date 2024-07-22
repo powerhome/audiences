@@ -8,7 +8,7 @@ module Audiences
       return [] unless resources&.any?
 
       attrs = resources.map do |data|
-        { user_id: data["id"], data: data, created_at: Time.current, updated_at: Time.current }
+        { user_id: data["externalId"], data: data, created_at: Time.current, updated_at: Time.current }
       end
       unique_by = :user_id if connection.supports_insert_conflict_target?
       upsert_all(attrs, unique_by: unique_by) # rubocop:disable Rails/SkipsModelValidations

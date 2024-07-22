@@ -7,12 +7,12 @@ RSpec.describe Audiences::CriterionUsers do
     criterion = { Departments: [{ "id" => 1 }, { "id" => 3 }] }
     response = {
       "Resources" => [
-        { "id" => 1313 },
-        { "id" => 1414 },
+        { "externalId" => 1313 },
+        { "externalId" => 1414 },
       ],
     }
 
-    stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+    stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                        "&filter=groups.value eq 1 OR groups.value eq 3")
       .to_return(status: 200, body: response.to_json)
 
@@ -31,23 +31,23 @@ RSpec.describe Audiences::CriterionUsers do
       }
       response1or3 = {
         "Resources" => [
-          { "id" => 1313 },
-          { "id" => 1414 },
-          { "id" => 1515 },
+          { "externalId" => 1313 },
+          { "externalId" => 1414 },
+          { "externalId" => 1515 },
         ],
       }
       response5or6 = {
         "Resources" => [
-          { "id" => 1313 },
-          { "id" => 1515 },
-          { "id" => 1516 },
+          { "externalId" => 1313 },
+          { "externalId" => 1515 },
+          { "externalId" => 1516 },
         ],
       }
 
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                          "&filter=groups.value eq 1 OR groups.value eq 3")
         .to_return(status: 200, body: response1or3.to_json)
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                          "&filter=groups.value eq 5 OR groups.value eq 6")
         .to_return(status: 200, body: response5or6.to_json)
 
@@ -65,24 +65,24 @@ RSpec.describe Audiences::CriterionUsers do
       }
       response1or3 = {
         "Resources" => [
-          { "id" => 1313 },
-          { "id" => 1414 },
-          { "id" => 1515 },
+          { "externalId" => 1313 },
+          { "externalId" => 1414 },
+          { "externalId" => 1515 },
         ],
       }
       response_no_filter = {
         "Resources" => [
-          { "id" => 1313 },
-          { "id" => 1515 },
-          { "id" => 1516 },
+          { "externalId" => 1313 },
+          { "externalId" => 1515 },
+          { "externalId" => 1516 },
         ],
       }
 
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                          "&filter=groups.value eq 1 OR groups.value eq 3")
         .to_return(status: 200, body: response1or3.to_json)
 
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos&filter=")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos&filter=")
         .to_return(status: 200, body: response_no_filter.to_json)
 
       users = Audiences::CriterionUsers.new(criterion).to_a

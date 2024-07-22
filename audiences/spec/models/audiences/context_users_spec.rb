@@ -7,11 +7,11 @@ RSpec.describe Audiences::ContextUsers do
     it "is the list of all users from SCIM when match_all" do
       response = {
         "Resources" => [
-          { "id" => 1313 },
-          { "id" => 1414 },
+          { "externalId" => 1313 },
+          { "externalId" => 1414 },
         ],
       }
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos")
         .to_return(status: 200, body: response.to_json)
 
       context = Audiences::Context.new(match_all: true)
@@ -25,9 +25,9 @@ RSpec.describe Audiences::ContextUsers do
 
   context "has criteria" do
     it "is the distinct union of users from the criteria" do
-      user1 = external_user!("id" => 1)
-      user2 = external_user!("id" => 2)
-      user3 = external_user!("id" => 3)
+      user1 = external_user!("externalId" => 1)
+      user2 = external_user!("externalId" => 2)
+      user3 = external_user!("externalId" => 3)
 
       criterion1 = Audiences::Criterion.new(users: [user1, user2])
       criterion2 = Audiences::Criterion.new(users: [user2, user3])
@@ -39,11 +39,12 @@ RSpec.describe Audiences::ContextUsers do
     end
 
     it "includes the extra users uniquely" do
-      criterion = Audiences::Criterion.new(users: [external_user!("id" => 1), external_user!("id" => 2)])
+      criterion = Audiences::Criterion.new(users: [external_user!("externalId" => 1),
+                                                   external_user!("externalId" => 2)])
       context = Audiences::Context.new(
         match_all: false,
         criteria: [criterion],
-        extra_users: [{ "id" => 1 }, { "id" => 456 }, { "id" => 789 }]
+        extra_users: [{ "externalId" => 1 }, { "externalId" => 456 }, { "externalId" => 789 }]
       )
 
       users = Audiences::ContextUsers.new(context).to_a
@@ -57,6 +58,6 @@ RSpec.describe Audiences::ContextUsers do
   end
 
   def external_user!(**data)
-    Audiences::ExternalUser.create(user_id: data["id"], data: data)
+    Audiences::ExternalUser.create(user_id: data["externalId"], data: data)
   end
 end

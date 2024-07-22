@@ -22,12 +22,12 @@ RSpec.describe "/audiences" do
   describe "PUT /audiences/:context_key" do
     let(:users_response) do
       {
-        Resources: [{ id: 1 }, { id: 2 }],
+        Resources: [{ externalId: 1 }, { externalId: 2 }],
       }
     end
 
     it "updates the audience context to match all" do
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos")
         .to_return(status: 200, body: users_response.to_json, headers: {})
 
       put audiences.signed_context_path(context_key), as: :json, params: { match_all: true }
@@ -41,12 +41,12 @@ RSpec.describe "/audiences" do
     it "updates the context extra users" do
       put audiences.signed_context_path(context_key),
           as: :json,
-          params: { extra_users: [{ id: 123, displayName: "John Doe",
+          params: { extra_users: [{ externalId: 123, displayName: "John Doe",
                                     photos: [{ value: "http://example.com" }] }] }
 
       context = Audiences::Context.for(example_owner)
       expect(context.extra_users).to eql [{
-        "id" => 123,
+        "externalId" => 123,
         "displayName" => "John Doe",
         "photos" => [{ "value" => "http://example.com" }],
       }]
@@ -55,14 +55,14 @@ RSpec.describe "/audiences" do
     it "responds with the audience context json" do
       put audiences.signed_context_path(context_key),
           as: :json,
-          params: { extra_users: [{ id: 123, displayName: "John Doe",
+          params: { extra_users: [{ externalId: 123, displayName: "John Doe",
                                     photos: [{ value: "http://example.com" }] }] }
 
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 1,
                                               "extra_users" => [{
-                                                "id" => 123,
+                                                "externalId" => 123,
                                                 "displayName" => "John Doe",
                                                 "photos" => [{ "value" => "http://example.com" }],
                                               }],
@@ -73,21 +73,21 @@ RSpec.describe "/audiences" do
     context "updating a group criteria" do
       let(:users_response) do
         {
-          Resources: [{ id: 1 }, { id: 2 }],
+          Resources: [{ externalId: 1 }, { externalId: 2 }],
         }
       end
 
       it "allows updating the group criteria" do
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                            "&filter=groups.value eq 123")
           .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                            "&filter=groups.value eq 321")
           .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                            "&filter=groups.value eq 789")
           .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,displayName,photos" \
+        stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
                            "&filter=groups.value eq 987")
           .to_return(status: 200, body: users_response.to_json, headers: {})
 
@@ -134,18 +134,18 @@ RSpec.describe "/audiences" do
   describe "GET /audiences/:context_key/users" do
     it "is the list of users from an audience context" do
       context = Audiences::Context.for(example_owner)
-      context.users.create(user_id: 123, data: { "id" => 123 })
-      context.users.create(user_id: 456, data: { "id" => 456 })
-      context.users.create(user_id: 789, data: { "id" => 789 })
+      context.users.create(user_id: 123, data: { "externalId" => 123 })
+      context.users.create(user_id: 456, data: { "externalId" => 456 })
+      context.users.create(user_id: 789, data: { "externalId" => 789 })
 
       get audiences.users_path(context_key)
 
       expect(response.parsed_body).to match({
                                               "count" => 3,
                                               "users" => [
-                                                { "id" => 123 },
-                                                { "id" => 456 },
-                                                { "id" => 789 },
+                                                { "externalId" => 123 },
+                                                { "externalId" => 456 },
+                                                { "externalId" => 789 },
                                               ],
                                             })
     end
@@ -155,18 +155,18 @@ RSpec.describe "/audiences" do
     it "is the list of users from an audience context's criterion" do
       context = Audiences::Context.for(example_owner)
       criterion = context.criteria.create!
-      criterion.users.create(user_id: 1, data: { "id" => 1, "displayName" => "John" })
-      criterion.users.create(user_id: 2, data: { "id" => 2, "displayName" => "Jose" })
-      criterion.users.create(user_id: 3, data: { "id" => 3, "displayName" => "Nelson" })
+      criterion.users.create(user_id: 1, data: { "externalId" => 1, "displayName" => "John" })
+      criterion.users.create(user_id: 2, data: { "externalId" => 2, "displayName" => "Jose" })
+      criterion.users.create(user_id: 3, data: { "externalId" => 3, "displayName" => "Nelson" })
 
       get audiences.users_path(context_key, criterion_id: criterion.id)
 
       expect(response.parsed_body).to match_array({
                                                     "count" => 3,
                                                     "users" => [
-                                                      { "id" => 1, "displayName" => "John" },
-                                                      { "id" => 2, "displayName" => "Jose" },
-                                                      { "id" => 3, "displayName" => "Nelson" },
+                                                      { "externalId" => 1, "displayName" => "John" },
+                                                      { "externalId" => 2, "displayName" => "Jose" },
+                                                      { "externalId" => 3, "displayName" => "Nelson" },
                                                     ],
                                                   })
     end

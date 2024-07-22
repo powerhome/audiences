@@ -1,5 +1,7 @@
 # Unreleased
 
+- Adjust user id to SCIM Protocol [#356](https://github.com/powerhome/audiences/pull/356)
+
 # Version 1.1.2 (2024-06-18)
 
 - Ignore empty groups in criterion [#354](https://github.com/powerhome/audiences/pull/354)

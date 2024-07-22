@@ -5,7 +5,7 @@ Audiences::Scim.client = Audiences::Scim::Client.new(
   headers: { "Authorization" => ENV.fetch("SCIM_AUTHORIZATION", "Bearer 123456789") }
 )
 
-Audiences::Scim.defaults[:Users] = { attributes: "id,displayName,photos" }
+Audiences::Scim.defaults[:Users] = { attributes: "id,externalId,displayName,photos" }
 
 Rails.application.config.to_prepare do
   Audiences::Notifications.subscribe ExampleOwner, job: UpdateMembershipsJob
