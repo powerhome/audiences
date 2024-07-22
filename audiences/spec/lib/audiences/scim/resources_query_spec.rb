@@ -42,7 +42,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
         )
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { startIndex: 3,})
+            .with(method: :Get, path: :Users, query: { startIndex: 3 })
             .and_return("Resources" => [
                           { "id" => 333, "displayName" => "John Doe the 3rd" },
                           { "id" => 444, "displayName" => "John Doe the 4th" },
@@ -53,7 +53,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
         )
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { startIndex: 5,})
+            .with(method: :Get, path: :Users, query: { startIndex: 5 })
             .and_return("Resources" => [
                           { "id" => 555, "displayName" => "John Doe the 5th" },
                         ],
@@ -132,7 +132,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
       it "is a similar ResourcesQuery object of the next page" do
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { filters: "displayName eq John",})
+            .with(method: :Get, path: :Users, query: { filters: "displayName eq John" })
             .and_return("totalResults" => 40,
                         "startIndex" => 1,
                         "itemsPerPage" => 25)
@@ -148,7 +148,7 @@ RSpec.describe Audiences::Scim::ResourcesQuery do
       it "is nil when there is no next page" do
         allow(client).to(
           receive(:perform_request)
-            .with(method: :Get, path: :Users, query: { startIndex: 26,})
+            .with(method: :Get, path: :Users, query: { startIndex: 26 })
             .and_return("totalResults" => 40,
                         "startIndex" => 26,
                         "itemsPerPage" => 25)
