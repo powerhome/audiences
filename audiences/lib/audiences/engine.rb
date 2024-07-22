@@ -9,5 +9,13 @@ module Audiences
   #
   class Engine < ::Rails::Engine
     isolate_namespace Audiences
+
+    initializer "audiences.model" do
+      if Audiences.config.identity_class
+        ActiveSupport.on_load(:active_record) do
+          include Audiences::Model
+        end
+      end
+    end
   end
 end

@@ -6,6 +6,17 @@ module Audiences
   # Configuration options
 
   #
+  # Identity model representing a SCIM User in the current application. I.e.: "User"
+  #
+  config_accessor :identity_class
+
+  #
+  # The key attribute on `identity_class` matching with the SCIM User externalId.
+  # This configuration defaults to `:id`
+  #
+  config_accessor(:identity_key) { :id }
+
+  #
   # SCIM service configurations. This should be a Hash containint, at least, the URI.
   #
   # I.e.:
