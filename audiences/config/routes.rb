@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
   direct :audience_context do |context, relation = nil|
     context = Audiences::Context.for(context, relation: relation)
-    audiences.route_for(:signed_context, key: Audiences.sign(context))
+    audiences.route_for(:signed_context, key: context.signed_key)
   end
 
   direct :audience_scim_proxy do |options|

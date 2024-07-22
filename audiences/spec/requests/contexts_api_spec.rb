@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe "/audiences" do
   let(:example_owner) { ExampleOwner.create!(name: "Example Owner") }
-  let(:context_key) { Audiences.sign(example_owner) }
+  let(:context_key) { Audiences::Context.for(example_owner).signed_key }
 
   describe "GET /audiences/:context_key" do
     it "responds with the audience context json" do
@@ -91,7 +91,7 @@ RSpec.describe "/audiences" do
                            "&filter=groups.value eq 987")
           .to_return(status: 200, body: users_response.to_json, headers: {})
 
-        put audience_context_path(example_owner),
+        put audiences.signed_context_path(context_key),
             as: :json,
             params: {
               match_all: false,
