@@ -20,7 +20,7 @@ module_function
   # @return [String] context key
   #
   def sign(owner)
-    owner.to_sgid(for: GID_RESOURCE)
+    ::Audiences::Context.for(owner).to_sgid(for: GID_RESOURCE)
   end
 
   # Loads a context for the given context key
@@ -55,8 +55,8 @@ module_function
   end
 
   private_class_method def locate_context(key, &block)
-    owner = GlobalID::Locator.locate_signed(key, for: GID_RESOURCE)
-    ::Audiences::Context.for(owner).tap(&block)
+    GlobalID::Locator.locate_signed(key, for: GID_RESOURCE)
+                     .tap(&block)
   end
 end
 
