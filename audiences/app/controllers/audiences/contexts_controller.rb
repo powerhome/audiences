@@ -3,7 +3,7 @@
 module Audiences
   class ContextsController < ApplicationController
     def show
-      render_context Audiences.load(params.require(:key))
+      render_context Audiences::Context.load(params.require(:key))
     end
 
     def update
@@ -23,7 +23,7 @@ module Audiences
   private
 
     def current_context
-      @current_context ||= Audiences.load(params.require(:key))
+      @current_context ||= Audiences::Context.load(params.require(:key))
     end
 
     def current_criterion
