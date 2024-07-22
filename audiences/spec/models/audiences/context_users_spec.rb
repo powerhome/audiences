@@ -39,7 +39,8 @@ RSpec.describe Audiences::ContextUsers do
     end
 
     it "includes the extra users uniquely" do
-      criterion = Audiences::Criterion.new(users: [external_user!("externalId" => 1), external_user!("externalId" => 2)])
+      criterion = Audiences::Criterion.new(users: [external_user!("externalId" => 1),
+                                                   external_user!("externalId" => 2)])
       context = Audiences::Context.new(
         match_all: false,
         criteria: [criterion],

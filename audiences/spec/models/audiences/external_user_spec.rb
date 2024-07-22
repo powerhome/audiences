@@ -6,11 +6,14 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
   describe "#map" do
     it "takes a list of user data and creates ExternalUser instances, returning them" do
       john, joseph, mary, steve, *others = Audiences::ExternalUser.wrap([
-                                                                          { "externalId" => 123, "displayName" => "John Doe" },
+                                                                          { "externalId" => 123,
+                                                                            "displayName" => "John Doe" },
                                                                           { "externalId" => 456,
                                                                             "displayName" => "Joseph Doe" },
-                                                                          { "externalId" => 789, "displayName" => "Mary Doe" },
-                                                                          { "externalId" => 987, "displayName" => "Steve Doe" },
+                                                                          { "externalId" => 789,
+                                                                            "displayName" => "Mary Doe" },
+                                                                          { "externalId" => 987,
+                                                                            "displayName" => "Steve Doe" },
                                                                         ])
 
       expect(others).to be_empty
