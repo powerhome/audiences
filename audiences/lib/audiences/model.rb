@@ -18,6 +18,10 @@ module Audiences
                  through: :"#{name}_context", source: :users,
                  class_name: "Audiences::ExternalUser"
         has_many name, -> { readonly }, through: :"#{name}_external_users", source: :identity
+
+        after_initialize if: :new_record? do
+          association(:"#{name}_context").build
+        end
       end
     end
   end
