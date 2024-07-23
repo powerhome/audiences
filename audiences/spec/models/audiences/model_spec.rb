@@ -19,4 +19,14 @@ RSpec.describe Audiences::Model do
                                         .source(:identity)
     end
   end
+
+  it "builds the audience context as the owner is built" do
+    expect(subject.members_context).to be_present
+  end
+
+  it "saves the audience context as the owner is saved" do
+    subject.save!
+
+    expect(subject.members_context).to be_persisted
+  end
 end
