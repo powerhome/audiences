@@ -20,8 +20,7 @@ ActiveRecord::Schema.define(version: 2024_07_22_025634) do
     t.datetime "updated_at", null: false
     t.json "extra_users"
     t.string "relation"
-    t.index ["owner_type", "owner_id", "relation"],
-            name: "index_audiences_contexts_on_owner_type_and_owner_id_and_relation", unique: true
+    t.index ["owner_type", "owner_id", "relation"], name: "index_audiences_contexts_on_owner_type_owner_id_relation", unique: true
   end
 
   create_table "audiences_criterions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
