@@ -19,9 +19,12 @@ module Audiences
       self.extra_users = []
     end
 
-    def refresh_users!
+    before_save do
       criteria.each(&:refresh_users!)
-      update!(users: ContextUsers.new(self).to_a)
+      self.users = ContextUsers.new(self).to_a
+    end
+
+    after_save do
       Notifications.publish(self)
     end
   end

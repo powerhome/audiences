@@ -10,7 +10,6 @@ RSpec.describe Audiences::Context do
       expect do |blk|
         Audiences::Notifications.subscribe ExampleOwner, &blk
         owner.save!
-        owner.members_context.refresh_users!
       end.to yield_with_args(owner.members_context)
     end
   end
