@@ -30,7 +30,7 @@ An audience is tied to an owning model withing your application. For the rest of
 
 That can be done with a unobstrusive JS renderer like react-rails, or a custom one as in [our dummy app](../audiences/spec/dummy/app/frontend/entrypoints/application.js). The editor will need two arguments:
 
-- The context URI: `audience_context_url(owner, relation:)` helper
+- The context URI: `audience_context_url(owner, relation)` helper
 - The SCIM endpoint: `audience_scim_proxy_url` helper if using the [proxy](#configuring-the-scim-proxy), or the SCIM endpoint.
 
 ### Configuring Audiences
@@ -45,6 +45,29 @@ Audiences.configure do |config|
     uri: ENV.fetch("SCIM_V2_API"),
     headers: { "Authorization" => "Bearer #{ENV.fetch('SCIM_V2_TOKEN')}" }
   }
+end
+```
+
+#### Adding audiences to a model
+
+A model object can contain multiple audience contexts. That is done using the `has_audience` module helper. This helper is added to ActiveRecord automatically when the configuration is set:
+
+
+```ruby
+Audiences.configure do |config|
+  config.identity_class = "User"
+  config.identity_key = "login"
+end
+```
+
+The `identity_class` is the class representing the SCIM user within the app domain. And the `identity_key` is the attrbiute in `identity_class` that maps directly to the SCIM User's externalId.
+
+Once the above configuration is done, a model can add audience (see the [example owning model](../spec/dummy/app/models/example_owner.rb.rb)):
+
+```ruby
+class Survey < ApplicationRecord
+  has_audience :responders
+  has_audience :supervisors
 end
 ```
 
