@@ -3,20 +3,9 @@
 require "rails_helper"
 
 RSpec.describe Audiences do
-  describe ".sign" do
-    it "creates a signed token to a given context" do
-      cricket_club = ExampleOwner.create(name: "Cricket Club")
-
-      token = Audiences.sign(cricket_club)
-      context = Audiences.load(token)
-
-      expect(context.owner).to eql cricket_club
-    end
-  end
-
   describe ".update" do
     let(:baseball_club) { ExampleOwner.create(name: "Baseball Club") }
-    let(:token) { Audiences.sign(baseball_club) }
+    let(:token) { Audiences::Context.for(baseball_club).signed_key }
 
     it "updates an audience context from a given key and params" do
       stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos")

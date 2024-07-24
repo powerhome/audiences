@@ -1,5 +1,8 @@
 # Unreleased
 
+# Version 1.2.0 (2024-07-24)
+
+- Add `has_audience` and the ability to attach multiple audiences to the same owner [#363](https://github.com/powerhome/audiences/pull/363)
 - Audiences.config/configure helpers [#359](https://github.com/powerhome/audiences/pull/359)
 - Adjust user id to SCIM Protocol [#356](https://github.com/powerhome/audiences/pull/356)
 

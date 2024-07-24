@@ -2,15 +2,15 @@ require:
   - rubocop-powerhome
 
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
   Exclude:
     - "vendor/**/*"
     - "spec/dummy/node_modules/**/*"
+    - "spec/dummy/db/schema.rb"
 
 Style/FrozenStringLiteralComment:
   Exclude:
     - "gemfiles/*"
-    - "spec/dummy/db/schema.rb"
 
 Lint/ToEnumArguments:
   Exclude:
@@ -19,18 +19,6 @@ Lint/ToEnumArguments:
 Bundler/OrderedGems:
   Exclude:
     - "gemfiles/*"
-
-Style/NumericLiterals:
-  Exclude:
-    - "spec/dummy/db/schema.rb"
-
-Style/WordArray:
-  Exclude:
-    - "spec/dummy/db/schema.rb"
-
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - "spec/dummy/db/schema.rb"
 
 Rails/I18nLocaleTexts:
   Exclude:

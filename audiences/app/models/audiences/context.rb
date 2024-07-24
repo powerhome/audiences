@@ -6,6 +6,7 @@ module Audiences
   # users (#criteria, #match_all, #extra_users).
   #
   class Context < ApplicationRecord
+    include Locating
     include ::Audiences::MembershipGroup
 
     belongs_to :owner, polymorphic: true
@@ -16,14 +17,6 @@ module Audiences
     before_save if: :match_all do
       self.criteria = []
       self.extra_users = []
-    end
-
-    # Finds or creates a context for the given owner
-    #
-    # @private
-    # @return [Audiences::Context]
-    def self.for(owner)
-      where(owner: owner).first_or_create!
     end
 
     def refresh_users!
