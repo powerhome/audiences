@@ -70,7 +70,7 @@ end
 
 ### Listening to Audience Changes
 
-Audiences allow your app to keep up with mutable groups of people. To react to audience changes, subscribe to audiences related to a certain owner type and handle changes through a block:
+Audiences allows your app to keep up with mutable groups of people. To react to audience changes, subscribe to audiences related to a certain owner type and handle changes through a block:
 
 ```ruby
 Audiences.configure do |config|
