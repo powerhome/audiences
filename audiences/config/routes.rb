@@ -10,10 +10,10 @@ end
 Rails.application.routes.draw do
   direct :audience_context do |owner, relation = nil|
     context = Audiences::Context.for(owner, relation: relation)
-    Audiences::Engine.routes.url_helpers.route_for(:signed_context, key: context.signed_key, **url_options)
+    audiences.route_for(:signed_context, key: context.signed_key, **url_options)
   end
 
   direct :audience_scim_proxy do |options|
-    Audiences::Engine.routes.url_helpers.route_for(:scim_proxy, **url_options, **options)
+    audiences.route_for(:scim_proxy, **url_options, **options)
   end
 end
