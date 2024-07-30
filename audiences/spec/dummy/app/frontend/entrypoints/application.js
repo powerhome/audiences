@@ -4,14 +4,18 @@ import { AudienceEditor } from "audiences";
 
 import "@fortawesome/fontawesome-free/js/all.min.js";
 
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll("div[data-context]").forEach((element) => {
-    const uri = element.getAttribute("data-context");
-    const scimUri = element.getAttribute("data-scim");
+class AudienceEditorComponent extends HTMLElement {
+  connectedCallback() {
+    const mountPoint = document.createElement('div');
+    this.appendChild(mountPoint);
+
+    const uri = this.getAttribute('uri');
+    const scimUri = this.getAttribute('scim');
 
     ReactDOM.render(
       React.createElement(AudienceEditor, { uri, scimUri }),
-      element
+      mountPoint
     );
-  });
-});
+  }
+}
+customElements.define('audiences-editor', AudienceEditorComponent);
