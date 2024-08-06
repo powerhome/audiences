@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Flex } from "playbook-ui"
+import { FixedConfirmationToast, Button, Flex } from "playbook-ui"
 
 import { GroupCriterion, ScimObject } from "../types"
 import { toSentence } from "./toSentence"
@@ -29,6 +29,7 @@ export const AudienceForm = ({
     saving,
     fetchUsers,
     save,
+    error,
     value: context,
     isDirty,
     change,
@@ -75,6 +76,9 @@ export const AudienceForm = ({
       isDirty={isDirty()}
       onToggle={(all: boolean) => change("match_all", all)}
     >
+      {error && (
+        <FixedConfirmationToast status="error" text={error} margin="sm" />
+      )}
       {allowIndividuals && !context.match_all && (
         <ScimResourceTypeahead
           label="Add Individuals"
