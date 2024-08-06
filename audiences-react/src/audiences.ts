@@ -33,6 +33,7 @@ export function useAudiences(uri: string): UseAudienceContext {
   const {
     get,
     put,
+    response,
     loading: saving,
   } = useFetch(uri, { cachePolicy: CachePolicies.NO_CACHE })
   const criteriaForm = useFormReducer<AudienceContext>(data, {
@@ -74,7 +75,11 @@ export function useAudiences(uri: string): UseAudienceContext {
 
   async function save() {
     const updatedContext = await put(criteriaForm.value)
-    criteriaForm.reset(updatedContext)
+    if (response.ok) {
+      criteriaForm.reset(updatedContext)
+    } else {
+      criteriaForm.setError("Unhandled server error")
+    }
   }
 
   return {
