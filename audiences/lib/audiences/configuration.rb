@@ -46,7 +46,7 @@ module Audiences
   # @see `resource`.
   #
   config_accessor :resources do
-    { Users: Scim::Resource.new(type: :Users, attributes: "id,externalId,displayName,photos") }
+    { Users: Scim::Resource.new(type: :Users, attributes: ["id", "externalId", "displayName", "photos" => %w[type value]]) }
   end
 
   #
