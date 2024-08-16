@@ -55,8 +55,8 @@ module Audiences
   # @param type [Symbol] the resource type in plural, as in scim (i.e.: :Users)
   # @param attributes [String] the list of attributes to fetch for the resource (i.e.: "id,externalId,displayName")
   # @see [Audiences::Scim::Resource]
-  def config.resource(type:, **kwargs)
-    config.resources[type] = Scim::Resource.new(type: type, **kwargs)
+  def config.resource(type, **kwargs)
+    resources[type] = Scim::Resource.new(type: type, **kwargs)
   end
 
   #
