@@ -40,7 +40,7 @@ const form = {
   reset<T>(state: FormState<T>): ResetAction<T> {
     return { type: "reset", state }
   },
-  error<T>(message: string): ErrorAction {
+  error(message: string): ErrorAction {
     return { type: "error", message }
   },
   reducer<T>(nestedReducers?: NestedReducerRegistry<T>): ReducerAction<T> {

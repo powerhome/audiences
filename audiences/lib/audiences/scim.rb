@@ -12,9 +12,9 @@ module Audiences
       Client.new(**Audiences.config.scim)
     end
 
-    def resource(type, **options)
+    def resource(type)
       Audiences.config.resources.fetch(type) do
-        Resource.new(type: type, **options)
+        Resource.new(type: type)
       end
     end
   end

@@ -6,7 +6,7 @@ module Audiences
       resources = Audiences::Scim.resource(params[:scim_path].to_sym)
                                  .query(filter: params[:filter])
 
-      render json: resources
+      render json: resources, except: %w[schemas meta]
     end
   end
 end
