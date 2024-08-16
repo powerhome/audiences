@@ -103,12 +103,12 @@ See a working example in our dummy app:
 
 ### SCIM Resource Attributes
 
-Configure which attributes are requested from the SCIM backend for each resource type. `Audiences` requires at least `id` and `displayName`, and also requests `photos` and `externalId` for users by default. To request additional attributes:
+Configure which attributes are requested from the SCIM backend for each resource type. `Audiences` includes `id`, `externalId`, and `displayName` by default in every resource type. It also requests `photos.type` and `photos.value` for users by default. To request additional attributes:
 
 ```ruby
 Audiences.configure do |config|
-  config.resource :Users, attributes: "id,externalId,displayName,photos,name"
-  config.resource :Groups, attributes: "id,displayName,mfaRequired"
+  config.resource :Users, attributes: ["name" => %w[givenName familyName formatted]]
+  config.resource :Groups, attributes: %w[mfaRequired]
 end
 ```
 
