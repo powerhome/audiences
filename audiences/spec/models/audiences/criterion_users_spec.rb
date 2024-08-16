@@ -12,7 +12,8 @@ RSpec.describe Audiences::CriterionUsers do
       ],
     }
 
-    stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
+    attrs = "id,externalId,displayName,photos.type,photos.value"
+    stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
                        "&filter=groups.value eq 1 OR groups.value eq 3")
       .to_return(status: 200, body: response.to_json)
 
@@ -44,10 +45,11 @@ RSpec.describe Audiences::CriterionUsers do
         ],
       }
 
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
+      attrs = "id,externalId,displayName,photos.type,photos.value"
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
                          "&filter=groups.value eq 1 OR groups.value eq 3")
         .to_return(status: 200, body: response1or3.to_json)
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
                          "&filter=groups.value eq 5 OR groups.value eq 6")
         .to_return(status: 200, body: response5or6.to_json)
 
@@ -78,11 +80,12 @@ RSpec.describe Audiences::CriterionUsers do
         ],
       }
 
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos" \
+      attrs = "id,externalId,displayName,photos.type,photos.value"
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
                          "&filter=groups.value eq 1 OR groups.value eq 3")
         .to_return(status: 200, body: response1or3.to_json)
 
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos&filter=")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}&filter=")
         .to_return(status: 200, body: response_no_filter.to_json)
 
       users = Audiences::CriterionUsers.new(criterion).to_a

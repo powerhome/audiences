@@ -13,8 +13,21 @@ module Audiences
 
       def query(**options)
         ResourcesQuery.new(Scim.client, resource: self,
-                                        attributes: @attributes.join(","),
+                                        attributes: scim_attributes,
                                         **@options, **options)
+      end
+
+      def scim_attributes
+        @attributes.reduce([]) do |attrs, attr|
+          case attr
+          when Hash
+            attrs + attr.map do |key, nested_attrs|
+              nested_attrs.map { "#{key}.#{_1}" }
+            end
+          else
+            attrs + [attr]
+          end
+        end.join(",")
       end
     end
   end
