@@ -5,10 +5,10 @@ module Audiences
     class Resource
       attr_accessor :options, :type, :attributes
 
-      def initialize(type:, attributes: %w[id externalId displayName], **options)
+      def initialize(type:, attributes: [], **options)
         @type = type
         @options = options
-        @attributes = attributes
+        @attributes = ["id", "externalId", "displayName", *attributes]
       end
 
       def query(**options)
