@@ -46,7 +46,7 @@ module Audiences
   # @see `resource`.
   #
   config_accessor :resources do
-    { Users: Scim::Resource.new(type: :Users, attributes: "id,externalId,displayName,photos") }
+    { Users: Scim::Resource.new(type: :Users, attributes: ["photos" => %w[type value]]) }
   end
 
   #
@@ -55,8 +55,8 @@ module Audiences
   # @param type [Symbol] the resource type in plural, as in scim (i.e.: :Users)
   # @param attributes [String] the list of attributes to fetch for the resource (i.e.: "id,externalId,displayName")
   # @see [Audiences::Scim::Resource]
-  def config.resource(type:, **kwargs)
-    config.resources[type] = Scim::Resource.new(type: type, **kwargs)
+  def config.resource(type, **kwargs)
+    resources[type] = Scim::Resource.new(type: type, **kwargs)
   end
 
   #
