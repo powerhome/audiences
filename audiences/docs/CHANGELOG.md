@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.2.2 (2024-08-21)
+
+- Permit configured resource attributes [#375](https://github.com/powerhome/audiences/pull/375)
+
 # Version 1.2.1 (2024-08-06)
 
 - Fix audiences URL helpers [#372](https://github.com/powerhome/audiences/pull/372)
