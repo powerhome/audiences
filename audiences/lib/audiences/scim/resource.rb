@@ -36,7 +36,8 @@ module Audiences
       def merged_filter(filter)
         return @filter unless filter
         return filter unless @filter
-        return "(#{@filter}) and (#{filter})"
+
+        "(#{@filter}) and (#{filter})"
       end
     end
   end
