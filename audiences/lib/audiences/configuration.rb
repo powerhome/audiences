@@ -46,7 +46,7 @@ module Audiences
   # @see `resource`.
   #
   config_accessor :resources do
-    { Users: Scim::Resource.new(type: :Users, attributes: ["photos" => %w[type value]]) }
+    { Users: Scim::Resource.new(type: :Users, attributes: ["active", "photos" => %w[type value]], filter: "active eq true") }
   end
 
   #
