@@ -8,7 +8,7 @@ RSpec.describe Audiences do
     let(:token) { Audiences::Context.for(baseball_club).signed_key }
 
     it "updates an audience context from a given key and params" do
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos.type,photos.value")
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,active,photos.type,photos.value&filter=active%20eq%20true")
         .with(query: {})
         .to_return(status: 200, body: { "Resources" => [] }.to_json)
 
@@ -26,17 +26,17 @@ RSpec.describe Audiences do
     end
 
     it "updates group criterion" do
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos.type,photos.value")
-        .with(query: { filter: "groups.value eq 1 OR groups.value eq 2" })
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,active,photos.type,photos.value&filter=active%20eq%20true")
+        .with(query: { filter: "(active eq true) and (groups.value eq 1 OR groups.value eq 2)" })
         .to_return(status: 200, body: { "Resources" => [] }.to_json)
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos.type,photos.value")
-        .with(query: { filter: "groups.value eq 3 OR groups.value eq 4" })
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,active,photos.type,photos.value&filter=active%20eq%20true")
+        .with(query: { filter: "(active eq true) and (groups.value eq 3 OR groups.value eq 4)" })
         .to_return(status: 200, body: { "Resources" => [] }.to_json)
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos.type,photos.value")
-        .with(query: { filter: "groups.value eq 5 OR groups.value eq 6" })
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,active,photos.type,photos.value&filter=active%20eq%20true")
+        .with(query: { filter: "(active eq true) and (groups.value eq 5 OR groups.value eq 6)" })
         .to_return(status: 200, body: { "Resources" => [] }.to_json)
-      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,photos.type,photos.value")
-        .with(query: { filter: "groups.value eq 7 OR groups.value eq 8" })
+      stub_request(:get, "http://example.com/scim/v2/Users?attributes=id,externalId,displayName,active,photos.type,photos.value&filter=active%20eq%20true")
+        .with(query: { filter: "(active eq true) and (groups.value eq 7 OR groups.value eq 8)" })
         .to_return(status: 200, body: { "Resources" => [] }.to_json)
 
       updated_context = Audiences.update(

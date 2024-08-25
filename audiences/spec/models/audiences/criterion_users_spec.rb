@@ -12,9 +12,9 @@ RSpec.describe Audiences::CriterionUsers do
       ],
     }
 
-    attrs = "id,externalId,displayName,photos.type,photos.value"
+    attrs = "id,externalId,displayName,active,photos.type,photos.value"
     stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                       "&filter=groups.value eq 1 OR groups.value eq 3")
+                       "&filter=(active eq true) and (groups.value eq 1 OR groups.value eq 3)")
       .to_return(status: 200, body: response.to_json)
 
     users = Audiences::CriterionUsers.new(criterion).to_a
@@ -45,12 +45,12 @@ RSpec.describe Audiences::CriterionUsers do
         ],
       }
 
-      attrs = "id,externalId,displayName,photos.type,photos.value"
+      attrs = "id,externalId,displayName,active,photos.type,photos.value"
       stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                         "&filter=groups.value eq 1 OR groups.value eq 3")
+                         "&filter=(active eq true) and (groups.value eq 1 OR groups.value eq 3)")
         .to_return(status: 200, body: response1or3.to_json)
       stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                         "&filter=groups.value eq 5 OR groups.value eq 6")
+                         "&filter=(active eq true) and (groups.value eq 5 OR groups.value eq 6)")
         .to_return(status: 200, body: response5or6.to_json)
 
       users = Audiences::CriterionUsers.new(criterion).to_a
@@ -80,9 +80,9 @@ RSpec.describe Audiences::CriterionUsers do
         ],
       }
 
-      attrs = "id,externalId,displayName,photos.type,photos.value"
+      attrs = "id,externalId,displayName,active,photos.type,photos.value"
       stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                         "&filter=groups.value eq 1 OR groups.value eq 3")
+                         "&filter=(active eq true) and (groups.value eq 1 OR groups.value eq 3)")
         .to_return(status: 200, body: response1or3.to_json)
 
       stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}&filter=")
