@@ -3,17 +3,20 @@
 module Audiences
   module Scim
     class Resource
-      attr_accessor :options, :type, :attributes
+      attr_accessor :options, :type, :attributes, :filter
 
-      def initialize(type:, attributes: [], **options)
+      def initialize(type:, attributes: [], filter: nil, **options)
         @type = type
         @options = options
         @attributes = ["id", "externalId", "displayName", *attributes]
+        @filter = filter
       end
 
       def query(**options)
+        options_filter = options.delete(:filter)
         ResourcesQuery.new(Scim.client, resource: self,
                                         attributes: scim_attributes,
+                                        filter: merged_filter(options_filter),
                                         **@options, **options)
       end
 
@@ -28,6 +31,13 @@ module Audiences
             attrs + [attr]
           end
         end.join(",")
+      end
+
+      def merged_filter(filter)
+        return @filter unless filter
+        return filter unless @filter
+
+        "(#{@filter}) and (#{filter})"
       end
     end
   end
