@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.3.0 (2024-09-03)
+
+- Filter out inactive users by default [#382](https://github.com/powerhome/audiences/pull/382)
+
 # Version 1.2.2 (2024-08-21)
 
 - Permit configured resource attributes [#375](https://github.com/powerhome/audiences/pull/375)
