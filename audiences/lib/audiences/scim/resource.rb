@@ -20,6 +20,10 @@ module Audiences
                                         **@options, **options)
       end
 
+      def all(...)
+        query(...).all
+      end
+
       def scim_attributes
         @attributes.reduce([]) do |attrs, attr|
           case attr

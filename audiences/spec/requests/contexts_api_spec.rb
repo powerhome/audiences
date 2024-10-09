@@ -38,6 +38,13 @@ RSpec.describe "/audiences" do
     end
 
     it "updates the context extra users" do
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: {
+                attributes: "id,externalId,displayName,active,photos.type,photos.value",
+                filter: "(active eq true) and (externalId eq 123)",
+              })
+        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "externalId" => 123 }] }.to_json)
+
       put audience_context_path(example_owner, :members),
           as: :json,
           params: { extra_users: [{ externalId: 123, displayName: "John Doe",
@@ -48,23 +55,13 @@ RSpec.describe "/audiences" do
       expect(context.extra_users).to eql [{
         "externalId" => 123,
         "displayName" => "John Doe",
-        "photos" => [{ "value" => "http://example.com" }],
       }]
-    end
-
-    it "responds with the audience context json" do
-      put audience_context_path(example_owner, :members),
-          as: :json,
-          params: { extra_users: [{ externalId: 123, displayName: "John Doe",
-                                    photos: [{ value: "http://example.com" }] }] }
-
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 1,
                                               "extra_users" => [{
                                                 "externalId" => 123,
                                                 "displayName" => "John Doe",
-                                                "photos" => [{ "value" => "http://example.com" }],
                                               }],
                                               "criteria" => [],
                                             })
@@ -106,7 +103,7 @@ RSpec.describe "/audiences" do
 
         expect(response.parsed_body).to match({
                                                 "match_all" => false,
-                                                "extra_users" => nil,
+                                                "extra_users" => [],
                                                 "count" => 2,
                                                 "criteria" => [
                                                   {

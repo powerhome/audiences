@@ -17,12 +17,18 @@ RSpec.describe Audiences do
       expect(updated_context).to be_match_all
     end
 
-    it "updates an direct resources collection" do
-      updated_context = Audiences.update(token, extra_users: [{ externalId: 678 }])
-      expect(updated_context.extra_users).to eql([{ "externalId" => 678 }])
+    it "updates extra users fetching latest information" do
+      stub_request(:get, "http://example.com/scim/v2/Users")
+        .with(query: {
+                attributes: "id,externalId,displayName,active,photos.type,photos.value",
+                filter: "(active eq true) and (externalId eq 678 OR externalId eq 321)",
+              })
+        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John", "externalId" => 678 },
+                                                        { "displayName" => "Doe", "externalId" => 321 }] }.to_json)
 
-      updated_context = Audiences.update(token, extra_users: [{ externalId: 123 }, { externalId: 321 }])
-      expect(updated_context.extra_users).to eql([{ "externalId" => 123 }, { "externalId" => 321 }])
+      updated_context = Audiences.update(token, extra_users: [{ "externalId" => 678 }, { "externalId" => 321 }])
+      expect(updated_context.extra_users).to eql([{ "displayName" => "John", "externalId" => 678 },
+                                                  { "displayName" => "Doe", "externalId" => 321 }])
     end
 
     it "updates group criterion" do
