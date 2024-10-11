@@ -4,6 +4,23 @@ on:
   push:
 
 jobs:
+  brakeman:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: 3.3.5
+          working-directory: audiences
+      - name: Brakeman
+        uses: reviewdog/action-brakeman@v2
+        with:
+          workdir: audiences
+
   build:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }} / ${{ matrix.gemfile }}
