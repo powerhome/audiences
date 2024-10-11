@@ -72,6 +72,20 @@ jobs:
     with:
       workdir: audiences
 
+  all:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: All
+    needs: [build, license-compliance]
+    steps:
+      - run: |
+          result="${{ needs.build.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
+
   release:
     needs: [build, license-compliance]
     runs-on: ubuntu-latest
