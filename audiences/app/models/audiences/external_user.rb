@@ -10,6 +10,13 @@ module Audiences
                             inverse_of: false
     end
 
+    def self.fetch(external_ids)
+      return [] unless external_ids.any?
+
+      filter = Array(external_ids).map { "externalId eq #{_1}" }.join(" OR ")
+      Audiences::Scim.resource(:Users).all(filter: filter)
+    end
+
     def self.wrap(resources)
       return [] unless resources&.any?
 
