@@ -23,11 +23,12 @@ module_function
   # @param params [Hash] the updated params
   # @return Audience::Context
   #
-  def update(key, criteria: [], **attrs)
+  def update(key, criteria: [], extra_users: [], match_all: false)
     Audiences::Context.load(key) do |context|
       context.update!(
+        match_all: match_all,
         criteria: ::Audiences::Criterion.map(criteria),
-        **attrs
+        extra_users: ::Audiences::ExternalUser.fetch(extra_users.pluck("externalId"))
       )
       context.refresh_users!
     end
