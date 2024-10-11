@@ -1,5 +1,10 @@
 # Unreleased
 
+# Version 1.3.1 (2024-10-11)
+
+- Forward pagination parameters to SCIM on proxy [#397](https://github.com/powerhome/audiences/pull/397)
+- Fix security flaw when setting extra users [#398](https://github.com/powerhome/audiences/pull/398)
+
 # Version 1.3.0 (2024-09-03)
 
 - Filter out inactive users by default [#382](https://github.com/powerhome/audiences/pull/382)
