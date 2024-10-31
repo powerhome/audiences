@@ -29,7 +29,9 @@ module Audiences
   #     end
   #   end
   #
-  config_accessor :authentication, default: ->(*) { true }
+  config_accessor :authentication do
+    ->(*) { true }
+  end
 
   #
   # Identity model representing a SCIM User in the current application. I.e.: "User"

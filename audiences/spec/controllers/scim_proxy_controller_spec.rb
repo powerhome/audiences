@@ -1,19 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
-
-RSpec.shared_examples "authenticated endpoint" do
-  routes { Audiences::Engine.routes }
-
-  it "requires authentication" do
-    config_before = Audiences.config.authenticate
-    Audiences.config.authenticate = ->(*) { false }
-
-    expect(subject).to have_http_status(:unauthorized)
-  ensure
-    Audiences.config.authenticate = config_before
-  end
-end
+require_relative "authenticated_endpoint_examples"
 
 RSpec.describe Audiences::ScimProxyController do
   routes { Audiences::Engine.routes }
