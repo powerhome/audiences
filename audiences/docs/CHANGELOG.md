@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.4.0 (2024-11-01)
+
+- Add authentication hooks for Audiences controllers [#438](https://github.com/powerhome/audiences/pull/438)
+
 # Version 1.3.1 (2024-10-11)
 
 - Forward pagination parameters to SCIM on proxy [#397](https://github.com/powerhome/audiences/pull/397)
