@@ -6,6 +6,34 @@ module Audiences
   # Configuration options
 
   #
+  # Authentication configuration. This defaults to true, meaning that the audiences
+  # endpoints are open to the public.
+  #
+  # To authenticate requests, set this configuration to a lambda that will receive
+  # the request and return true if the request is authenticated.
+  #
+  # Raising an exception will also prevent the execution of the request, but the
+  # exception will not be caught and should be handled by the application middlewares.
+  #
+  # I.e.:
+  #
+  #   Audiences.configure do |config|
+  #     config.authentication = ->(*) { authenticate_request }
+  #   end
+  #
+  # I.e:
+  #
+  #   Audiences.configure do |config|
+  #     config.authentication = ->(request) do
+  #       request.env["warden"].authenticate!
+  #     end
+  #   end
+  #
+  config_accessor :authentication do
+    ->(*) { true }
+  end
+
+  #
   # Identity model representing a SCIM User in the current application. I.e.: "User"
   #
   config_accessor :identity_class
