@@ -51,5 +51,17 @@ RSpec.describe Audiences::ScimProxyController do
 
       expect(response.parsed_body).to eq({ "response" => "body" })
     end
+
+    it "only fetches less sensitive attributes" do
+      expect(resource_query).to(
+        receive(:query)
+          .with(hash_including(attributes: %w[id externalId displayName photos]))
+          .and_return({ "response" => "body" })
+      )
+
+      get :get, params: { scim_path: "MyResources", count: 21, startIndex: 12, filter: "name eq John" }
+
+      expect(response.parsed_body).to eq({ "response" => "body" })
+    end
   end
 end
