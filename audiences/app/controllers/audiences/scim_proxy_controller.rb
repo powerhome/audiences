@@ -5,7 +5,7 @@ module Audiences
     def get
       resources = Audiences::Scim.resource(params[:scim_path].to_sym)
                                  .query(
-                                   filter: params[:filter],
+                                   filter: "displayName co \"#{params[:filter]}\"",
                                    startIndex: params[:startIndex], count: params[:count],
                                    attributes: %w[id externalId displayName photos]
                                  )

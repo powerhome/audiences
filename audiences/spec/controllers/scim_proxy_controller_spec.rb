@@ -31,11 +31,11 @@ RSpec.describe Audiences::ScimProxyController do
     it "proxies queries with arguments" do
       expect(resource_query).to(
         receive(:query)
-          .with(filter: "name eq John", startIndex: "12", count: "21")
+          .with(hash_including(filter: 'displayName co "John"', startIndex: "12", count: "21"))
           .and_return({ "response" => "body" })
       )
 
-      get :get, params: { scim_path: "MyResources", count: 21, startIndex: 12, filter: "name eq John" }
+      get :get, params: { scim_path: "MyResources", count: 21, startIndex: 12, filter: "John" }
 
       expect(response.parsed_body).to eq({ "response" => "body" })
     end
