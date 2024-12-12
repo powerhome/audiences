@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.5.1 (2024-12-12)
+
+- Fix SCIM proxy attributes format [#462](https://github.com/powerhome/audiences/pull/462)
+
 # Version 1.5.0 (2024-12-12)
 
 - SCIM proxy will only return data used by the UI [#451](https://github.com/powerhome/audiences/pull/451)
