@@ -55,7 +55,7 @@ RSpec.describe Audiences::ScimProxyController do
     it "only fetches less sensitive attributes" do
       expect(resource_query).to(
         receive(:query)
-          .with(hash_including(attributes: %w[id externalId displayName photos]))
+          .with(hash_including(attributes: "id,externalId,displayName,photos"))
           .and_return({ "response" => "body" })
       )
 
