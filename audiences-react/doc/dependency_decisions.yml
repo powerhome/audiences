@@ -23,3 +23,10 @@
     :why: Permitted at https://tech.powerhrg.com/oss-guide/docs/using/permitted-licenses.html\#permitted-licenses
     :versions: []
     :when: 2024-02-27 20:33:00.413949000 Z
+- - :approve
+  - "@typescript-eslint/parser"
+  - :who: Carlos Palhares <carlos.palhares@powerhrg.com>
+    :why: MIT License
+    :versions:
+      - 8.18.0
+    :when: 2024-12-10 20:08:46.550522000 Z
