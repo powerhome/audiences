@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.5.0 (2024-12-12)
+
+- SCIM proxy will only return data used by the UI [#451](https://github.com/powerhome/audiences/pull/451)
+
 # Version 1.4.0 (2024-11-01)
 
 - Add authentication hooks for Audiences controllers [#438](https://github.com/powerhome/audiences/pull/438)

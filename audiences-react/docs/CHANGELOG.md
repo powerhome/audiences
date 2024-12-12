@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.3.0 (2024-12-12)
+
+- Protect SCIM search from backend [#451](https://github.com/powerhome/audiences/pull/451)
+
 # Version 1.2.1 (2024-08-06)
 
 - Add error handling to audiences form [#372](https://github.com/powerhome/audiences/pull/372)
