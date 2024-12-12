@@ -10,7 +10,7 @@ Audiences.configure do |config|
     headers: { "Authorization" => ENV.fetch("SCIM_AUTHORIZATION", "Bearer 123456789") },
   }
 
-  config.subscriptions do
+  config.notifications do
     subscribe ExampleOwner, job: UpdateMembershipsJob
   end
 end
