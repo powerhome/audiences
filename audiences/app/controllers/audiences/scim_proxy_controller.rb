@@ -7,7 +7,7 @@ module Audiences
                                  .query(
                                    filter: "displayName co \"#{params[:filter]}\"",
                                    startIndex: params[:startIndex], count: params[:count],
-                                   attributes: %w[id externalId displayName photos]
+                                   attributes: "id,externalId,displayName,photos"
                                  )
 
       render json: resources, except: %w[schemas meta]
