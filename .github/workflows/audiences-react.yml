@@ -9,5 +9,5 @@ jobs:
     with:
       package: ${{ github.workflow }}
       workdir: ${{ github.workflow }}
-      node: '["21"]'
+      node: '["22"]'
     secrets: inherit
