@@ -18,6 +18,7 @@ type UpdateCriteriaAction = RegistryAction & {
 
 export type UseAudienceContext = UseFormReducer<AudienceContext> & {
   saving: boolean
+  query: <T>(resourceId: string, displayName: string) => Promise<T[]>
   save: () => void
   fetchUsers: (
     criterion?: GroupCriterion,
@@ -35,7 +36,7 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
     put,
     response,
     loading: saving,
-  } = useFetch(`${uri}/${key}`, { ...options, cachePolicy: CachePolicies.NO_CACHE })
+  } = useFetch(uri, { ...options, cachePolicy: CachePolicies.NO_CACHE })
   const criteriaForm = useFormReducer<AudienceContext>(data, {
     "remove-criteria": (
       context,
@@ -69,12 +70,16 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
     offset?: number,
   ) {
     return get(
-      `/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
+      `/${key}/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
     )
   }
 
+  async function query(resourceId: string, displayName: string) {
+    return await get(`/scim/${resourceId}?filter=${displayName}`)
+  }
+
   async function save() {
-    const updatedContext = await put(criteriaForm.value)
+    const updatedContext = await put(key, criteriaForm.value)
     if (response.ok) {
       criteriaForm.reset(updatedContext)
     } else {
@@ -86,6 +91,7 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
     saving,
     fetchUsers,
     save,
+    query,
     ...criteriaForm,
     removeCriteria: (index: number) =>
       criteriaForm.dispatch({ type: "remove-criteria", index }),

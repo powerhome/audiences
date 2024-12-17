@@ -11,16 +11,16 @@ The `AudienceEditor` component is the main entry point. It _requires_ an `uri`, 
 With everything in place, the usage should look like this:
 
 ```jsx
-<AudienceEditor uri={audienceRootUrl} key={contextKey} scimUri={scimV2Uri} />
+<AudienceEditor uri={audienceRootUrl} key={contextKey} />
 ```
 
 You can also add arguments to the fetch calls, like headers:
 
 ```jsx
 <AudienceEditor
-  uri={audienceContextUri}
-  scimUri={scimV2Uri}
-  fetchOptions={{ headers: { Authorization: "Bearer my-token" } }}
+    uri={audienceRootUrl}
+    key={contextKey}
+    fetchOptions={{ headers: { "Authorization": "Bearer my-token" }}}
 />
 ```
 
