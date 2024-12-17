@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { FixedConfirmationToast, Button, Flex } from "playbook-ui"
 
 import { GroupCriterion, ScimObject } from "../types"
@@ -7,24 +7,21 @@ import { toSentence } from "./toSentence"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { CriteriaList } from "./CriteriaList"
 import { CriteriaForm } from "./CriteriaForm"
-import { useAudiences } from "../audiences"
+import Audiences from "../audiences"
 import { MatchAllToggleCard } from "./MatchAllToggleHeader"
 
 type AudienceFormProps = {
-  uri: string
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
 }
 
 export const AudienceForm = ({
-  uri,
   userResource,
   groupResources,
   allowIndividuals = true,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
-
   const {
     saving,
     fetchUsers,
@@ -36,7 +33,7 @@ export const AudienceForm = ({
     reset,
     removeCriteria,
     updateCriteria,
-  } = useAudiences(uri)
+  } = useContext(Audiences)!
 
   const handleRemoveCriteria = (index: number) => {
     if (confirm("Remove criteria?")) {
