@@ -1,4 +1,4 @@
-import { createContext, useEffect } from "react"
+import { createContext, useContext, useEffect } from "react"
 import useFetch, { CachePolicies, IncomingOptions } from "use-http"
 
 import useFormReducer, {
@@ -101,4 +101,7 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
 }
 
 const Context = createContext<UseAudienceContext | undefined>(undefined)
+export function useAudiencesContext() {
+  return useContext(Context)!
+}
 export default Context

@@ -6,14 +6,12 @@ import { useAudiences } from "../audiences"
 type CriteriaListProps = {
   addCriteriaLabel: string
   context: AudienceContext
-  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   onAddCriteria: () => void
   onEditCriteria: (index: number) => void
   onRemoveCriteria: (index: number) => void
 }
 export function CriteriaList({
   context,
-  fetchUsers,
   addCriteriaLabel,
   onAddCriteria,
   onRemoveCriteria,
@@ -24,7 +22,6 @@ export function CriteriaList({
       {context.criteria.map((criterion, index: number) => (
         <CriteriaCard
           criterion={criterion}
-          fetchUsers={fetchUsers}
           key={`criterion-${index}`}
           onRequestEdit={() => onEditCriteria(index)}
           onRequestRemove={() => onRemoveCriteria(index)}

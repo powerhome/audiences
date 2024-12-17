@@ -3,13 +3,12 @@ import { ReactNode } from "react"
 import { Card, Caption, Flex } from "playbook-ui"
 
 import { MembersModalButton } from "./MembersModalButton"
-import { useAudiences } from "../audiences"
+import { useAudiencesContext } from "../audiences"
 
 type MatchAllToggleCardProps = {
   children: ReactNode
   count: number
   enabled: boolean
-  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   isDirty: boolean
   onToggle: (all: boolean) => void
 }
@@ -17,7 +16,6 @@ export function MatchAllToggleCard({
   children,
   count,
   enabled,
-  fetchUsers,
   isDirty,
   onToggle,
 }: MatchAllToggleCardProps) {
@@ -38,7 +36,6 @@ export function MatchAllToggleCard({
                 text="View All"
                 title="All Members"
                 padding="none"
-                fetchUsers={fetchUsers}
                 total={count}
               />
             )}

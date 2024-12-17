@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useState } from "react"
 import { FixedConfirmationToast, Button, Flex } from "playbook-ui"
 
 import { GroupCriterion, ScimObject } from "../types"
@@ -7,7 +7,7 @@ import { toSentence } from "./toSentence"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { CriteriaList } from "./CriteriaList"
 import { CriteriaForm } from "./CriteriaForm"
-import Audiences from "../audiences"
+import { useAudiencesContext } from "../audiences"
 import { MatchAllToggleCard } from "./MatchAllToggleHeader"
 
 type AudienceFormProps = {
@@ -24,7 +24,6 @@ export const AudienceForm = ({
   const [editing, setEditing] = useState<number>()
   const {
     saving,
-    fetchUsers,
     save,
     error,
     value: context,
@@ -33,7 +32,7 @@ export const AudienceForm = ({
     reset,
     removeCriteria,
     updateCriteria,
-  } = useContext(Audiences)!
+  } = useAudiencesContext()
 
   const handleRemoveCriteria = (index: number) => {
     if (confirm("Remove criteria?")) {
@@ -69,7 +68,6 @@ export const AudienceForm = ({
     <MatchAllToggleCard
       count={context.count}
       enabled={context.match_all}
-      fetchUsers={fetchUsers}
       isDirty={isDirty()}
       onToggle={(all: boolean) => change("match_all", all)}
     >
@@ -88,7 +86,6 @@ export const AudienceForm = ({
         <CriteriaList
           addCriteriaLabel={`Add Members by ${toSentence(groupResources)}`}
           context={context}
-          fetchUsers={fetchUsers}
           onAddCriteria={handleCreateCriteria}
           onEditCriteria={setEditing}
           onRemoveCriteria={handleRemoveCriteria}
