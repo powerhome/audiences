@@ -7,26 +7,21 @@ import { toSentence } from "./toSentence"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { CriteriaList } from "./CriteriaList"
 import { CriteriaForm } from "./CriteriaForm"
-import { useAudiences } from "../audiences"
+import { useAudiencesContext } from "../audiences"
 import { MatchAllToggleCard } from "./MatchAllToggleHeader"
 
 type AudienceFormProps = {
-  uri: string
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
-  fetchOptions: Parameters<typeof useAudiences>[1]
 }
 
 export const AudienceForm = ({
-  uri,
   userResource,
   groupResources,
   allowIndividuals = true,
-  fetchOptions,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
-
   const {
     saving,
     fetchUsers,
@@ -38,7 +33,7 @@ export const AudienceForm = ({
     reset,
     removeCriteria,
     updateCriteria,
-  } = useAudiences(uri, fetchOptions)
+  } = useAudiencesContext()
 
   const handleRemoveCriteria = (index: number) => {
     if (confirm("Remove criteria?")) {

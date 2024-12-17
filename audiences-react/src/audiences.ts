@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { createContext, useContext, useEffect } from "react"
 import useFetch, { CachePolicies, IncomingOptions } from "use-http"
 
 import useFormReducer, {
@@ -96,3 +96,9 @@ export function useAudiences(
       criteriaForm.dispatch({ type: "update-criteria", index, criterion }),
   }
 }
+
+const Context = createContext<UseAudienceContext | undefined>(undefined)
+export function useAudiencesContext() {
+  return useContext(Context)!
+}
+export default Context
