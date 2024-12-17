@@ -30,7 +30,8 @@ An audience is tied to an owning model within your application. In this document
 
 This can be done with an unobtrusive JS renderer like `react-rails` or a custom one as shown in [our dummy app](../audiences/spec/dummy/app/frontend/entrypoints/application.js). The editor requires two arguments:
 
-- The context URI: `audience_context_url(owner, relation)` helper
+- The audiences mount point: `audiences.root_url` URL helper
+- The context signed key: I.e.: `owner.members_signed_key` or `Audiences::Context.for(owner, relation:).signed_key`
 - The SCIM endpoint: `audience_scim_proxy_url` helper if using the [proxy](#configuring-the-scim-proxy), or the SCIM endpoint directly.
 
 ### Configuring Audiences
