@@ -32,7 +32,6 @@ This can be done with an unobtrusive JS renderer like `react-rails` or a custom 
 
 - The audiences mount point: `audiences.root_url` URL helper
 - The context signed key: I.e.: `owner.members_signed_key` or `Audiences::Context.for(owner, relation:).signed_key`
-- The SCIM endpoint: `audience_scim_proxy_url` helper if using the [proxy](#configuring-the-scim-proxy), or the SCIM endpoint directly.
 
 ### Configuring Audiences
 
