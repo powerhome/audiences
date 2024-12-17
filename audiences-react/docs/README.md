@@ -11,7 +11,7 @@ The `AudienceEditor` component is the main entry point. It _requires_ an `uri`, 
 With everything in place, the usage should look like this:
 
 ```jsx
-<AudienceEditor uri={audienceContextUri} scimUri={scimV2Uri} />
+<AudienceEditor uri={audienceRootUrl} key={contextKey} scimUri={scimV2Uri} />
 ```
 
 See [example](../src/example.tsx).

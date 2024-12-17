@@ -28,14 +28,14 @@ type UseAudienceContext = UseFormReducer<AudienceContext> & {
   updateCriteria: (index: number, criteria: GroupCriterion) => void
 }
 
-export function useAudiences(uri: string): UseAudienceContext {
-  const { data } = useFetch(uri, [uri])
+export function useAudiences(uri: string, key: string): UseAudienceContext {
+  const { data } = useFetch(`${uri}/${key}`, [uri, key])
   const {
     get,
     put,
     response,
     loading: saving,
-  } = useFetch(uri, { cachePolicy: CachePolicies.NO_CACHE })
+  } = useFetch(`${uri}/${key}`, { cachePolicy: CachePolicies.NO_CACHE })
   const criteriaForm = useFormReducer<AudienceContext>(data, {
     "remove-criteria": (
       context,

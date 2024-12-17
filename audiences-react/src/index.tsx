@@ -2,20 +2,32 @@ import { AudienceForm } from "./AudienceForm"
 import Audiences, { useAudiences } from "./audiences"
 import Scim from "./scim"
 
+function audiencesRoot(uri: string): string {
+  return uri.match(/.*(?=\/)/g)?.at(0)!
+}
+
+function audiencesContext(uri: string): string {
+  return uri.match(/[^\/]+$/g)?.at(0)!
+}
+
 const UserResourceId = "Users"
 const AllowedGroupIds = ["Territories", "Departments", "Titles"]
 
 type AudienceEditorProps = {
   uri: string
+  context?: string
   scimUri: string
   allowIndividuals?: boolean
 }
 export function AudienceEditor({
   uri,
+  context,
   scimUri,
   allowIndividuals = true,
 }: AudienceEditorProps) {
-  const audiences = useAudiences(uri)
+  const audiencesUri = context ? uri : audiencesRoot(uri)
+  const contextKey = context ? context : audiencesContext(uri)
+  const audiences = useAudiences(audiencesUri, contextKey)
 
   return (
     <Audiences.Provider value={audiences}>
