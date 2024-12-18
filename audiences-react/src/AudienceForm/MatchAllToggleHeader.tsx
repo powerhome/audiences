@@ -7,25 +7,18 @@ import { useAudiencesContext } from "../audiences"
 
 type MatchAllToggleCardProps = {
   children: ReactNode
-  count: number
-  enabled: boolean
-  isDirty: boolean
-  onToggle: (all: boolean) => void
 }
-export function MatchAllToggleCard({
-  children,
-  count,
-  enabled,
-  isDirty,
-  onToggle,
-}: MatchAllToggleCardProps) {
+export function MatchAllToggleCard({ children }: MatchAllToggleCardProps) {
+  const { value: context, isDirty, change } = useAudiencesContext()
+  const handleToggle = () => change("match_all", !context.match_all)
+
   return (
     <Card margin="xs" padding="xs">
-      <Card.Header headerColor={enabled ? "none" : "white"}>
+      <Card.Header headerColor={context.match_all ? "none" : "white"}>
         <Flex orientation="row" spacing="between" wrap>
           <FlexItem>
-            <Caption text={`Members ${isDirty ? "" : count}`} />
-            {isDirty ? (
+            <Caption text={`Members ${isDirty() ? "" : context.count}`} />
+            {isDirty() ? (
               <Caption
                 size="xs"
                 marginTop="sm"
@@ -36,7 +29,7 @@ export function MatchAllToggleCard({
                 text="View All"
                 title="All Members"
                 padding="none"
-                total={count}
+                total={context.count}
               />
             )}
           </FlexItem>
@@ -45,8 +38,8 @@ export function MatchAllToggleCard({
               <Toggle>
                 <input
                   type="checkbox"
-                  checked={enabled}
-                  onChange={() => onToggle(!enabled)}
+                  checked={context.match_all}
+                  onChange={handleToggle}
                 />
               </Toggle>
               <Caption marginLeft="xs" size="xs" text={"All Employees"} />

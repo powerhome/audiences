@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react"
+import { createContext, useCallback, useContext, useEffect } from "react"
 import useFetch, { CachePolicies, IncomingOptions } from "use-http"
 
 import useFormReducer, {
@@ -17,7 +17,7 @@ type UpdateCriteriaAction = RegistryAction & {
 }
 
 export type UseAudienceContext = UseFormReducer<AudienceContext> & {
-  saving: boolean
+  loading: boolean
   query: <T>(resourceId: string, displayName: string) => Promise<T[]>
   save: () => void
   fetchUsers: (
@@ -30,14 +30,8 @@ export type UseAudienceContext = UseFormReducer<AudienceContext> & {
 }
 
 export function useAudiences(uri: string, key: string, options: IncomingOptions = {}): UseAudienceContext {
-  const { data } = useFetch(`${uri}/${key}`, options, [uri, key])
-  const {
-    get,
-    put,
-    response,
-    loading: saving,
-  } = useFetch(uri, { ...options, cachePolicy: CachePolicies.NO_CACHE })
-  const criteriaForm = useFormReducer<AudienceContext>(data, {
+  const { get, put, response, loading } = useFetch(uri, { ...options, cachePolicy: CachePolicies.NO_CACHE })
+  const criteriaForm = useFormReducer<AudienceContext>({} as AudienceContext, {
     "remove-criteria": (
       context,
       _,
@@ -61,8 +55,8 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
       ) as AudienceContext,
   })
   useEffect(() => {
-    criteriaForm.reset(data)
-  }, [data])
+    get(key).then(criteriaForm.reset)
+  }, [])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
@@ -88,7 +82,7 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
   }
 
   return {
-    saving,
+    loading,
     fetchUsers,
     save,
     query,
