@@ -16,13 +16,13 @@ type AudienceEditorProps = {
   uri: string
   context?: string
   allowIndividuals?: boolean
-  fetchOptions: Parameters<typeof useAudiences>[2]
+  fetchOptions?: Parameters<typeof useAudiences>[2]
 }
 export function AudienceEditor({
   uri,
   context,
   allowIndividuals = true,
-  fetchOptions,
+  fetchOptions = {},
 }: AudienceEditorProps) {
   const audiencesUri = context ? uri : audiencesRoot(uri)
   const contextKey = context ? context : audiencesContext(uri)
