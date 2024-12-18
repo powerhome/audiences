@@ -1,8 +1,8 @@
-import { Flex, Button } from "playbook-ui";
-import { useAudiencesContext } from "../audiences";
+import { Flex, Button } from "playbook-ui"
+import { useAudiencesContext } from "../audiences"
 
 export function ActionBar() {
-  const { loading, save, isDirty, reset } = useAudiencesContext();
+  const { loading, save, isDirty, reset } = useAudiencesContext()
 
   return (
     <Flex justify="between" marginTop="md">
@@ -11,7 +11,8 @@ export function ActionBar() {
         text="Save"
         htmlType="submit"
         loading={loading}
-        onClick={() => save()} />
+        onClick={() => save()}
+      />
 
       {isDirty() && (
         <Button
@@ -19,8 +20,9 @@ export function ActionBar() {
           text="Cancel"
           variant="link"
           htmlType="reset"
-          onClick={() => reset()} />
+          onClick={() => reset()}
+        />
       )}
     </Flex>
-  );
+  )
 }

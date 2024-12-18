@@ -23,8 +23,8 @@ export const AudienceForm = ({
   groupResources,
   allowIndividuals = true,
 }: AudienceFormProps) => {
-  const [ editing, setEditing ] = useState<number>()
-  const { error, value: context, change} = useAudiencesContext()
+  const [editing, setEditing] = useState<number>()
+  const { error, value: context, change } = useAudiencesContext()
 
   if (isEmpty(context)) {
     return null
@@ -47,12 +47,14 @@ export const AudienceForm = ({
       )}
       {!context.match_all && (
         <>
-          {allowIndividuals && <ScimResourceTypeahead
-            label="Add Individuals"
-            value={context.extra_users || []}
-            onChange={(users: ScimObject[]) => change("extra_users", users)}
-            resourceId={userResource}
-          />}
+          {allowIndividuals && (
+            <ScimResourceTypeahead
+              label="Add Individuals"
+              value={context.extra_users || []}
+              onChange={(users: ScimObject[]) => change("extra_users", users)}
+              resourceId={userResource}
+            />
+          )}
           <CriteriaList onEditCriteria={setEditing} />
           <FlexItem alignSelf="center">
             <Button

@@ -18,9 +18,9 @@ You can also add arguments to the fetch calls, like headers:
 
 ```jsx
 <AudienceEditor
-    uri={audienceRootUrl}
-    key={contextKey}
-    fetchOptions={{ headers: { "Authorization": "Bearer my-token" }}}
+  uri={audienceRootUrl}
+  key={contextKey}
+  fetchOptions={{ headers: { Authorization: "Bearer my-token" } }}
 />
 ```
 

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect } from "react"
+import { createContext, useContext, useEffect } from "react"
 import useFetch, { CachePolicies, IncomingOptions } from "use-http"
 
 import useFormReducer, {
@@ -29,8 +29,15 @@ export type UseAudienceContext = UseFormReducer<AudienceContext> & {
   updateCriteria: (index: number, criteria: GroupCriterion) => void
 }
 
-export function useAudiences(uri: string, key: string, options: IncomingOptions = {}): UseAudienceContext {
-  const { get, put, response, loading } = useFetch(uri, { ...options, cachePolicy: CachePolicies.NO_CACHE })
+export function useAudiences(
+  uri: string,
+  key: string,
+  options: IncomingOptions = {},
+): UseAudienceContext {
+  const { get, put, response, loading } = useFetch(uri, {
+    ...options,
+    cachePolicy: CachePolicies.NO_CACHE,
+  })
   const criteriaForm = useFormReducer<AudienceContext>({} as AudienceContext, {
     "remove-criteria": (
       context,
@@ -56,7 +63,7 @@ export function useAudiences(uri: string, key: string, options: IncomingOptions 
   })
   useEffect(() => {
     get(key).then(criteriaForm.reset)
-  }, [])
+  }, [key])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
