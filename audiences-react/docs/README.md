@@ -14,6 +14,16 @@ With everything in place, the usage should look like this:
 <AudienceEditor uri={audienceRootUrl} key={contextKey} />
 ```
 
+You can also add arguments to the fetch calls, like headers:
+
+```jsx
+<AudienceEditor
+    uri={audienceRootUrl}
+    key={contextKey}
+    fetchOptions={{ headers: { "Authorization": "Bearer my-token" }}}
+/>
+```
+
 See [example](../src/example.tsx).
 
 ### Peer Dependencies
