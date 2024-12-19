@@ -17,9 +17,8 @@ type UpdateCriteriaAction = RegistryAction & {
 }
 
 export type UseAudienceContext = UseFormReducer<AudienceContext> & {
-  saving: boolean
-  query: <T>(resourceId: string, displayName: string) => Promise<T[]>
-  save: () => void
+  query: (resourceId: string, displayName: string) => Promise<ScimObject[]>
+  save: () => Promise<void>
   fetchUsers: (
     criterion?: GroupCriterion,
     search?: string,
@@ -34,7 +33,6 @@ export function useAudiences(
   key: string,
   options: RequestInit = {},
 ): UseAudienceContext {
-  const [ saving, setSaving ] = useState(false)
   const { get, put } = useFetch(uri, options)
   const criteriaForm = useFormReducer<AudienceContext>({} as AudienceContext, {
     "remove-criteria": (
@@ -79,15 +77,12 @@ export function useAudiences(
   }
 
   async function save() {
-    setSaving(true)
     return put(key, criteriaForm.value)
         .then((response: AudienceContext) => criteriaForm.reset(response))
         .catch((error: Error) => criteriaForm.setError(error.message))
-        .finally(() => setSaving(false))
   }
 
   return {
-    saving,
     fetchUsers,
     save,
     query,
