@@ -29,7 +29,7 @@ module Audiences
     end
 
     def as_json(*)
-      data.as_json
+      data.as_json(*)
     end
   end
 end

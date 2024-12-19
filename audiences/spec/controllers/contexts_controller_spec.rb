@@ -158,7 +158,7 @@ RSpec.describe Audiences::ContextsController do
       criterion.users.create!([
                                 { user_id: 1, data: { "externalId" => 1, "displayName" => "John" } },
                                 { user_id: 2, data: { "externalId" => 2, "displayName" => "Jose" } },
-                                { user_id: 3, data: { "externalId" => 3, "displayName" => "Nelson" } },
+                                { user_id: 3, data: { "externalId" => 3, "displayName" => "Nelson", "confidential" => "data" } },
                               ])
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
