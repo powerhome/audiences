@@ -36,7 +36,7 @@ module Audiences
       json_setting = {
         only: %i[match_all],
         methods: %i[count],
-        include: { criteria: { only: %i[id groups], methods: %i[count] } }
+        include: { criteria: { only: %i[id groups], methods: %i[count] } },
       }
       extra_users = context.extra_users.as_json(only: Audiences.exposed_user_attributes)
 
