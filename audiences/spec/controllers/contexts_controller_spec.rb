@@ -53,7 +53,8 @@ RSpec.describe Audiences::ContextsController do
                 attributes: "id,externalId,displayName,active,photos.type,photos.value",
                 filter: "(active eq true) and (externalId eq 123)",
               })
-        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "externalId" => 123 }] }.to_json)
+        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "confidential" => "data",
+                                                          "externalId" => 123 }] }.to_json)
 
       put :update, params: {
         key: example_context.signed_key,
@@ -65,6 +66,7 @@ RSpec.describe Audiences::ContextsController do
       expect(example_context.extra_users).to eql [{
         "externalId" => 123,
         "displayName" => "John Doe",
+        "confidential" => "data",
       }]
       expect(response.parsed_body).to match({
                                               "match_all" => false,
@@ -158,7 +160,8 @@ RSpec.describe Audiences::ContextsController do
       criterion.users.create!([
                                 { user_id: 1, data: { "externalId" => 1, "displayName" => "John" } },
                                 { user_id: 2, data: { "externalId" => 2, "displayName" => "Jose" } },
-                                { user_id: 3, data: { "externalId" => 3, "displayName" => "Nelson" } },
+                                { user_id: 3,
+                                  data: { "externalId" => 3, "displayName" => "Nelson", "confidential" => "data" } },
                               ])
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }

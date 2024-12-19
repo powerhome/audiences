@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.5.2 (2024-12-19)
+
+- Filter sensitive user data out of user list response [#473](https://github.com/powerhome/audiences/pull/473)
+
 # Version 1.5.1 (2024-12-12)
 
 - Fix SCIM proxy attributes format [#462](https://github.com/powerhome/audiences/pull/462)
