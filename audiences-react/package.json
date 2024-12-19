@@ -36,8 +36,7 @@
   "author": "Carlos Palhares",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.21",
-    "use-http": "^1.0.28"
+    "lodash": "^4.17.21"
   },
   "prettier": "@powerhome/eslint-config/prettier",
   "peerDependencies": {
