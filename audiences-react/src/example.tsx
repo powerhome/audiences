@@ -16,7 +16,10 @@ const rootNode = document.getElementById("root")
 ReactDOM.render(
   <StrictMode>
     <Title>Audiences Example</Title>
-    <AudienceEditor uri={`http://localhost:3000/audiences`} context={audienceKey} />
+    <AudienceEditor
+      uri={`http://localhost:3000/audiences`}
+      context={audienceKey}
+    />
   </StrictMode>,
   rootNode,
 )
