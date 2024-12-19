@@ -3705,9 +3705,9 @@ mute-stream@^2.0.0:
   integrity sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==
 
 nanoid@^3.3.7:
-  version "3.3.7"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
-  integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
+  version "3.3.8"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.8.tgz#b1be3030bee36aaff18bacb375e5cce521684baf"
+  integrity sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -5311,9 +5311,9 @@ vite-plugin-dts@^4.0.0:
     magic-string "^0.30.17"
 
 vite@^6.0.0:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-6.0.3.tgz#cc01f403e326a9fc1e064235df8a6de084c8a491"
-  integrity sha512-Cmuo5P0ENTN6HxLSo6IHsjCLn/81Vgrp81oaiFFMRa8gGDj5xEjIcEpf2ZymZtZR8oU0P2JX5WuUp/rlXcHkAw==
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-6.0.4.tgz#fe7cfaedff7c701d5582be5c4ed6a2150538ea9d"
+  integrity sha512-zwlH6ar+6o6b4Wp+ydhtIKLrGM/LoqZzcdVmkGAFun0KHTzIzjh+h0kungEx7KJg/PYnC80I4TII9WkjciSR6Q==
   dependencies:
     esbuild "^0.24.0"
     postcss "^8.4.49"
