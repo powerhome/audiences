@@ -28,7 +28,10 @@ export type UseAudienceContext = UseFormReducer<AudienceContext> & {
   updateCriteria: (index: number, criteria: GroupCriterion) => void
 }
 
-export function useAudiences(uri: string, options: IncomingOptions = {}): UseAudienceContext {
+export function useAudiences(
+  uri: string,
+  options: IncomingOptions = {},
+): UseAudienceContext {
   const { data } = useFetch(uri, options, [uri])
   const {
     get,
