@@ -1,5 +1,6 @@
 export interface ScimObject {
   id: string
+  externalId: string
   displayName: string
   photos?: {
     type: "primary" | "thumb"

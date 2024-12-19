@@ -1,5 +1,5 @@
-import { useEffect } from "react"
-import useFetch, { CachePolicies } from "use-http"
+import { createContext, useContext, useEffect } from "react"
+import useFetch, { CachePolicies, IncomingOptions } from "use-http"
 
 import useFormReducer, {
   RegistryAction,
@@ -16,8 +16,9 @@ type UpdateCriteriaAction = RegistryAction & {
   criterion: GroupCriterion
 }
 
-type UseAudienceContext = UseFormReducer<AudienceContext> & {
-  saving: boolean
+export type UseAudienceContext = UseFormReducer<AudienceContext> & {
+  loading: boolean
+  query: <T>(resourceId: string, displayName: string) => Promise<T[]>
   save: () => void
   fetchUsers: (
     criterion?: GroupCriterion,
@@ -28,15 +29,16 @@ type UseAudienceContext = UseFormReducer<AudienceContext> & {
   updateCriteria: (index: number, criteria: GroupCriterion) => void
 }
 
-export function useAudiences(uri: string): UseAudienceContext {
-  const { data } = useFetch(uri, [uri])
-  const {
-    get,
-    put,
-    response,
-    loading: saving,
-  } = useFetch(uri, { cachePolicy: CachePolicies.NO_CACHE })
-  const criteriaForm = useFormReducer<AudienceContext>(data, {
+export function useAudiences(
+  uri: string,
+  key: string,
+  options: IncomingOptions = {},
+): UseAudienceContext {
+  const { get, put, response, loading } = useFetch(uri, {
+    ...options,
+    cachePolicy: CachePolicies.NO_CACHE,
+  })
+  const criteriaForm = useFormReducer<AudienceContext>({} as AudienceContext, {
     "remove-criteria": (
       context,
       _,
@@ -60,8 +62,8 @@ export function useAudiences(uri: string): UseAudienceContext {
       ) as AudienceContext,
   })
   useEffect(() => {
-    criteriaForm.reset(data)
-  }, [data])
+    get(key).then(criteriaForm.reset)
+  }, [key])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
@@ -69,12 +71,16 @@ export function useAudiences(uri: string): UseAudienceContext {
     offset?: number,
   ) {
     return get(
-      `/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
+      `/${key}/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
     )
   }
 
+  async function query(resourceId: string, displayName: string) {
+    return await get(`/scim/${resourceId}?filter=${displayName}`)
+  }
+
   async function save() {
-    const updatedContext = await put(criteriaForm.value)
+    const updatedContext = await put(key, criteriaForm.value)
     if (response.ok) {
       criteriaForm.reset(updatedContext)
     } else {
@@ -83,9 +89,10 @@ export function useAudiences(uri: string): UseAudienceContext {
   }
 
   return {
-    saving,
+    loading,
     fetchUsers,
     save,
+    query,
     ...criteriaForm,
     removeCriteria: (index: number) =>
       criteriaForm.dispatch({ type: "remove-criteria", index }),
@@ -93,3 +100,9 @@ export function useAudiences(uri: string): UseAudienceContext {
       criteriaForm.dispatch({ type: "update-criteria", index, criterion }),
   }
 }
+
+const Context = createContext<UseAudienceContext | undefined>(undefined)
+export function useAudiencesContext() {
+  return useContext(Context)!
+}
+export default Context

@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.4.0 (2024-12-18)
+
+- Allow setting fetch options to all API [#468](https://github.com/powerhome/audiences/pull/468)
+
 # Version 1.3.0 (2024-12-12)
 
 - Protect SCIM search from backend [#451](https://github.com/powerhome/audiences/pull/451)

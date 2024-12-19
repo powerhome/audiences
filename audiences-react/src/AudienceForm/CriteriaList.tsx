@@ -1,46 +1,30 @@
-import { Button, Flex, FlexItem } from "playbook-ui"
-import { AudienceContext } from "../types"
+import { Flex } from "playbook-ui"
 import { CriteriaCard } from "./CriteriaCard"
-import { useAudiences } from "../audiences"
+import { useAudiencesContext } from "../audiences"
 
 type CriteriaListProps = {
-  addCriteriaLabel: string
-  context: AudienceContext
-  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
-  onAddCriteria: () => void
   onEditCriteria: (index: number) => void
-  onRemoveCriteria: (index: number) => void
 }
-export function CriteriaList({
-  context,
-  fetchUsers,
-  addCriteriaLabel,
-  onAddCriteria,
-  onRemoveCriteria,
-  onEditCriteria,
-}: CriteriaListProps) {
+export function CriteriaList({ onEditCriteria }: CriteriaListProps) {
+  const { value: context, removeCriteria } = useAudiencesContext()
+
+  const handleRemoveCriteria = (index: number) => {
+    if (confirm("Remove criteria?")) {
+      removeCriteria(index)
+    }
+  }
+
   return (
     <Flex orientation="column" align="stretch">
       {context.criteria.map((criterion, index: number) => (
         <CriteriaCard
           criterion={criterion}
-          fetchUsers={fetchUsers}
           key={`criterion-${index}`}
           onRequestEdit={() => onEditCriteria(index)}
-          onRequestRemove={() => onRemoveCriteria(index)}
+          onRequestRemove={() => handleRemoveCriteria(index)}
           viewUsers={criterion.count !== undefined}
         />
       ))}
-
-      <FlexItem alignSelf="center">
-        <Button
-          fixedWidth
-          marginTop="md"
-          onClick={onAddCriteria}
-          text={addCriteriaLabel}
-          variant="link"
-        />
-      </FlexItem>
     </Flex>
   )
 }

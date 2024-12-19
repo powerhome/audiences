@@ -4,13 +4,13 @@ import { flatten, isEmpty, keyBy, mapValues, values } from "lodash"
 import { CriteriaDescription } from "./CriteriaDescription"
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
 import { GroupCriterion } from "../types"
+import { useAudiencesContext } from "../audiences"
 import useFormReducer from "../useFormReducer"
 
 export type CriteriaFormProps = {
   resources: string[]
-  criterion: GroupCriterion | undefined
-  onSave: (criterion: GroupCriterion) => void
-  onCancel: () => void
+  criterion: number
+  onExit: () => void
 }
 function buildCriterion(resources: string[]) {
   const emptyGroups = mapValues(keyBy(resources), () => [])
@@ -19,21 +19,22 @@ function buildCriterion(resources: string[]) {
 export function CriteriaForm({
   resources,
   criterion,
-  onSave,
-  onCancel,
+  onExit,
 }: CriteriaFormProps) {
+  const { value: context, updateCriteria } = useAudiencesContext()
   const { value, change } = useFormReducer<GroupCriterion>(
-    criterion || buildCriterion(resources),
+    context.criteria[criterion] || buildCriterion(resources),
   )
 
   const emptyCriteria = isEmpty(flatten(values(value.groups)))
 
   const handleSave = () => {
-    onSave(value)
+    updateCriteria(criterion, value)
+    onExit()
   }
 
   const handleCancel = () => {
-    onCancel()
+    onExit()
   }
 
   return (

@@ -3,11 +3,9 @@ import { useState } from "react"
 import { MembersModalButton } from "./MembersModalButton"
 import { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
-import { useAudiences } from "../audiences"
 
 type CriteriaActionsProps = {
   criterion: GroupCriterion
-  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   onRequestEdit: () => void
   onRequestRemove: () => void
   viewUsers: boolean
@@ -15,7 +13,6 @@ type CriteriaActionsProps = {
 export function CriteriaActions({
   viewUsers,
   criterion,
-  fetchUsers,
   onRequestRemove,
   onRequestEdit,
 }: CriteriaActionsProps) {
@@ -62,7 +59,6 @@ export function CriteriaActions({
               padding="xs"
               text="View Members"
               title={<CriteriaDescription groups={criterion.groups} />}
-              fetchUsers={fetchUsers}
               total={criterion.count}
               criterion={criterion}
             />
