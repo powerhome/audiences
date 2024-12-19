@@ -13,10 +13,10 @@ async function doFetch(base: string, path: string, options: RequestInit = {}) {
 }
 
 export function useFetch(uri: string, options: RequestInit = {}) {
-  const get = useCallback((path: string) => {
+  const get = useCallback(<T>(path: string): Promise<T> => {
     return doFetch(uri, path, options)
   }, [uri, options])
-  const put = useCallback((path: string, data: any) => {
+  const put = useCallback(<T>(path: string, data: any): Promise<T> => {
     return doFetch(uri, path, {
       method: "PUT",
       body: JSON.stringify(data),

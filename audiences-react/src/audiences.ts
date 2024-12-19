@@ -59,27 +59,29 @@ export function useAudiences(
   })
 
   useEffect(() => {
-    get(key).then(criteriaForm.reset)
-  }, [key])
+    get<AudienceContext>(key)
+      .then(criteriaForm.reset)
+      .catch((error) => criteriaForm.setError(error.message))
+    }, [key])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
     search?: string,
     offset?: number,
   ) {
-    return get(
+    return get<{ count: number, users: ScimObject[] }>(
       `${key}/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
     )
   }
 
   async function query(resourceId: string, displayName: string) {
-    return await get(`scim/${resourceId}?filter=${displayName}`)
+    return await get<ScimObject[]>(`scim/${resourceId}?filter=${displayName}`)
   }
 
   async function save() {
-    return put(key, criteriaForm.value)
-        .then((response: AudienceContext) => criteriaForm.reset(response))
-        .catch((error: Error) => criteriaForm.setError(error.message))
+    return put<AudienceContext>(key, criteriaForm.value)
+            .then(criteriaForm.reset)
+            .catch((error) => criteriaForm.setError(error.message))
   }
 
   return {
