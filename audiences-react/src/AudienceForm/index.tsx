@@ -15,7 +15,7 @@ type AudienceFormProps = {
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
-  fetchOptions: Parameters<typeof useAudiences>[2]
+  fetchOptions: Parameters<typeof useAudiences>[1]
 }
 
 export const AudienceForm = ({

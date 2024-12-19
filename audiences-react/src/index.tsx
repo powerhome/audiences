@@ -9,13 +9,13 @@ type AudienceEditorProps = {
   uri: string
   scimUri: string
   allowIndividuals?: boolean
-  fetchOptions: Parameters<typeof useAudiences>[2]
+  fetchOptions?: Parameters<typeof useAudiences>[1]
 }
 export function AudienceEditor({
   uri,
   scimUri,
   allowIndividuals = true,
-  fetchOptions,
+  fetchOptions = {},
 }: AudienceEditorProps) {
   return (
     <Scim.Provider value={scimUri}>
