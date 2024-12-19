@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import useFetch, { CachePolicies } from "use-http"
+import useFetch, { CachePolicies, IncomingOptions } from "use-http"
 
 import useFormReducer, {
   RegistryAction,
@@ -16,7 +16,7 @@ type UpdateCriteriaAction = RegistryAction & {
   criterion: GroupCriterion
 }
 
-type UseAudienceContext = UseFormReducer<AudienceContext> & {
+export type UseAudienceContext = UseFormReducer<AudienceContext> & {
   saving: boolean
   save: () => void
   fetchUsers: (
@@ -28,14 +28,17 @@ type UseAudienceContext = UseFormReducer<AudienceContext> & {
   updateCriteria: (index: number, criteria: GroupCriterion) => void
 }
 
-export function useAudiences(uri: string): UseAudienceContext {
-  const { data } = useFetch(uri, [uri])
+export function useAudiences(
+  uri: string,
+  options: IncomingOptions = {},
+): UseAudienceContext {
+  const { data } = useFetch(uri, options, [uri])
   const {
     get,
     put,
     response,
     loading: saving,
-  } = useFetch(uri, { cachePolicy: CachePolicies.NO_CACHE })
+  } = useFetch(uri, { ...options, cachePolicy: CachePolicies.NO_CACHE })
   const criteriaForm = useFormReducer<AudienceContext>(data, {
     "remove-criteria": (
       context,

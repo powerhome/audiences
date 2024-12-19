@@ -14,6 +14,16 @@ With everything in place, the usage should look like this:
 <AudienceEditor uri={audienceContextUri} scimUri={scimV2Uri} />
 ```
 
+You can also add arguments to the fetch calls, like headers:
+
+```jsx
+<AudienceEditor
+  uri={audienceContextUri}
+  scimUri={scimV2Uri}
+  fetchOptions={{ headers: { Authorization: "Bearer my-token" } }}
+/>
+```
+
 See [example](../src/example.tsx).
 
 ### Peer Dependencies

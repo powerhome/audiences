@@ -15,6 +15,7 @@ type AudienceFormProps = {
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
+  fetchOptions: Parameters<typeof useAudiences>[1]
 }
 
 export const AudienceForm = ({
@@ -22,6 +23,7 @@ export const AudienceForm = ({
   userResource,
   groupResources,
   allowIndividuals = true,
+  fetchOptions,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
 
@@ -36,7 +38,7 @@ export const AudienceForm = ({
     reset,
     removeCriteria,
     updateCriteria,
-  } = useAudiences(uri)
+  } = useAudiences(uri, fetchOptions)
 
   const handleRemoveCriteria = (index: number) => {
     if (confirm("Remove criteria?")) {
