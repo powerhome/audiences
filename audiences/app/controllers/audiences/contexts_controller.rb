@@ -17,7 +17,7 @@ module Audiences
                                limit: params[:limit],
                                offset: params[:offset])
 
-      render json: search
+      render json: search, only: %w[id externalId displayName photos]
     end
 
   private
