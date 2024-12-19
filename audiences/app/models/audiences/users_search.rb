@@ -11,9 +11,9 @@ module Audiences
       @offset = offset
     end
 
-    def as_json(*)
+    def as_json(...)
       {
-        users: users.as_json(*),
+        users: users.as_json(...),
         count: count,
       }
     end

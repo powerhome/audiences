@@ -28,8 +28,8 @@ module Audiences
       where(user_id: attrs.pluck(:user_id))
     end
 
-    def as_json(*)
-      data.as_json(*)
+    def as_json(...)
+      data.as_json(...)
     end
   end
 end
