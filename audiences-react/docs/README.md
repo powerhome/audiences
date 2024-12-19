@@ -18,9 +18,9 @@ You can also add arguments to the fetch calls, like headers:
 
 ```jsx
 <AudienceEditor
-    uri={audienceContextUri}
-    scimUri={scimV2Uri}
-    fetchOptions={{ headers: { "Authorization": "Bearer my-token" }}}
+  uri={audienceContextUri}
+  scimUri={scimV2Uri}
+  fetchOptions={{ headers: { Authorization: "Bearer my-token" } }}
 />
 ```
 
