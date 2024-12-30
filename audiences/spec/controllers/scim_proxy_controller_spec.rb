@@ -23,19 +23,43 @@ RSpec.describe Audiences::ScimProxyController do
     it "returns the Resources key from the response" do
       allow(resource_query).to receive(:query).and_return({ "response" => "body" })
 
-      get :get, params: { scim_path: "MyResources", filter: "name eq John" }
+      get :get, params: { scim_path: "MyResources", query: "John" }
 
       expect(response.parsed_body).to eq({ "response" => "body" })
     end
 
-    it "proxies queries with arguments" do
+    it "proxies pagination arguments over to the SCIM backend" do
       expect(resource_query).to(
         receive(:query)
-          .with(hash_including(filter: 'displayName co "John"', startIndex: "12", count: "21"))
+          .with(hash_including(startIndex: "12", count: "21"))
           .and_return({ "response" => "body" })
       )
 
-      get :get, params: { scim_path: "MyResources", count: 21, startIndex: 12, filter: "John" }
+      get :get, params: { scim_path: "MyResources", count: 21, startIndex: 12 }
+
+      expect(response.parsed_body).to eq({ "response" => "body" })
+    end
+
+    it "proxies queries with displayName filter from query" do
+      expect(resource_query).to(
+        receive(:query)
+          .with(hash_including(filter: 'displayName co "John"'))
+          .and_return({ "response" => "body" })
+      )
+
+      get :get, params: { scim_path: "MyResources", query: "John" }
+
+      expect(response.parsed_body).to eq({ "response" => "body" })
+    end
+
+    it "proxies queries with raw filter for backward compatibility with clients" do
+      expect(resource_query).to(
+        receive(:query)
+          .with(hash_including(filter: 'displayName eq "John"'))
+          .and_return({ "response" => "body" })
+      )
+
+      get :get, params: { scim_path: "MyResources", filter: 'displayName eq "John"' }
 
       expect(response.parsed_body).to eq({ "response" => "body" })
     end
@@ -47,7 +71,7 @@ RSpec.describe Audiences::ScimProxyController do
                                                             "meta" => "meta",
                                                           })
 
-      get :get, params: { scim_path: "MyResources", filter: "name eq John" }
+      get :get, params: { scim_path: "MyResources" }
 
       expect(response.parsed_body).to eq({ "response" => "body" })
     end
@@ -59,7 +83,7 @@ RSpec.describe Audiences::ScimProxyController do
           .and_return({ "response" => "body" })
       )
 
-      get :get, params: { scim_path: "MyResources", count: 21, startIndex: 12, filter: "name eq John" }
+      get :get, params: { scim_path: "MyResources" }
 
       expect(response.parsed_body).to eq({ "response" => "body" })
     end
