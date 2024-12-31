@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.4.1 (2024-12-31)
+
+- Rollback breaking change introduced by 1.3.0 [#479](https://github.com/powerhome/audiences/pull/479)
+
 # Version 1.4.0 (2024-12-18)
 
 - Allow setting fetch options to all API [#468](https://github.com/powerhome/audiences/pull/468)

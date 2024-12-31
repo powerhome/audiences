@@ -11,7 +11,7 @@ export function useScim(): UseScimResources {
   const { get } = useFetch(uri)
 
   const filter = async (resourceId: string, displayName: string) => {
-    return await get(`${resourceId}?filter=${displayName}`)
+    return await get(`${resourceId}?query=${displayName}`)
   }
 
   return { filter }
