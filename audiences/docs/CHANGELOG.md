@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.5.3 (2024-12-19)
+
+- Rollback breaking change introduced by 1.5.1 [#479](https://github.com/powerhome/audiences/pull/479)
+
 # Version 1.5.2 (2024-12-19)
 
 - Filter sensitive user data out of user list response [#473](https://github.com/powerhome/audiences/pull/473)
