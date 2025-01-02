@@ -25,18 +25,18 @@ module Audiences
   # I.e.:
   #
   #   Audiences.configure do |config|
-  #     config.authentication = ->(*) { authenticate_request }
+  #     config.authenticate = ->(*) { authenticate_request }
   #   end
   #
   # I.e:
   #
   #   Audiences.configure do |config|
-  #     config.authentication = ->(request) do
+  #     config.authenticate = ->(request) do
   #       request.env["warden"].authenticate!
   #     end
   #   end
   #
-  config_accessor :authentication do
+  config_accessor :authenticate do
     ->(*) { true }
   end
 
