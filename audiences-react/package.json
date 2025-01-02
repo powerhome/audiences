@@ -62,7 +62,7 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "eslint-webpack-plugin": "4.2.0",
     "npm": "^10.0.0",
-    "playbook-ui": "12.38.0-alpha.audiencesalpha1083",
+    "playbook-ui": "12.39.0",
     "prettier": "3.4.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
