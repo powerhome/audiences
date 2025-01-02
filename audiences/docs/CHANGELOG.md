@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fix `authenticate` / `authentication` configuration [#481](https://github.com/powerhome/audiences/pull/481)
+
 # Version 1.5.3 (2024-12-19)
 
 - Rollback breaking change introduced by 1.5.1 [#479](https://github.com/powerhome/audiences/pull/479)
