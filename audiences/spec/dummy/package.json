@@ -10,7 +10,7 @@
   "dependencies": {
     "@types/node": "^22.0.0",
     "audiences": "link:../../../audiences-react",
-    "playbook-ui": "12.38.0-alpha.audiencesalpha1083",
+    "playbook-ui": "14.11.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   }
