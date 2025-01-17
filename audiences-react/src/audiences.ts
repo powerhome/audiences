@@ -75,7 +75,7 @@ export function useAudiences(
   }
 
   async function query(resourceId: string, displayName: string) {
-    return await get<ScimObject[]>(`scim/${resourceId}?filter=${displayName}`)
+    return await get<ScimObject[]>(`scim/${resourceId}?query=${displayName}`)
   }
 
   async function save() {
