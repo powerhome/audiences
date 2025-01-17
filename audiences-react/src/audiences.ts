@@ -62,14 +62,14 @@ export function useAudiences(
     get<AudienceContext>(key)
       .then(criteriaForm.reset)
       .catch((error) => criteriaForm.setError(error.message))
-    }, [key])
+  }, [key])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
     search?: string,
     offset?: number,
   ) {
-    return get<{ count: number, users: ScimObject[] }>(
+    return get<{ count: number; users: ScimObject[] }>(
       `${key}/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
     )
   }
@@ -80,8 +80,8 @@ export function useAudiences(
 
   async function save() {
     return put<AudienceContext>(key, criteriaForm.value)
-            .then(criteriaForm.reset)
-            .catch((error) => criteriaForm.setError(error.message))
+      .then(criteriaForm.reset)
+      .catch((error) => criteriaForm.setError(error.message))
   }
 
   return {

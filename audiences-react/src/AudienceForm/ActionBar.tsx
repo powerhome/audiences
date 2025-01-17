@@ -4,7 +4,7 @@ import { useState } from "react"
 
 export function ActionBar() {
   const { save, isDirty, reset } = useAudiencesContext()
-  const [ saving, setSaving ] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   async function handleSave() {
     setSaving(true)
