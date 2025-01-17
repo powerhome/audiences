@@ -44,7 +44,7 @@ export function ScimResourceTypeahead({
     search: string,
     callback: (options: PlaybookOption[]) => void,
   ) => {
-    const options = await query<ScimObject>(resourceId, search)
+    const options = await query(resourceId, search)
     callback(playbookOptions(options))
   }
 
