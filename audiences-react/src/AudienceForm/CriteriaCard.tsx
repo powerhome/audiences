@@ -8,14 +8,12 @@ import { useAudiences } from "../audiences"
 
 type CriteriaCardProps = {
   criterion?: GroupCriterion
-  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   onRequestEdit: () => void
   onRequestRemove: () => void
   viewUsers: boolean
 }
 export function CriteriaCard({
   criterion,
-  fetchUsers,
   viewUsers,
   onRequestRemove,
   onRequestEdit,
@@ -37,7 +35,6 @@ export function CriteriaCard({
         <FlexItem>
           <CriteriaActions
             criterion={criterion}
-            fetchUsers={fetchUsers}
             onRequestRemove={onRequestRemove}
             onRequestEdit={onRequestEdit}
             viewUsers={viewUsers}

@@ -14,11 +14,10 @@ import {
 
 import type { GroupCriterion, ScimObject } from "../../types"
 import styles from "./style.module.css"
-import { useAudiences } from "../../audiences"
+import { useAudiencesContext } from "../../audiences"
 
 type MembersModalButtonProps = any & {
   criterion?: GroupCriterion
-  fetchUsers: ReturnType<typeof useAudiences>["fetchUsers"]
   title: React.ReactNode
   total: number
 }
@@ -26,9 +25,9 @@ export function MembersModalButton({
   title,
   total,
   criterion,
-  fetchUsers,
   ...buttonOptions
 }: MembersModalButtonProps) {
+  const { fetchUsers } = useAudiencesContext()
   const [loading, setLoading] = useState<boolean>()
   const [current, setUsers] = useState<
     Awaited<ReturnType<typeof fetchUsers>> | undefined

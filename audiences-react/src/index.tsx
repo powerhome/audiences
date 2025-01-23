@@ -1,31 +1,40 @@
 import { AudienceForm } from "./AudienceForm"
-import Scim from "./scim"
-import { useAudiences } from "./audiences"
+import Audiences, { useAudiences } from "./audiences"
+
+function audiencesRoot(uri: string): string {
+  return uri.match(/.*(?=\/)/g)?.at(0)!
+}
+
+function audiencesContext(uri: string): string {
+  return uri.match(/[^\/]+$/g)?.at(0)!
+}
 
 const UserResourceId = "Users"
 const AllowedGroupIds = ["Territories", "Departments", "Titles"]
 
 type AudienceEditorProps = {
   uri: string
-  scimUri: string
+  context?: string
   allowIndividuals?: boolean
-  fetchOptions?: Parameters<typeof useAudiences>[1]
+  fetchOptions?: Parameters<typeof useAudiences>[2]
 }
 export function AudienceEditor({
   uri,
-  scimUri,
+  context,
   allowIndividuals = true,
   fetchOptions = {},
 }: AudienceEditorProps) {
+  const audiencesUri = context ? uri : audiencesRoot(uri)
+  const contextKey = context ? context : audiencesContext(uri)
+  const audiences = useAudiences(audiencesUri, contextKey, fetchOptions)
+
   return (
-    <Scim.Provider value={scimUri}>
+    <Audiences.Provider value={audiences}>
       <AudienceForm
-        uri={uri}
         userResource={UserResourceId}
         groupResources={AllowedGroupIds}
         allowIndividuals={allowIndividuals}
-        fetchOptions={fetchOptions}
       />
-    </Scim.Provider>
+    </Audiences.Provider>
   )
 }

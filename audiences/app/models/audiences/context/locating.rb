@@ -32,7 +32,7 @@ module Audiences
       end
 
       def signed_key
-        to_sgid(for: SIGNED_GID_RESOURCE)
+        to_sgid(for: SIGNED_GID_RESOURCE).to_s
       end
     end
   end
