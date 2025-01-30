@@ -1,8 +1,9 @@
 import { debounce, get } from "lodash"
 import { Typeahead } from "playbook-ui"
 
-import { useScim } from "../scim"
+import Audiences from "../audiences"
 import { ScimObject } from "../types"
+import { useContext } from "react"
 
 type PlaybookOption = ScimObject & {
   value: any
@@ -33,7 +34,7 @@ export function ScimResourceTypeahead({
   value,
   ...typeaheadProps
 }: ScimResourceTypeaheadProps) {
-  const { filter } = useScim()
+  const { query } = useContext(Audiences)!
 
   function handleChange(value: any, ...event: any[]) {
     onChange(value || [])
@@ -43,7 +44,7 @@ export function ScimResourceTypeahead({
     search: string,
     callback: (options: PlaybookOption[]) => void,
   ) => {
-    const options = await filter<ScimObject>(resourceId, search)
+    const options = await query(resourceId, search)
     callback(playbookOptions(options))
   }
 

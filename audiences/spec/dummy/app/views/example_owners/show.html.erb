@@ -8,4 +8,9 @@
 
 <%= render @example_owner %>
 
-<%= tag(:div, data: { context: audience_context_path(@example_owner, :members), scim: audience_scim_proxy_path }) %>
+<%=
+  tag(:div, data: {
+              audiences_uri: audiences.root_url,
+              audiences_context: @example_owner.members_context.signed_key,
+            })
+%>
