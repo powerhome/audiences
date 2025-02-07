@@ -32,7 +32,6 @@ jobs:
       fail-fast: false
       matrix:
         ruby:
-          - 3.0.7
           - 3.3
         gemfile:
           - gemfiles/rails_6_1.gemfile
