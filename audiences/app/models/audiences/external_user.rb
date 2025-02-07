@@ -10,11 +10,13 @@ module Audiences
                             inverse_of: false
     end
 
-    def self.fetch(external_ids)
+    def self.fetch(external_ids, count: 100)
       return [] unless external_ids.any?
 
-      filter = Array(external_ids).map { "externalId eq #{_1}" }.join(" OR ")
-      Audiences::Scim.resource(:Users).all(filter: filter)
+      Array(external_ids).in_groups_of(count, false).flat_map do |ids|
+        filter = Array(ids).map { "externalId eq #{_1}" }.join(" OR ")
+        Audiences::Scim.resource(:Users).all(count: count, filter: filter).to_a
+      end
     end
 
     def self.wrap(resources)
