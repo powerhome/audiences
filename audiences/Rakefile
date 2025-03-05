@@ -2,6 +2,7 @@
 
 # frozen_string_literal: true
 
+require "logger"
 require "bundler/setup"
 require "bundler/gem_tasks"
 
@@ -15,4 +16,12 @@ APP_RAKEFILE = File.expand_path("spec/dummy/Rakefile", __dir__)
 load "rails/tasks/engine.rake"
 load "rails/tasks/statistics.rake"
 
-task default: %i[rubocop spec]
+desc "Build audiences-react and bundle JavaScript"
+task build_frontend: :environment do
+  puts "Building audiences-react first..."
+  system("cd ../audiences-react && yarn install && yarn build") || raise("Failed to build audiences-react")
+
+  puts "Frontend build complete. The gem can now be packaged separately when needed."
+end
+
+task default: %i[rubocop spec build_frontend]

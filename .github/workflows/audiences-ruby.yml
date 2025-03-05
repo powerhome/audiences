@@ -82,6 +82,8 @@ jobs:
           workdir: audiences
           ruby: ${{ matrix.ruby }}
           gemfile: ${{ matrix.gemfile }}
+      - name: Pre-build front-end
+        run: rake build_frontend
 
   license-compliance:
     uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@main
