@@ -82,6 +82,10 @@ jobs:
           workdir: audiences
           ruby: ${{ matrix.ruby }}
           gemfile: ${{ matrix.gemfile }}
+      - name: Install dependencies in audiences gem
+        run: |
+          cd audiences
+          bundle install --jobs=4 --retry=3
       - name: Build frontend in audiences gem
         run: |
           cd audiences
