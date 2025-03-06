@@ -28,5 +28,5 @@ RSpec.configure do |config|
   config.before do
     Audiences::Notifications.subscriptions.clear
   end
-  config.include Audiences::EditorHelper, type: :view 
+  config.include Audiences::EditorHelper, type: :view
 end
