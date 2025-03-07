@@ -36,3 +36,4 @@ module_function
 end
 
 require "audiences/configuration"
+require "audiences/railtie"
