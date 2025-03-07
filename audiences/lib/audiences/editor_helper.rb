@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Style/NoHelpers
-
 module Audiences
   module EditorHelper
     def render_audiences_editor(uri, context, html_class: "audiences-editor")
@@ -15,5 +13,3 @@ module Audiences
     end
   end
 end
-
-# rubocop:enable Style/NoHelpers
