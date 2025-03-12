@@ -1,5 +1,14 @@
+import "./styles.css"
+import "./audiencesEditor"
+import React from "react"
+import ReactDOM from "react-dom"
 import { AudienceForm } from "./AudienceForm"
 import Audiences, { useAudiences } from "./audiences"
+
+if (typeof window !== "undefined") {
+  window.React = React
+  window.ReactDOM = ReactDOM
+}
 
 function audiencesRoot(uri: string): string {
   return uri.match(/.*(?=\/)/g)?.at(0)!

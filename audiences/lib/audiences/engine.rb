@@ -10,6 +10,10 @@ module Audiences
   class Engine < ::Rails::Engine
     isolate_namespace Audiences
 
+    initializer "audiences.assets.precompile" do |app|
+      app.config.assets.precompile += %w[audiences-rails.js]
+    end
+
     initializer "audiences.model" do
       if Audiences.config.identity_class
         ActiveSupport.on_load(:active_record) do

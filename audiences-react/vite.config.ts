@@ -14,11 +14,26 @@ export default defineConfig({
     target: ["es2018"],
     lib: {
       entry: path.resolve(__dirname, "src/index.tsx"),
-      name: "audiences",
-      fileName: (format) => `audiences.${format}.js`,
+      name: "AudiencesReact",
+      formats: ["umd"],
+      fileName: () => "audiences-rails.js",
     },
+    outDir: path.resolve(__dirname, "../audiences/app/assets/builds"),
+    emptyOutDir: false,
     rollupOptions: {
-      external: ["react", "react-dom", "playbook-ui", "react/jsx-runtime"],
+      external: [],
+      output: {
+        format: "umd",
+        name: "AudiencesRails",
+      },
     },
+  },
+  css: {
+    postcss: {
+      plugins: [],
+    },
+  },
+  define: {
+    "process.env.NODE_ENV": JSON.stringify("production"),
   },
 })

@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= vite_client_tag %>
-    <%= vite_react_refresh_tag %>
-    <%= vite_javascript_tag 'application' %>
-    <%= vite_stylesheet_tag 'application' %>
-    <%= vite_javascript_tag "audiences-rails" %>
+    <%= stylesheet_link_tag "audiences" %>
+    <%= javascript_include_tag "audiences-rails", defer: true %>
   </head>
 
   <body>

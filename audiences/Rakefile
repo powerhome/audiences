@@ -19,9 +19,13 @@ load "rails/tasks/statistics.rake"
 desc "Build audiences-react and bundle JavaScript"
 task build_frontend: :environment do
   puts "Building audiences-react first..."
-  system("cd ../audiences-react && yarn install && yarn build") || raise("Failed to build audiences-react")
+  system("cd ../audiences-react && yarn install") || raise("Failed to install dependencies for audiences-react")
+  system("cd ../audiences-react && yarn build") || raise("Failed to build audiences-react")
 
-  puts "Frontend build complete. The gem can now be packaged separately when needed."
+  puts "Precompiling Rails assets..."
+  system("RAILS_ENV=test bundle exec rake app:assets:precompile") || raise("Failed to precompile assets")
+
+  puts "Frontend build complete. The gem is now packaged and ready."
 end
 
 task default: %i[rubocop spec build_frontend]
