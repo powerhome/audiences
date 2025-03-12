@@ -11,9 +11,7 @@ module Audiences
     isolate_namespace Audiences
 
     initializer "audiences.assets.precompile" do |app|
-      if app.config.respond_to?(:assets)
-        app.config.assets.precompile += %w[audiences-rails.js]
-      end
+      app.config.assets.precompile += %w[audiences-rails.js] if app.config.respond_to?(:assets)
     end
 
     initializer "audiences.model" do
