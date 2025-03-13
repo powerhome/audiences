@@ -22,7 +22,10 @@ task build_frontend: :environment do
   system("cd ../audiences-react && yarn install && yarn build") || raise("Failed to build audiences-react")
 
   source_path = "../audiences-react/dist/audiences-rails.js"
-  destination_path = "app/assets/builds/audiences-rails.js"
+  destination_dir = "app/assets/builds"
+  destination_path = "#{destination_dir}/audiences-rails.js"
+
+  FileUtils.mkdir_p(destination_dir) 
 
   raise "Build file not found: #{source_path}" unless File.exist?(source_path)
 
