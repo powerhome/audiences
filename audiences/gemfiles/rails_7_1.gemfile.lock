@@ -110,6 +110,7 @@ GEM
       reline (>= 0.3.8)
     diff-lcs (1.6.0)
     drb (2.2.1)
+    dry-cli (1.2.0)
     erubi (1.13.1)
     foreman (0.88.1)
     globalid (1.2.1)
@@ -178,6 +179,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.1.12)
+    rack-proxy (0.7.7)
+      rack
     rack-session (2.1.0)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -285,6 +288,15 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
+    vite_rails (3.0.19)
+      railties (>= 5.1, < 9)
+      vite_ruby (~> 3.0, >= 3.2.2)
+    vite_ruby (3.9.1)
+      dry-cli (>= 0.7, < 2)
+      logger (~> 1.6)
+      mutex_m
+      rack-proxy (~> 0.6, >= 0.6.1)
+      zeitwerk (~> 2.2)
     webmock (3.25.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
@@ -322,6 +334,7 @@ DEPENDENCIES
   rubocop (>= 1.32)
   rubocop-powerhome
   shoulda-matchers (~> 5.0)
+  vite_rails (~> 3.0)
   webmock (~> 3.18)
 
 BUNDLED WITH

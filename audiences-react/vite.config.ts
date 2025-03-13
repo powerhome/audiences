@@ -13,13 +13,13 @@ export default defineConfig({
   build: {
     target: ["es2018"],
     lib: {
-      entry: path.resolve(__dirname, "src/index.tsx"),
+      entry: path.resolve(__dirname, "src/audiencesUMD.tsx"),
       name: "AudiencesReact",
       formats: ["umd"],
       fileName: () => "audiences-rails.js",
     },
-    outDir: path.resolve(__dirname, "../audiences/app/assets/builds"),
-    emptyOutDir: false,
+    outDir: path.resolve(__dirname, "dist"),
+    emptyOutDir: true,
     rollupOptions: {
       external: [],
       output: {

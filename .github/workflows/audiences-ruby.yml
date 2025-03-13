@@ -82,14 +82,6 @@ jobs:
           workdir: audiences
           ruby: ${{ matrix.ruby }}
           gemfile: ${{ matrix.gemfile }}
-      - name: Install dependencies in audiences gem
-        run: |
-          cd audiences
-          bundle install --jobs=4 --retry=3
-      - name: Build frontend in audiences gem
-        run: |
-          cd audiences
-          rake build_frontend
 
   license-compliance:
     uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@main

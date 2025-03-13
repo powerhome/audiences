@@ -20,6 +20,7 @@ gem "rspec-rails", "~> 6.1.0"
 gem "rubocop", ">= 1.32"
 gem "rubocop-powerhome"
 gem "shoulda-matchers", "~> 5.0"
+gem "vite_rails", "~> 3.0"
 gem "webmock", "~> 3.18"
 
 # Development environment dependencies
