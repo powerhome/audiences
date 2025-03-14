@@ -2,7 +2,8 @@
 
 module Audiences
   module EditorHelper
-    def render_audiences_editor(context, html_class: "audiences-editor", uri: Audiences::Engine.routes.url_helpers.root_path)
+    def render_audiences_editor(context, html_class: "audiences-editor",
+                                uri: Audiences::Engine.routes.url_helpers.root_path)
       content_tag(:div, "",
                   data: {
                     react_class: "AudiencesEditor",
