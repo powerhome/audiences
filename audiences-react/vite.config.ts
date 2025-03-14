@@ -16,7 +16,7 @@ export default defineConfig({
       entry: path.resolve(__dirname, "src/audiencesUMD.tsx"),
       name: "AudiencesReact",
       formats: ["umd"],
-      fileName: () => "audiences-rails.js",
+      fileName: () => "audiences-ujs.js",
     },
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,

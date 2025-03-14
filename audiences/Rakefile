@@ -21,9 +21,9 @@ task build_frontend: :environment do
   puts "Building audiences-react..."
   system("cd ../audiences-react && yarn install && yarn build") || raise("Failed to build audiences-react")
 
-  source_path = "../audiences-react/dist/audiences-rails.js"
+  source_path = "../audiences-react/dist/audiences-ujs.js"
   destination_dir = "app/assets/builds"
-  destination_path = "#{destination_dir}/audiences-rails.js"
+  destination_path = "#{destination_dir}/audiences-ujs.js"
 
   FileUtils.mkdir_p(destination_dir)
 

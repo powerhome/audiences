@@ -9,4 +9,4 @@
 <%= render @example_owner %>
 
 <!-- Render the audience editor with the user's context -->
-<%= render_audiences_editor(audiences.root_url, @example_owner.members_context.signed_key) %>
+<%= render_audiences_editor(@example_owner.members_context) %>
