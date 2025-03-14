@@ -17,7 +17,7 @@ module Audiences
       ids = Array(external_ids).map(&:to_s)
 
       # The local database is used as a cache for SCIM users, because this is significantly faster than querying SCIM
-      stored_users = Audiences::ExternalUser.where(user_id: ids)
+      stored_users = Audiences::ExternalUser.where(user_id: ids).to_a
 
       missing_ids = ids - stored_users.map(&:user_id)
       # If all users are already in the local database, return them without querying SCIM
