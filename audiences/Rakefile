@@ -19,7 +19,7 @@ load "rails/tasks/statistics.rake"
 desc "Build audiences-react and copy JS to Rails assets"
 task build_frontend: :environment do
   puts "Building audiences-react..."
-  system("cd ../audiences-react && yarn install && yarn build") || raise("Failed to build audiences-react")
+  system("cd ../audiences-react && yarn install && yarn build --mode ujs") || raise("Failed to build audiences-react")
 
   source_path = "../audiences-react/dist/audiences-ujs.js"
   destination_dir = "app/assets/builds"

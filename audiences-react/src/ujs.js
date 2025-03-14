@@ -1,5 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
+import { AudienceEditor } from "."
+
+if (typeof window !== "undefined") {
+  window.AudiencesRails = { AudienceEditor }
+}
 
 function mountAudiencesEditors() {
   document
