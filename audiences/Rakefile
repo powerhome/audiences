@@ -21,16 +21,15 @@ task build_frontend: :environment do
   puts "Building audiences-react..."
   system("cd ../audiences-react && yarn install && yarn build --mode ujs") || raise("Failed to build audiences-react")
 
-  source_path = "../audiences-react/dist/audiences-ujs.js"
-  destination_dir = "app/assets/builds"
-  destination_path = "#{destination_dir}/audiences-ujs.js"
+  source_path = Pathname.pwd.join("../audiences-react/dist/audiences-ujs.js")
+  destination_dir = Pathname.pwd.join("app/assets/builds")
+  destination_path = destination_dir.join("audiences-ujs.js")
 
-  FileUtils.mkdir_p(destination_dir)
-
-  raise "Build file not found: #{source_path}" unless File.exist?(source_path)
+  destination_dir.mkpath
+  raise "Build file not found: #{source_path}" unless source_path.exist?
 
   puts "Copying #{source_path} to #{destination_path}..."
-  FileUtils.cp(source_path, destination_path)
+  FileUtils.cp(source_path.to_s, destination_path.to_s)
   puts "Successfully copied!"
 end
 
