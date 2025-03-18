@@ -109,9 +109,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
-      - uses: cadwallion/publish-rubygems-action@master
-        env:
-          RELEASE_COMMAND: rake build
-          # RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
-          RUBYGEMS_API_KEY: ${{ secrets.rubygems_api_key }}
-          WORKDIR: audiences
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: 3.3.5
+          working-directory: audiences
+      - run: |
+          echo "Setting up gem credentials..."
+          set +x
+          mkdir -p ~/.gem
+
+          cat << EOF > ~/.gem/credentials
+            ---
+            :github: Bearer ${GITHUB_TOKEN}
+            :rubygems_api_key: ${RUBYGEMS_API_KEY}
+          EOF
+          rake build
+        working-directory: audiences
+        # RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
