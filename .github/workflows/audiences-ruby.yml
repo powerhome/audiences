@@ -125,6 +125,6 @@ jobs:
             :github: Bearer ${GITHUB_TOKEN}
             :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
-          rake build
+          bundle exec rake build
         working-directory: audiences
         # RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
