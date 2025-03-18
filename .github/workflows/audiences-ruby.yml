@@ -105,7 +105,7 @@ jobs:
   release:
     needs: [build, license-compliance]
     runs-on: ubuntu-latest
-    # if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
+    if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -125,6 +125,8 @@ jobs:
             :github: Bearer ${GITHUB_TOKEN}
             :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
-          bundle exec rake build
+          bundle exec rake build release:guard_clean release:rubygem_push
         working-directory: audiences
-        # RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
