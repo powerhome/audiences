@@ -129,7 +129,7 @@ jobs:
           chmod 0600 ~/.gem/credentials
           cat ~/.gem/credentials
 
-          # bundle exec rake build release:guard_clean release:rubygem_push
+          bundle exec rake build release:guard_clean release:rubygem_push
         working-directory: audiences
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
