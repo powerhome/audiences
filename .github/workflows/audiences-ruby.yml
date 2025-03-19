@@ -132,5 +132,5 @@ jobs:
           bundle exec rake build release:guard_clean release:rubygem_push
         working-directory: audiences
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+          RUBYGEMS_API_KEY: ${{ secrets.rubygems_api_key }}
