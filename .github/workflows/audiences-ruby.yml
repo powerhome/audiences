@@ -108,8 +108,25 @@ jobs:
     if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cadwallion/publish-rubygems-action@master
+      - uses: actions/setup-node@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: 3.3.5
+          working-directory: audiences
+      - run: |
+          echo "Setting up gem credentials..."
+          set +x
+          mkdir -p ~/.gem
+
+          cat << EOF > ~/.gem/credentials
+            ---
+            :github: Bearer ${GITHUB_TOKEN}
+            :rubygems_api_key: ${RUBYGEMS_API_KEY}
+          EOF
+          bundle exec rake build release:guard_clean release:rubygem_push
+        working-directory: audiences
         env:
-          RELEASE_COMMAND: rake build release:guard_clean release:rubygem_push
-          RUBYGEMS_API_KEY: ${{ secrets.rubygems_api_key }}
-          WORKDIR: audiences
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}

@@ -8,9 +8,5 @@
 
 <%= render @example_owner %>
 
-<%=
-  tag(:div, data: {
-              audiences_uri: audiences.root_url,
-              audiences_context: @example_owner.members_context.signed_key,
-            })
-%>
+<!-- Render the audience editor with the user's context -->
+<%= render_audiences_editor(@example_owner.members_context) %>
