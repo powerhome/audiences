@@ -122,9 +122,9 @@ jobs:
           mkdir -p ~/.gem
 
           truncate -s 0 ~/.gem/credentials
-          echo "---\n" >> ~/.gem/credentials
-          echo ":github: Bearer ${GITHUB_TOKEN}\n" >> ~/.gem/credentials
-          echo ":rubygems_api_key: Bearer ${RUBYGEMS_API_KEY}\n" >> ~/.gem/credentials
+          echo "---" >> ~/.gem/credentials
+          echo ":github: Bearer ${GITHUB_TOKEN}" >> ~/.gem/credentials
+          echo ":rubygems_api_key: Bearer ${RUBYGEMS_API_KEY}" >> ~/.gem/credentials
 
           chmod 0600 ~/.gem/credentials
           cat ~/.gem/credentials
