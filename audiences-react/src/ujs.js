@@ -13,6 +13,7 @@ function mountAudiencesEditors() {
       if (!element.dataset.reactMounted) {
         const uri = element.dataset.audiencesUri
         const context = element.dataset.audiencesContext
+        element.dataset.reactMounted = true
 
         ReactDOM.render(
           React.createElement(window.AudiencesRails.AudienceEditor, {
