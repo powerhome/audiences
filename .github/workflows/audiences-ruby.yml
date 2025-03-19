@@ -115,17 +115,21 @@ jobs:
           bundler-cache: true
           ruby-version: 3.3.5
           working-directory: audiences
-      - run: |
+      - name: Setup Gem Credentials
+        run: |
           echo "Setting up gem credentials..."
           set +x
           mkdir -p ~/.gem
 
-          cat << EOF > ~/.gem/credentials
-            ---
-            :github: Bearer ${GITHUB_TOKEN}
-            :rubygems_api_key: ${RUBYGEMS_API_KEY}
-          EOF
+          cat > ~/.gem/credentials <<EOF
+---
+:github: Bearer ${GITHUB_TOKEN}
+:rubygems_api_key: ${RUBYGEMS_API_KEY}
+EOF
           chmod 0600 ~/.gem/credentials
+
+          cat ~/.gem/credentials
+
           bundle exec rake build release:guard_clean release:rubygem_push
         working-directory: audiences
         env:
