@@ -125,6 +125,7 @@ jobs:
             :github: Bearer ${GITHUB_TOKEN}
             :rubygems_api_key: ${RUBYGEMS_API_KEY}
           EOF
+          chmod 0600 ~/.gem/credentials
           bundle exec rake build release:guard_clean release:rubygem_push
         working-directory: audiences
         env:
