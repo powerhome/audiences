@@ -52,7 +52,7 @@ export function ScimResourceTypeahead({
     <Typeahead
       isMulti
       async
-      loadOptions={debounce(searchResourceOptions, 600)}
+      loadOptions={searchResourceOptions}
       placeholder=""
       {...typeaheadProps}
       ref={undefined} // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?

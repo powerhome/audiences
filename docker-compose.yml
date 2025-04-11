@@ -4,7 +4,9 @@ volumes:
   scim_stub_db:
 services:
   dummy-web:
-    image: ruby:3.4.1
+    build:
+      context: .
+      dockerfile: Dockerfile.dummy-web
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     environment:

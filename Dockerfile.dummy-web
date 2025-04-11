@@ -1,0 +1,9 @@
+FROM ruby:3.4.1
+
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+    libyaml-dev build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Reinstall psych so it properly compiles with libyaml
+RUN gem uninstall psych -aIx || true && gem install psych
