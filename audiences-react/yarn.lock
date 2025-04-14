@@ -4250,6 +4250,13 @@ react-refresh@^0.14.2:
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.14.2.tgz#3833da01ce32da470f1f936b9d477da5c7028bf9"
   integrity sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==
 
+react-trix@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/react-trix/-/react-trix-0.10.2.tgz#ebe7f44d41087516ec59e5ce7af2ef2463120d03"
+  integrity sha512-bAALnBuoHBu3J3UfJWTvDXhmt1Tic1//w+vbBuSWuGO2gXzy+fyLBNBRiLKPrBcnOB5/t+rdXU8rLSBiz02R9w==
+  dependencies:
+    trix "^1.3.1"
+
 react@^18.0.0:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react/-/react-18.3.1.tgz#49ab892009c53933625bd16b2533fc754cab2891"
@@ -4914,6 +4921,11 @@ treeverse@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/treeverse/-/treeverse-3.0.0.tgz#dd82de9eb602115c6ebd77a574aae67003cb48c8"
   integrity sha512-gcANaAnd2QDZFmHFEOF4k7uc1J/6a6z3DJMd/QwEyxLoKGiptJRwid582r7QIsFlFMIZ3SnxfS52S4hm2DHkuQ==
+
+trix@^1.3.1:
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/trix/-/trix-1.3.5.tgz#87c214ce75fbaacff127f6e70fc64b2ff41e3e7a"
+  integrity sha512-JGQtfTU40DZYWS64rjUSbzAN6C+VFbyMLtdVzVTbI1mt3WJCP9+e3lju8Mtuivs9NwXOxowInNA4B34h7dVEZg==
 
 ts-api-utils@^1.3.0:
   version "1.3.0"

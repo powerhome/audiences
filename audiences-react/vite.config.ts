@@ -27,7 +27,13 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         external: isUJS
           ? []
-          : ["react", "react-dom", "playbook-ui", "react-trix", "react/jsx-runtime"],
+          : [
+              "react",
+              "react-dom",
+              "playbook-ui",
+              "react-trix",
+              "react/jsx-runtime",
+            ],
         output: {
           format: isUJS ? "umd" : undefined,
           name: isUJS ? "AudiencesRails" : undefined,
