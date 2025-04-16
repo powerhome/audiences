@@ -31,7 +31,7 @@ task build_frontend: :environment do
     puts "Removing previous build at #{destination_path}..."
     FileUtils.rm(destination_path)
   end
-  
+
   puts "Copying #{source_path} to #{destination_path}..."
   FileUtils.cp(source_path.to_s, destination_path.to_s)
   puts "Successfully copied!"
