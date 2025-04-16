@@ -1,6 +1,6 @@
 import { debounce, get } from "lodash"
 import { Typeahead } from "playbook-ui"
-import { useContext, useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
 import { ScimObject } from "../types"
@@ -44,8 +44,7 @@ export function ScimResourceTypeahead({
     debounce(
       async (search: string, callback: (options: PlaybookOption[]) => void) => {
         const options = await query(resourceId, search)
-        const args = playbookOptions(options)
-        callback(args)
+        callback(playbookOptions(options))
       },
       600,
     ),
