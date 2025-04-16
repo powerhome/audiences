@@ -27,11 +27,6 @@ task build_frontend: :environment do
   destination_dir.mkpath
   raise "Build file not found: #{source_path}" unless source_path.exist?
 
-  if destination_path.exist?
-    puts "Removing previous build at #{destination_path}..."
-    FileUtils.rm(destination_path)
-  end
-
   puts "Copying #{source_path} to #{destination_path}..."
   FileUtils.cp(source_path.to_s, destination_path.to_s)
   puts "Successfully copied!"
