@@ -105,7 +105,7 @@ jobs:
   release:
     needs: [build, license-compliance]
     runs-on: ubuntu-latest
-    if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
+    # if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
