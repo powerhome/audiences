@@ -3,7 +3,6 @@
 module Audiences
   class ContextsController < ApplicationController
     def show
-      params[:api_key] = "never-do-this"
       render_context Audiences::Context.load(params.require(:key))
     end
 
