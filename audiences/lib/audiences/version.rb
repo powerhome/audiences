@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Audiences
-  VERSION = "1.6.alpha"
+  VERSION = "1.6.1.alpha"
 end
