@@ -1,9 +1,9 @@
 import { debounce, get } from "lodash"
 import { Typeahead } from "playbook-ui"
+import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
 import { ScimObject } from "../types"
-import { useContext } from "react"
 
 type PlaybookOption = ScimObject & {
   value: any
@@ -40,22 +40,36 @@ export function ScimResourceTypeahead({
     onChange(value || [])
   }
 
-  const searchResourceOptions = async (
+  const debouncedFetchOptions = useRef(
+    debounce(
+      async (search: string, callback: (options: PlaybookOption[]) => void) => {
+        const options = await query(resourceId, search)
+        callback(playbookOptions(options))
+      },
+      600,
+    ),
+  ).current
+
+  useEffect(() => {
+    return () => {
+      debouncedFetchOptions.cancel()
+    }
+  }, [debouncedFetchOptions])
+
+  const loadOptions = (
     search: string,
     callback: (options: PlaybookOption[]) => void,
   ) => {
-    const options = await query(resourceId, search)
-    callback(playbookOptions(options))
+    debouncedFetchOptions(search, callback)
   }
 
   return (
     <Typeahead
       isMulti
       async
-      loadOptions={debounce(searchResourceOptions, 600)}
+      loadOptions={loadOptions}
       placeholder=""
       {...typeaheadProps}
-      ref={undefined} // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
       value={playbookOptions(value)}
       onChange={handleChange}
     />
