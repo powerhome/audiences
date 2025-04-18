@@ -13,6 +13,9 @@ export default defineConfig(({ mode }) => {
         insertTypesEntry: true,
       }),
     ],
+    resolve: {
+      dedupe: ["trix", "trix-toolbar"],
+    },
     build: {
       target: ["es2018"],
       lib: {
