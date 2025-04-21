@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "@types/node": "^22.0.0",
-    "playbook-ui": "14.17.0-alpha.alphaforaudiences7167"
+    "playbook-ui": "12.38.0-alpha.audiencesalpha1083"
   }
 }

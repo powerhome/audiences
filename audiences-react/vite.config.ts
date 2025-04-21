@@ -13,9 +13,6 @@ export default defineConfig(({ mode }) => {
         insertTypesEntry: true,
       }),
     ],
-    resolve: {
-      dedupe: ["trix", "trix-toolbar"],
-    },
     build: {
       target: ["es2018"],
       lib: {
@@ -30,13 +27,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         external: isUJS
           ? []
-          : [
-              "react",
-              "react-dom",
-              "playbook-ui",
-              "react-trix",
-              "react/jsx-runtime",
-            ],
+          : ["react", "react-dom", "playbook-ui", "react/jsx-runtime"],
         output: {
           format: isUJS ? "umd" : undefined,
           name: isUJS ? "AudiencesRails" : undefined,
