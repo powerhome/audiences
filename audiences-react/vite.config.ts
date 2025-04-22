@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
         insertTypesEntry: true,
       }),
     ],
-     resolve: {
+    resolve: {
       dedupe: ["trix", "trix-toolbar"],
     },
     build: {
