@@ -21,6 +21,7 @@ RSpec.describe Audiences do
       stub_request(:get, "http://example.com/scim/v2/Users")
         .with(query: {
                 attributes: "id,externalId,displayName,active,photos.type,photos.value",
+                count: 100,
                 filter: "(active eq true) and (externalId eq 678 OR externalId eq 321)",
               })
         .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John", "externalId" => 678 },

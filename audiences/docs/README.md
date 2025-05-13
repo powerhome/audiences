@@ -26,12 +26,19 @@ $ gem install audiences
 
 ### Creating/Managing Audiences
 
-An audience is tied to an owning model within your application. In this document, we'll use a `Team` model as an example. To create audiences for a team using `audiences-react`, render an audiences editor for your model.
+An audience is tied to an owning model within your application. In this document, we'll use a `Team` model as an example. To create audiences for a team use the `audiences-ujs` package bundled with the gem. Render the audiences editor in your view as follows:
 
-This can be done with an unobtrusive JS renderer like `react-rails` or a custom one as shown in [our dummy app](../audiences/spec/dummy/app/frontend/entrypoints/application.js). The editor requires two arguments:
+```erb
+<%= javascript_include_tag "audiences-ujs", defer: true %>
+<%= render_audiences_editor(@example_owner.members_context) %>
+```
 
-- The context URI: `audience_context_url(owner, relation)` helper
-- The SCIM endpoint: `audience_scim_proxy_url` helper if using the [proxy](#configuring-the-scim-proxy), or the SCIM endpoint directly.
+This eliminates the need for `audiences-react` as a separate dependency.
+
+### Required Arguments:
+- **Context**: Example: `owner.members_context`
+
+For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 ### Configuring Audiences
 

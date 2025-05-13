@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 1.5.0 (2025-01-29)
+
+- Authenticate SCIM proxy requests / Refactor client for better maintainability [#498](https://github.com/powerhome/audiences/pull/498)
+
 # Version 1.4.1 (2024-12-31)
 
 - Rollback breaking change introduced by 1.3.0 [#479](https://github.com/powerhome/audiences/pull/479)

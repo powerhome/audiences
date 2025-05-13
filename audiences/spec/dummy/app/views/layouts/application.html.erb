@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= vite_stylesheet_tag "application" %>
 
-    <%= vite_client_tag %>
-    <%= vite_react_refresh_tag %>
-    <%= vite_javascript_tag 'application' %>
-    <%= vite_stylesheet_tag 'application' %>
+    <%= javascript_include_tag "audiences-ujs", defer: true %>
   </head>
 
   <body>
