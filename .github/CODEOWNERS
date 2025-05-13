@@ -1,5 +1,5 @@
 # Managed by https://github.com/powerhome/software. Do not make changes here, they will be reverted.
-* @powerhome/heroes-for-hire
+* @powerhome/heroes-for-hire @powerhome/s-h-i-e-l-d
 audiences-react/package.json
 audiences-react/yarn.lock
 audiences/audiences.gemspec

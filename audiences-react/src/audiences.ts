@@ -1,10 +1,10 @@
-import { useEffect } from "react"
-import useFetch, { CachePolicies, IncomingOptions } from "use-http"
+import { createContext, useContext, useEffect } from "react"
 
 import useFormReducer, {
   RegistryAction,
   UseFormReducer,
 } from "./useFormReducer"
+import { useFetch } from "./useFetch"
 import { AudienceContext, GroupCriterion, ScimObject } from "./types"
 import { set } from "lodash/fp"
 
@@ -17,8 +17,8 @@ type UpdateCriteriaAction = RegistryAction & {
 }
 
 export type UseAudienceContext = UseFormReducer<AudienceContext> & {
-  saving: boolean
-  save: () => void
+  query: (resourceId: string, displayName: string) => Promise<ScimObject[]>
+  save: () => Promise<void>
   fetchUsers: (
     criterion?: GroupCriterion,
     search?: string,
@@ -30,16 +30,11 @@ export type UseAudienceContext = UseFormReducer<AudienceContext> & {
 
 export function useAudiences(
   uri: string,
-  options: IncomingOptions = {},
+  key: string,
+  options: RequestInit = {},
 ): UseAudienceContext {
-  const { data } = useFetch(uri, options, [uri])
-  const {
-    get,
-    put,
-    response,
-    loading: saving,
-  } = useFetch(uri, { ...options, cachePolicy: CachePolicies.NO_CACHE })
-  const criteriaForm = useFormReducer<AudienceContext>(data, {
+  const { get, put } = useFetch(uri, options)
+  const criteriaForm = useFormReducer<AudienceContext>({} as AudienceContext, {
     "remove-criteria": (
       context,
       _,
@@ -62,33 +57,37 @@ export function useAudiences(
         context,
       ) as AudienceContext,
   })
+
   useEffect(() => {
-    criteriaForm.reset(data)
-  }, [data])
+    get<AudienceContext>(key)
+      .then(criteriaForm.reset)
+      .catch((error) => criteriaForm.setError(error.message))
+  }, [key])
 
   async function fetchUsers(
     criterion?: GroupCriterion,
     search?: string,
     offset?: number,
   ) {
-    return get(
-      `/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
+    return get<{ count: number; users: ScimObject[] }>(
+      `${key}/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
     )
   }
 
+  async function query(resourceId: string, displayName: string) {
+    return await get<ScimObject[]>(`scim/${resourceId}?query=${displayName}`)
+  }
+
   async function save() {
-    const updatedContext = await put(criteriaForm.value)
-    if (response.ok) {
-      criteriaForm.reset(updatedContext)
-    } else {
-      criteriaForm.setError("Unhandled server error")
-    }
+    return put<AudienceContext>(key, criteriaForm.value)
+      .then(criteriaForm.reset)
+      .catch((error) => criteriaForm.setError(error.message))
   }
 
   return {
-    saving,
     fetchUsers,
     save,
+    query,
     ...criteriaForm,
     removeCriteria: (index: number) =>
       criteriaForm.dispatch({ type: "remove-criteria", index }),
@@ -96,3 +95,9 @@ export function useAudiences(
       criteriaForm.dispatch({ type: "update-criteria", index, criterion }),
   }
 }
+
+const Context = createContext<UseAudienceContext | undefined>(undefined)
+export function useAudiencesContext() {
+  return useContext(Context)!
+}
+export default Context
