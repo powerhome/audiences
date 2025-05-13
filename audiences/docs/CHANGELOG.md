@@ -1,6 +1,13 @@
 # Unreleased
 
+# Version 1.6 (2025-03-19)
+
+- Prepackaged audiences-react in UJS [#510](https://github.com/powerhome/audiences/pull/510)
+
+# Version 1.5.4 (2024-12-19)
+
 - Fix `authenticate` / `authentication` configuration [#481](https://github.com/powerhome/audiences/pull/481)
+- Paginage user requests in audiences instead of SCIM [#507](https://github.com/powerhome/audiences/pull/507)
 
 # Version 1.5.3 (2024-12-19)
 

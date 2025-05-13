@@ -8,4 +8,5 @@
 
 <%= render @example_owner %>
 
-<%= tag(:div, data: { context: audience_context_path(@example_owner, :members), scim: audience_scim_proxy_path }) %>
+<!-- Render the audience editor with the user's context -->
+<%= render_audiences_editor(@example_owner.members_context) %>

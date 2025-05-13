@@ -1,1 +1,6 @@
-{ "extends": "@powerhome" }
+{
+  "extends": "@powerhome",
+  "globals": {
+    "RequestInit": true
+  }
+}
