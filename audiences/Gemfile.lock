@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     audiences (1.6.1)
+      aether_observatory (~> 1.0)
       rails (>= 6.0)
 
 GEM
@@ -68,6 +69,9 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    aether_observatory (1.0.0)
+      activemodel (>= 6.0.6.1)
+      activesupport (>= 6.0.6.1)
     appraisal (2.5.0)
       bundler
       rake
