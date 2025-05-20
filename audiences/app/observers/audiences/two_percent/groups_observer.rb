@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Audiences
   module TwoPercent
     class GroupsObserver < ObserverBase
@@ -7,6 +9,16 @@ module Audiences
       end
 
       def process
+        group.update(
+          display_name: event_payload.params["displayName"],
+          data: event_payload.params
+        )
+      end
+
+      def group
+        @group ||= Audiences::Group.where(resource_type: event_payload.resource,
+                                          external_id: event_payload.params["externalId"])
+                                   .first_or_initialize
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateAudiencesGroups < ActiveRecord::Migration[6.1]
   def change
     create_table :audiences_groups do |t|
