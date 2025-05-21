@@ -2,7 +2,7 @@
 
 module Audiences
   module Scim
-    class GroupsObserver < ObserverBase
+    class UpsertGroupsObserver < ObserverBase
       Audiences.config.group_types.each do |group_type|
         subscribe_to "two_percent.scim.create.#{group_type}"
         subscribe_to "two_percent.scim.replace.#{group_type}"
@@ -15,6 +15,8 @@ module Audiences
           data: event_payload.params
         )
       end
+
+    private
 
       def group
         @group ||= Audiences::Group.where(resource_type: event_payload.resource,

@@ -2,7 +2,7 @@
 
 module Audiences
   module Scim
-    class UsersObserver < ObserverBase
+    class UpsertUsersObserver < ObserverBase
       subscribe_to "two_percent.scim.create.Users"
       subscribe_to "two_percent.scim.replace.Users"
 
@@ -13,6 +13,8 @@ module Audiences
           groups: new_groups
         )
       end
+
+    private
 
       def external_user
         @external_user ||= Audiences::ExternalUser.where(scim_id: event_payload.params["id"])

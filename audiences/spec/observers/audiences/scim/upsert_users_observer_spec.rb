@@ -2,9 +2,9 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::Scim::UsersObserver do
-  before(:all) { Audiences::Scim::UsersObserver.start }
-  after(:all) { Audiences::Scim::UsersObserver.stop }
+RSpec.describe Audiences::Scim::UpsertUsersObserver do
+  before(:all) { Audiences::Scim::UpsertUsersObserver.start }
+  after(:all) { Audiences::Scim::UpsertUsersObserver.stop }
 
   it "creates an external user" do
     params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
@@ -64,12 +64,12 @@ RSpec.describe Audiences::Scim::UsersObserver do
         { "value" => "group-123" },
         { "value" => "group-456" },
         { "value" => "group-789" },
-      ]
+      ],
     }
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to change { Audiences::ExternalUser.count }
+    end.to(change { Audiences::ExternalUser.count })
 
     user = Audiences::ExternalUser.last
 
