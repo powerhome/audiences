@@ -10,6 +10,7 @@ module Audiences
 
       def process
         group.update(
+          external_id: event_payload.params["externalId"],
           display_name: event_payload.params["displayName"],
           data: event_payload.params
         )
@@ -17,7 +18,7 @@ module Audiences
 
       def group
         @group ||= Audiences::Group.where(resource_type: event_payload.resource,
-                                          external_id: event_payload.params["externalId"])
+                                          scim_id: event_payload.params["id"])
                                    .first_or_initialize
       end
     end

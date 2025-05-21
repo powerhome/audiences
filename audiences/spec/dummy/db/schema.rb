@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_20_181229) do
+ActiveRecord::Schema.define(version: 2025_05_21_173148) do
 
   create_table "audiences_contexts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "owner_type", null: false
@@ -48,7 +48,9 @@ ActiveRecord::Schema.define(version: 2025_05_20_181229) do
     t.string "resource_type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "scim_id"
     t.index ["resource_type", "external_id"], name: "index_audiences_groups_on_resource_type_and_external_id", unique: true
+    t.index ["scim_id"], name: "index_audiences_groups_on_scim_id", unique: true
   end
 
   create_table "audiences_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
