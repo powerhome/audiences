@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_21_173148) do
+ActiveRecord::Schema.define(version: 2025_05_21_182852) do
 
   create_table "audiences_contexts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "owner_type", null: false
@@ -40,6 +40,15 @@ ActiveRecord::Schema.define(version: 2025_05_21_173148) do
     t.string "scim_id"
     t.index ["scim_id"], name: "index_audiences_external_users_on_scim_id", unique: true
     t.index ["user_id"], name: "index_audiences_external_users_on_user_id", unique: true
+  end
+
+  create_table "audiences_group_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "external_user_id", null: false
+    t.bigint "group_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["external_user_id"], name: "index_audiences_group_memberships_on_external_user_id"
+    t.index ["group_id"], name: "index_audiences_group_memberships_on_group_id"
   end
 
   create_table "audiences_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
