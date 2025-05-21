@@ -2,9 +2,9 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::TwoPercent::GroupsObserver do
-  before(:all) { Audiences::TwoPercent::GroupsObserver.start }
-  after(:all) { Audiences::TwoPercent::GroupsObserver.stop }
+RSpec.describe Audiences::Scim::GroupsObserver do
+  before(:all) { Audiences::Scim::GroupsObserver.start }
+  after(:all) { Audiences::Scim::GroupsObserver.stop }
 
   it "creates a group that is configured in Audiences.config.group_types" do
     params = { "displayName" => "My Group", "externalId" => "external-id-123" }

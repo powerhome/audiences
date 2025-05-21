@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Audiences
-  module TwoPercent
+  module Scim
     class ObserverBase < AetherObservatory::ObserverBase
     end
   end

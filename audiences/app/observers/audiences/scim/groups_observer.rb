@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Audiences
-  module TwoPercent
+  module Scim
     class GroupsObserver < ObserverBase
       Audiences.config.group_types.each do |group_type|
         subscribe_to "two_percent.scim.create.#{group_type}"
