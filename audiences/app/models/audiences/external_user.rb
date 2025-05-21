@@ -23,11 +23,12 @@ module Audiences
       return [] unless resources&.any?
 
       attrs = resources.map do |data|
-        { user_id: data["externalId"], data: data, created_at: Time.current, updated_at: Time.current }
+        { scim_id: data["id"], user_id: data["externalId"], data: data, created_at: Time.current,
+          updated_at: Time.current }
       end
-      unique_by = :user_id if connection.supports_insert_conflict_target?
+      unique_by = :scim_id if connection.supports_insert_conflict_target?
       upsert_all(attrs, unique_by: unique_by) # rubocop:disable Rails/SkipsModelValidations
-      where(user_id: attrs.pluck(:user_id))
+      where(scim_id: attrs.pluck(:scim_id))
     end
 
     def as_json(...)

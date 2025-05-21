@@ -37,6 +37,8 @@ ActiveRecord::Schema.define(version: 2025_05_21_173148) do
     t.json "data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "scim_id"
+    t.index ["scim_id"], name: "index_audiences_external_users_on_scim_id", unique: true
     t.index ["user_id"], name: "index_audiences_external_users_on_user_id", unique: true
   end
 
