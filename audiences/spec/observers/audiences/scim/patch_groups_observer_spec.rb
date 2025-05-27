@@ -68,14 +68,14 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
     TwoPercent::UpdateEvent.create(resource: "Groups",
                                    id: "internal-id-123",
                                    params: {
-                                      "Operations" => [
-                                        {
-                                          "op" => "add",
-                                          "path" => "members",
-                                          "value" => [{ "value" => new_member.scim_id }],
-                                        },
-                                      ],
-                                    })
+                                     "Operations" => [
+                                       {
+                                         "op" => "add",
+                                         "path" => "members",
+                                         "value" => [{ "value" => new_member.scim_id }],
+                                       },
+                                     ],
+                                   })
 
     group.reload
 
