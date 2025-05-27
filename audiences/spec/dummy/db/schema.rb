@@ -53,15 +53,13 @@ ActiveRecord::Schema.define(version: 2025_05_21_182852) do
 
   create_table "audiences_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "external_id"
+    t.string "scim_id"
     t.string "display_name"
-    t.string "picture"
-    t.json "data"
     t.string "resource_type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "scim_id"
     t.index ["resource_type", "external_id"], name: "index_audiences_groups_on_resource_type_and_external_id", unique: true
-    t.index ["scim_id"], name: "index_audiences_groups_on_scim_id", unique: true
+    t.index ["resource_type", "scim_id"], name: "index_audiences_groups_on_resource_type_and_scim_id", unique: true
   end
 
   create_table "audiences_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
