@@ -65,19 +65,17 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                     scim_id: "internal-id-123",
                                     external_users: [member])
 
-    expect do
-      TwoPercent::UpdateEvent.create(resource: "Groups",
-                                     id: "internal-id-123",
-                                     params: {
-                                       "Operations" => [
-                                         {
-                                           "op" => "add",
-                                           "path" => "members",
-                                           "value" => [ { "value" => new_member.scim_id }],
-                                         },
-                                       ],
-                                     })
-    end
+    TwoPercent::UpdateEvent.create(resource: "Groups",
+                                    id: "internal-id-123",
+                                    params: {
+                                      "Operations" => [
+                                        {
+                                          "op" => "add",
+                                          "path" => "members",
+                                          "value" => [ { "value" => new_member.scim_id }],
+                                        },
+                                      ],
+                                    })
 
     group.reload
 
@@ -93,19 +91,17 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                     scim_id: "internal-id-123",
                                     external_users: [member, new_member])
 
-    expect do
-      TwoPercent::UpdateEvent.create(resource: "Groups",
-                                     id: "internal-id-123",
-                                     params: {
-                                       "Operations" => [
-                                         {
-                                           "op" => "remove",
-                                           "path" => "members",
-                                           "value" => [ { "value" => new_member.scim_id }],
-                                         },
-                                       ],
-                                     })
-    end
+    TwoPercent::UpdateEvent.create(resource: "Groups",
+                                    id: "internal-id-123",
+                                    params: {
+                                      "Operations" => [
+                                        {
+                                          "op" => "remove",
+                                          "path" => "members",
+                                          "value" => [ { "value" => new_member.scim_id }],
+                                        },
+                                      ],
+                                    })
 
     group.reload
 
