@@ -22,7 +22,8 @@ module Audiences
     private
 
       def group
-        @group ||= Audiences::Group.find_by(scim_id: event_payload.id)
+        @group ||= Audiences::Group.find_by(resource_type: event_payload.resource,
+                                            scim_id: event_payload.id)
       end
 
       def patch_operations
