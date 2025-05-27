@@ -11,8 +11,7 @@ module Audiences
       def process
         group.update(
           external_id: event_payload.params["externalId"],
-          display_name: event_payload.params["displayName"],
-          data: event_payload.params
+          display_name: event_payload.params["displayName"]
         )
       end
 

@@ -18,7 +18,6 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
     expect(created_group.display_name).to eql "My Group"
     expect(created_group.scim_id).to eql "internal-id-123"
     expect(created_group.external_id).to eql "external-id-123"
-    expect(created_group.data).to eql params
   end
 
   it "updates a group that is configured in Audiences.config.group_types even with CreateEvent" do
@@ -36,7 +35,6 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
     expect(group.display_name).to eql "My Group"
     expect(group.scim_id).to eql "internal-id-123"
     expect(group.external_id).to eql "external-id-123"
-    expect(group.data).to eql params
   end
 
   it "updates a group that is configured in Audiences.config.group_types" do
@@ -54,6 +52,5 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
     expect(group.display_name).to eql "My Group"
     expect(group.scim_id).to eql "internal-id-123"
     expect(group.external_id).to eql "external-id-123"
-    expect(group.data).to eql params
   end
 end
