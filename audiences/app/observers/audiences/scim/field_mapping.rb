@@ -3,23 +3,22 @@
 module Audiences
   module Scim
     class FieldMapping
-      def initialize(object, mapping)
-        @object = object
+      def initialize(mapping)
         @map = mapping
       end
 
-      def remove(path, val)
-        current = @object.send to(path)
-        replace path, current - value(path, val)
+      def remove(object, path, val)
+        current = object.send to(path)
+        replace object, path, current - value(path, val)
       end
 
-      def add(path, val)
-        current = @object.send to(path)
-        replace path, current + value(path, val)
+      def add(object, path, val)
+        current = object.send to(path)
+        replace object, path, current + value(path, val)
       end
 
-      def replace(path, val)
-        @object.send :"#{to(path)}=", val
+      def replace(object, path, val)
+        object.send :"#{to(path)}=", val
       end
 
     private

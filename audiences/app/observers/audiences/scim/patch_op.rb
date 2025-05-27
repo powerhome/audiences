@@ -11,23 +11,17 @@ module Audiences
         end
       end
 
-      def process(resource, mapping)
-        field_mapping = FieldMapping.new(resource, mapping)
-        @operations.each { _1.process(field_mapping) }
-      end
-
-      def process!(resource, mapping)
-        process(resource, mapping)
-        resource.save!
+      def process(object, operator)
+        @operations.each { _1.process(object, operator) }
       end
 
     private
 
       Operation = Struct.new(:op, :path, :value) do
-        def process(mapping)
-          raise "Unknown operation #{op}" unless mapping.respond_to?(op)
+        def process(object, operator)
+          raise "Operation #{op} is unknown to #{operator.class}" unless operator.respond_to?(op)
 
-          mapping.public_send(op, path, value)
+          operator.public_send(op, object, path, value)
         end
       end
 

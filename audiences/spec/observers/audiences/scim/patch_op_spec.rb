@@ -13,7 +13,7 @@ RSpec.describe Audiences::Scim::PatchOp do
     Audiences::Scim::PatchOp.new("Operations" => operations)
   end
 
-  describe "operations" do
+  describe "#operations" do
     it "includes all operations" do
       patch_op = build_patch_op(
         build_op(op: "replace", path: "displayName", value: "New Name"),
@@ -55,37 +55,21 @@ RSpec.describe Audiences::Scim::PatchOp do
     end
   end
 
-  describe "replace" do
-    it "replaces attributes in the resource" do
-      resource = ExampleResource.new(display_name: "Old Name")
-      replace = build_patch_op(build_op(op: "replace", path: "displayName", value: "New Name"))
+  describe "#process" do
+    it "calls the operator methods corresponding to the Patch Op" do
+      patch_op = build_patch_op(
+        build_op(op: "replace", path: "displayName", value: "New Name"),
+        build_op(op: "add", path: "members", value: [{ "value" => "1" }]),
+        build_op(op: "remove", path: "members", value: [{ "value" => "2" }])
+      )
+      object = double("patched object")
+      operator = double("patch operator", replace: nil, add: nil, remove: nil, barel_roll: nil)
 
-      replace.process(resource, "displayName" => :display_name)
+      patch_op.process(object, operator)
 
-      expect(resource.display_name).to eql "New Name"
-    end
-  end
-
-  describe "add" do
-    it "adds items to a list" do
-      resource = ExampleResource.new(users: [double("member", id: "1")])
-      replace = build_patch_op(build_op(op: "add", path: "members", value: [{ "value" => "2" }]))
-
-      replace.process(resource, "members" => { to: :users, find: ->(value) { double("member", id: value) } })
-
-      expect(resource.users.map(&:id)).to match_array %w[1 2]
-    end
-  end
-
-  describe "remove" do
-    it "removes items from a list" do
-      members = { "1" => double("member", id: "1"), "2" => double("member", id: "2") }
-      resource = ExampleResource.new(users: members.values)
-      replace = build_patch_op(build_op(op: "remove", path: "members", value: [{ "value" => "2" }]))
-
-      replace.process(resource, "members" => { to: :users, find: ->(value) { members[value] } })
-
-      expect(resource.users.map(&:id)).to match_array %w[1]
+      expect(operator).to have_received(:replace).with(object, "displayName", "New Name")
+      expect(operator).to have_received(:add).with(object, "members", [{ "value" => "1" }])
+      expect(operator).to have_received(:remove).with(object, "members", [{ "value" => "2" }])
     end
   end
 end
