@@ -2,7 +2,7 @@
 
 class PopulateExternalUsersScimId < ActiveRecord::Migration[6.1]
   def down; end
-  
+
   def up
     Audiences::ExternalUser.find_each do |user|
       user.update!(scim_id: user.data&.fetch("id", nil))
