@@ -18,7 +18,7 @@ module Audiences
       end
 
       def replace(object, path, val)
-        object.send :"#{to(path)}=", val
+        object.send :"#{to(path)}=", val if @map[path]
       end
 
     private

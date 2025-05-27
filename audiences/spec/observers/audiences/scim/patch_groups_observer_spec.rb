@@ -66,13 +66,13 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                     external_users: [member])
 
     TwoPercent::UpdateEvent.create(resource: "Groups",
-                                    id: "internal-id-123",
-                                    params: {
+                                   id: "internal-id-123",
+                                   params: {
                                       "Operations" => [
                                         {
                                           "op" => "add",
                                           "path" => "members",
-                                          "value" => [ { "value" => new_member.scim_id }],
+                                          "value" => [{ "value" => new_member.scim_id }],
                                         },
                                       ],
                                     })
@@ -92,13 +92,13 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                     external_users: [member, new_member])
 
     TwoPercent::UpdateEvent.create(resource: "Groups",
-                                    id: "internal-id-123",
-                                    params: {
+                                   id: "internal-id-123",
+                                   params: {
                                       "Operations" => [
                                         {
                                           "op" => "remove",
                                           "path" => "members",
-                                          "value" => [ { "value" => new_member.scim_id }],
+                                          "value" => [{ "value" => new_member.scim_id }],
                                         },
                                       ],
                                     })
