@@ -28,13 +28,14 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
     end
 
     it "updates existing users" do
-      joseph = Audiences::ExternalUser.create(user_id: 456, data: { "externalId" => 456, displayName: "Joseph F. Doe" })
+      joseph = Audiences::ExternalUser.create(user_id: 456, scim_id: 654,
+                                              data: { "id" => 654, "externalId" => 456, displayName: "Joseph F. Doe" })
       user_data = [
         { "id" => "321", "externalId" => 123, "displayName" => "John Doe" },
         { "id" => "654", "externalId" => 456, "displayName" => "Joseph Doe" },
       ]
 
-      john, updated_joseph, *others = Audiences::ExternalUser.wrap(user_data).order(:user_id)
+      john, updated_joseph, *others = Audiences::ExternalUser.wrap(user_data).order(:scim_id)
 
       expect(others).to be_empty
       expect(john.scim_id).to eql "321"
