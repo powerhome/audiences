@@ -13,7 +13,7 @@ module Audiences
                             inverse_of: false
     end
 
-    def picture_urls = [self.picture_url]
+    def picture_urls = [picture_url]
 
     def picture_urls=(urls)
       self.picture_url = urls&.first

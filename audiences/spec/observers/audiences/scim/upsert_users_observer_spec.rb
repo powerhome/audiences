@@ -14,7 +14,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       "photos" => [
         { "value" => "http://example.com/photo/1" },
         { "value" => "http://example.com/photo/2" },
-      ]
+      ],
     }
 
     expect do
