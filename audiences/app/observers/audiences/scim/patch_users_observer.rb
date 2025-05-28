@@ -7,7 +7,8 @@ module Audiences
 
       def process
         attributes = FieldMapping.new("externalId" => :user_id,
-                                      "displayName" => :display_name)
+                                      "displayName" => :display_name,
+                                      "photos" => { to: :picture_urls, find: :itself })
         data = ScimData.new
 
         patch_op = PatchOp.new(event_payload.params)
