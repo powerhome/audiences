@@ -9,19 +9,25 @@ module Audiences
 
       def remove(object, path, val)
         current = object.send to(path)
-        replace object, path, current - value(path, val)
+        _set object, path, current - value(path, val)
       end
 
       def add(object, path, val)
         current = object.send to(path)
-        replace object, path, current + value(path, val)
+        _set object, path, current + value(path, val)
       end
 
       def replace(object, path, val)
-        object.send :"#{to(path)}=", val if @map[path]
+        _set object, path, value(path, val)
       end
 
     private
+
+      def _set(object, path, val)
+        return unless @map.key?(path)
+
+        object.send :"#{to(path)}=", val if @map[path]
+      end
 
       def has?(...) = @map.key?(...)
 
