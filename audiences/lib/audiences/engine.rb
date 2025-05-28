@@ -21,5 +21,14 @@ module Audiences
         end
       end
     end
+
+    initializer "audiences.observers" do
+      if Audiences.config.observe_scim
+        Audiences::Scim::UpsertUsersObserver.start
+        Audiences::Scim::UpsertGroupsObserver.start
+        Audiences::Scim::PatchGroupsObserver.start
+        Audiences::Scim::PatchUsersObserver.start
+      end
+    end
   end
 end

@@ -5,6 +5,9 @@ module Audiences
 
   # Configuration options
 
+  # Sync groups and users with TwoPercent
+  config_accessor(:observe_scim) { true }
+
   # Group types that can form an audience
   config_accessor :group_types do
     %w[Groups]
