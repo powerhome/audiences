@@ -8,7 +8,7 @@ class PopulateExternalUsersScimId < ActiveRecord::Migration[6.1]
       user.update!(
         scim_id: user.data&.fetch("id", nil),
         display_name: user.data&.fetch("displayName", nil),
-        picture_urls: user.data&.fetch("photos", [])&.pluck("value"),
+        picture_urls: user.data&.fetch("photos", [])&.pluck("value")
       )
     end
   end
