@@ -9,6 +9,8 @@ module Audiences
       def process
         external_user.update(
           user_id: event_payload.params["externalId"],
+          display_name: event_payload.params["displayName"],
+          picture_urls: event_payload.params["photos"]&.pluck("value"),
           data: event_payload.params,
           groups: new_groups
         )

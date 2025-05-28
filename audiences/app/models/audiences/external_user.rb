@@ -16,7 +16,7 @@ module Audiences
     def picture_urls = [self.picture_url]
 
     def picture_urls=(urls)
-      self.picture_url = urls.first
+      self.picture_url = urls&.first
     end
 
     def self.fetch(external_ids, count: 100)

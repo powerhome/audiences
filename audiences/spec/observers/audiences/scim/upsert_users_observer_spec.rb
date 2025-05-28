@@ -7,7 +7,15 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
   after(:all) { Audiences::Scim::UpsertUsersObserver.stop }
 
   it "creates an external user" do
-    params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
+    params = {
+      "id" => "internal-id-123",
+      "displayName" => "My User",
+      "externalId" => "external-id-123",
+      "photos" => [
+        { "value" => "http://example.com/photo/1" },
+        { "value" => "http://example.com/photo/2" },
+      ]
+    }
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -17,6 +25,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect(created_user.scim_id).to eql "internal-id-123"
     expect(created_user.user_id).to eql "external-id-123"
+    expect(created_user.display_name).to eql "My User"
+    expect(created_user.picture_url).to eql "http://example.com/photo/1"
     expect(created_user.data).to eql params
   end
 
