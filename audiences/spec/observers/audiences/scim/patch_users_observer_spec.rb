@@ -30,6 +30,31 @@ RSpec.describe Audiences::Scim::PatchUsersObserver do
     expect(user.user_id).to eql "external-id-321"
   end
 
+  it "patches displayName" do
+    user = Audiences::ExternalUser.create(scim_id: "internal-id-123",
+                                          user_id: "external-id-123",
+                                          display_name: "Old John")
+
+    expect do
+      TwoPercent::UpdateEvent.create(resource: "Users",
+                                     id: "internal-id-123",
+                                     params: {
+                                       "Operations" => [
+                                         {
+                                           "op" => "replace",
+                                           "path" => "displayName",
+                                           "value" => "New John",
+                                         },
+                                       ],
+                                     })
+    end.to_not(change { Audiences::ExternalUser.count })
+
+    user.reload
+
+    expect(user.scim_id).to eql "internal-id-123"
+    expect(user.display_name).to eql "New John"
+  end
+
   it "updates the External User data" do
     user = Audiences::ExternalUser.create(scim_id: "internal-id-123",
                                           user_id: "external-id-123",

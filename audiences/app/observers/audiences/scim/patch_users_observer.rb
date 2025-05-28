@@ -6,7 +6,8 @@ module Audiences
       subscribe_to "two_percent.scim.update.Users"
 
       def process
-        attributes = FieldMapping.new("externalId" => :user_id)
+        attributes = FieldMapping.new("externalId" => :user_id,
+                                      "displayName" => :display_name)
         data = ScimData.new
 
         patch_op = PatchOp.new(event_payload.params)
