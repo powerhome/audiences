@@ -26,7 +26,7 @@ module Audiences
         FieldMapping.new("displayName" => :display_name,
                          "externalId" => :external_id,
                          "members" => { to: :external_users,
-                                        find: ->(value) { ExternalUser.find_by(scim_id: value) } })
+                                        find: ->(value) { ExternalUser.find_by(user_id: value) } })
       end
 
       def group

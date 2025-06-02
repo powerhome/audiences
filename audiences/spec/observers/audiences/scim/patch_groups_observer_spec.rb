@@ -66,7 +66,7 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                        {
                                          "op" => "add",
                                          "path" => "members",
-                                         "value" => [{ "value" => new_member.scim_id }],
+                                         "value" => [{ "value" => new_member.user_id }],
                                        },
                                      ],
                                    })
@@ -90,7 +90,7 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                        {
                                          "op" => "remove",
                                          "path" => "members",
-                                         "value" => [{ "value" => new_member.scim_id }],
+                                         "value" => [{ "value" => new_member.user_id }],
                                        },
                                      ],
                                    })
