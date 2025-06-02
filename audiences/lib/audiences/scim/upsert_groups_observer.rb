@@ -9,13 +9,21 @@ module Audiences
       end
 
       def process
-        group.update(
-          external_id: event_payload.params["externalId"],
-          display_name: event_payload.params["displayName"]
-        )
+        Audiences.logger.info "#{upsert_action} group #{new_display_name} (#{new_external_id})"
+
+        group.update! external_id: new_external_id, display_name: new_display_name
+      rescue => e
+        Audiences.logger.error e
+        raise
       end
 
     private
+
+      def upsert_action = group.persisted? ? "Updating" : "Creating"
+
+      def new_external_id = event_payload.params["externalId"]
+
+      def new_display_name = event_payload.params["displayName"]
 
       def group
         @group ||= Audiences::Group.where(resource_type: event_payload.resource,

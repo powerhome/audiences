@@ -8,23 +8,30 @@ module Audiences
       end
 
       def process
-        patch_op = PatchOp.new(event_payload.params)
-        attributes = FieldMapping.new("displayName" => :display_name,
-                                      "externalId" => :external_id,
-                                      "members" => {
-                                        to: :external_users,
-                                        find: ->(value) { ExternalUser.find_by(scim_id: value) },
-                                      })
+        Audiences.logger.info "Patching group #{group.display_name} (#{group.scim_id})"
 
-        patch_op.process(group, attributes)
+        patch_op.process(group, attributes_mapping)
+
         group.save!
+      rescue => e
+        Audiences.logger.error e
+        raise
       end
 
     private
 
+      def patch_op = PatchOp.new(event_payload.params)
+
+      def attributes_mapping
+        FieldMapping.new("displayName" => :display_name,
+                         "externalId" => :external_id,
+                         "members" => { to: :external_users,
+                                        find: ->(value) { ExternalUser.find_by(scim_id: value) } })
+      end
+
       def group
-        @group ||= Audiences::Group.find_by(resource_type: event_payload.resource,
-                                            scim_id: event_payload.id)
+        @group ||= Audiences::Group.find_by!(resource_type: event_payload.resource,
+                                             scim_id: event_payload.id)
       end
     end
   end

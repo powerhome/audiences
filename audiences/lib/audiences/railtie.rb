@@ -8,5 +8,9 @@ module Audiences
         include Audiences::EditorHelper
       end
     end
+
+    initializer "audiences.logger" do
+      Audiences.config.logger ||= Rails.logger.tagged("Audiences")
+    end
   end
 end

@@ -6,22 +6,31 @@ module Audiences
       subscribe_to "two_percent.scim.update.Users"
 
       def process
-        attributes = FieldMapping.new("externalId" => :user_id,
-                                      "displayName" => :display_name,
-                                      "photos" => { to: :picture_urls, find: :itself })
-        data = ScimData.new
+        Audiences.logger.info "Patching user #{user.display_name} (#{user.scim_id})"
 
-        patch_op = PatchOp.new(event_payload.params)
-        patch_op.process user, attributes
-        patch_op.process user, data
+        process_attributes!
+        process_data!
 
         user.save!
+      rescue => e
+        Audiences.logger.error e
+        raise
       end
 
     private
 
+      def patch_op = PatchOp.new(event_payload.params)
+
+      def process_data! = patch_op.process(user, ScimData.new)
+
+      def process_attributes!
+        patch_op.process user, FieldMapping.new("externalId" => :user_id,
+                                                "displayName" => :display_name,
+                                                "photos" => { to: :picture_urls, find: :itself })
+      end
+
       def user
-        @user ||= Audiences::ExternalUser.find_by(scim_id: event_payload.id)
+        @user ||= Audiences::ExternalUser.find_by!(scim_id: event_payload.id)
       end
     end
   end
