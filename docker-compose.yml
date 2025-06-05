@@ -4,7 +4,7 @@ volumes:
   scim_stub_db:
 services:
   dummy-web:
-    image: ruby:3.4.1
+    image: ruby:3.4.4@sha256:4cf7641c6354e8f407afd2dbb0ab1968cd44ac443bd833c16bdf55cc074a3eb8
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     environment:
