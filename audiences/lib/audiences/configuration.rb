@@ -5,6 +5,17 @@ module Audiences
 
   # Configuration options
 
+  # Sync groups and users with TwoPercent
+  config_accessor(:logger)
+
+  # Sync groups and users with TwoPercent
+  config_accessor(:observe_scim) { true }
+
+  # Group types that can form an audience
+  config_accessor :group_types do
+    %w[Groups]
+  end
+
   # These are the user attributes that will be exposed in the audiences endpoints.
   # They're required by the UI to display the user information.
   #

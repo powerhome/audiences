@@ -2,12 +2,21 @@
 
 module Audiences
   class ExternalUser < ApplicationRecord
+    has_many :group_memberships, dependent: :destroy
+    has_many :groups, through: :group_memberships
+
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
                             primary_key: Audiences.config.identity_key,
                             foreign_key: :user_id,
                             optional: true,
                             inverse_of: false
+    end
+
+    def picture_urls = [picture_url]
+
+    def picture_urls=(urls)
+      self.picture_url = urls&.first
     end
 
     def self.fetch(external_ids, count: 100)
@@ -23,11 +32,12 @@ module Audiences
       return [] unless resources&.any?
 
       attrs = resources.map do |data|
-        { user_id: data["externalId"], data: data, created_at: Time.current, updated_at: Time.current }
+        { scim_id: data["id"], user_id: data["externalId"], data: data, created_at: Time.current,
+          updated_at: Time.current }
       end
-      unique_by = :user_id if connection.supports_insert_conflict_target?
+      unique_by = :scim_id if connection.supports_insert_conflict_target?
       upsert_all(attrs, unique_by: unique_by) # rubocop:disable Rails/SkipsModelValidations
-      where(user_id: attrs.pluck(:user_id))
+      where(scim_id: attrs.pluck(:scim_id))
     end
 
     def as_json(...)

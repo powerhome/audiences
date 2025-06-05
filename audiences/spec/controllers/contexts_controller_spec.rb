@@ -37,7 +37,8 @@ RSpec.describe Audiences::ContextsController do
                 attributes: "id,externalId,displayName,active,photos.type,photos.value",
                 filter: "active eq true",
               })
-        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "externalId" => 123 }] }.to_json)
+        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "externalId" => 123,
+                                                          "id" => 321 }] }.to_json)
 
       put :update, params: { key: example_context.signed_key, match_all: true }
 
@@ -55,16 +56,17 @@ RSpec.describe Audiences::ContextsController do
                 filter: "(active eq true) and (externalId eq 123)",
               })
         .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "confidential" => "data",
-                                                          "externalId" => 123 }] }.to_json)
+                                                          "externalId" => 123, "id" => 321 }] }.to_json)
 
       put :update, params: {
         key: example_context.signed_key,
-        extra_users: [{ externalId: 123, displayName: "John Doe", photos: [{ value: "http://example.com" }] }],
+        extra_users: [{ externalId: 123, id: 321, displayName: "John Doe", photos: [{ value: "http://example.com" }] }],
       }
 
       example_context.reload
 
       expect(example_context.extra_users).to eql [{
+        "id" => 321,
         "externalId" => 123,
         "displayName" => "John Doe",
         "confidential" => "data",
@@ -73,6 +75,7 @@ RSpec.describe Audiences::ContextsController do
                                               "match_all" => false,
                                               "count" => 1,
                                               "extra_users" => [{
+                                                "id" => 321,
                                                 "externalId" => 123,
                                                 "displayName" => "John Doe",
                                               }],
@@ -83,7 +86,7 @@ RSpec.describe Audiences::ContextsController do
     context "updating a group criteria" do
       let(:users_response) do
         {
-          Resources: [{ externalId: 1 }, { externalId: 2 }],
+          Resources: [{ externalId: 1, id: 1 }, { externalId: 2, id: 2 }],
         }
       end
 
@@ -132,9 +135,12 @@ RSpec.describe Audiences::ContextsController do
 
     it "is the list of users from an audience context" do
       example_owner.members_context.users.create([
-                                                   { user_id: 123, data: { "externalId" => 123 } },
-                                                   { user_id: 456, data: { "externalId" => 456 } },
-                                                   { user_id: 789, data: { "externalId" => 789 } },
+                                                   { user_id: 123, scim_id: 123,
+                                                     data: { "externalId" => 123, "id" => 123 } },
+                                                   { user_id: 456, scim_id: 456,
+                                                     data: { "externalId" => 456, "id" => 456 } },
+                                                   { user_id: 789, scim_id: 789,
+                                                     data: { "externalId" => 789, "id" => 789 } },
                                                  ])
 
       get :users, params: { key: example_context.signed_key }
@@ -142,9 +148,9 @@ RSpec.describe Audiences::ContextsController do
       expect(response.parsed_body).to match({
                                               "count" => 3,
                                               "users" => [
-                                                { "externalId" => 123 },
-                                                { "externalId" => 456 },
-                                                { "externalId" => 789 },
+                                                { "externalId" => 123, "id" => 123 },
+                                                { "externalId" => 456, "id" => 456 },
+                                                { "externalId" => 789, "id" => 789 },
                                               ],
                                             })
     end
@@ -159,10 +165,13 @@ RSpec.describe Audiences::ContextsController do
 
     it "is the list of users from an audience context's criterion" do
       criterion.users.create!([
-                                { user_id: 1, data: { "externalId" => 1, "displayName" => "John" } },
-                                { user_id: 2, data: { "externalId" => 2, "displayName" => "Jose" } },
-                                { user_id: 3,
-                                  data: { "externalId" => 3, "displayName" => "Nelson", "confidential" => "data" } },
+                                { scim_id: 1, user_id: 1,
+                                  data: { "id" => 1, "externalId" => 1, "displayName" => "John" } },
+                                { scim_id: 2, user_id: 2,
+                                  data: { "id" => 2, "externalId" => 2, "displayName" => "Jose" } },
+                                { scim_id: 3, user_id: 3,
+                                  data: { "id" => 3, "externalId" => 3, "displayName" => "Nelson",
+                                          "confidential" => "data" } },
                               ])
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
@@ -170,9 +179,9 @@ RSpec.describe Audiences::ContextsController do
       expect(response.parsed_body).to match_array({
                                                     "count" => 3,
                                                     "users" => [
-                                                      { "externalId" => 1, "displayName" => "John" },
-                                                      { "externalId" => 2, "displayName" => "Jose" },
-                                                      { "externalId" => 3, "displayName" => "Nelson" },
+                                                      { "id" => 1, "externalId" => 1, "displayName" => "John" },
+                                                      { "id" => 2, "externalId" => 2, "displayName" => "Jose" },
+                                                      { "id" => 3, "externalId" => 3, "displayName" => "Nelson" },
                                                     ],
                                                   })
     end

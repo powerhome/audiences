@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "aether_observatory"
+
 # Audiences system
 # Audiences pushes notifications to your rails app when a
 # SCIM backend updates a user, notifying matching audiences.

@@ -32,16 +32,16 @@ RSpec.describe Audiences::CriterionUsers do
       }
       response1or3 = {
         "Resources" => [
-          { "externalId" => 1313 },
-          { "externalId" => 1414 },
-          { "externalId" => 1515 },
+          { "id" => 1313, "externalId" => 1313 },
+          { "id" => 1414, "externalId" => 1414 },
+          { "id" => 1515, "externalId" => 1515 },
         ],
       }
       response5or6 = {
         "Resources" => [
-          { "externalId" => 1313 },
-          { "externalId" => 1515 },
-          { "externalId" => 1516 },
+          { "id" => 1313, "externalId" => 1313 },
+          { "id" => 1515, "externalId" => 1515 },
+          { "id" => 1516, "externalId" => 1516 },
         ],
       }
 
@@ -57,7 +57,9 @@ RSpec.describe Audiences::CriterionUsers do
 
       expect(users.size).to eql 2
       expect(users.first.user_id).to eql "1313"
+      expect(users.first.scim_id).to eql "1313"
       expect(users.last.user_id).to eql "1515"
+      expect(users.last.scim_id).to eql "1515"
     end
 
     it "ignores empty types" do
