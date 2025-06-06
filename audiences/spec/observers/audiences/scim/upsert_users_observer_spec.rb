@@ -88,9 +88,4 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(user.groups).to match_array new_groups
     expect(user.data).to eql params
   end
-
-  def create_group(scim_id)
-    Audiences::Group.create!(scim_id: scim_id, display_name: "Group #{scim_id}", external_id: scim_id,
-                             resource_type: "Groups")
-  end
 end
