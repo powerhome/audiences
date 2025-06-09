@@ -13,6 +13,10 @@ module Audiences
                             inverse_of: false
     end
 
+    scope :search, ->(display_name) do
+      where("display_name LIKE ?", "%#{display_name}%")
+    end
+
     scope :from_scim, ->(*scim_json) do
       where(scim_id: scim_json&.pluck("id"))
     end
