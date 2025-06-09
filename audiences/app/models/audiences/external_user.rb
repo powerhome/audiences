@@ -13,6 +13,21 @@ module Audiences
                             inverse_of: false
     end
 
+    scope :matching, ->(criterion) do
+      groups = (criterion.try(:groups) || criterion).values.reject(&:empty?)
+      groups.reduce(self) do |scope, group|
+        group_ids = Audiences::Group.where(scim_id: group.pluck("id")).pluck(:id)
+        scope.where(id: Audiences::GroupMembership.where(group_id: group_ids).select(:external_user_id))
+      end
+    end
+
+    scope :matching_any, ->(criterion, *criterions) do
+      scope = matching(criterion)
+      criterions.reduce(scope) do |scope, criterion|
+        scope.or matching(criterion)
+      end
+    end
+
     def picture_urls = [picture_url]
 
     def picture_urls=(urls)

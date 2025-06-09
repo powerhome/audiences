@@ -12,6 +12,16 @@ module Audiences
         Audiences::Group.create!(scim_id: scim_id, display_name: "Group #{scim_id}",
                                  external_id: scim_id, resource_type: "Groups", **attrs)
       end
+
+      def create_user(scim_id: next_id, **attrs)
+        data = { "id" => scim_id, "externalId" => scim_id, "displayName" => "User #{scim_id}" }
+        Audiences::ExternalUser.create!(scim_id: scim_id, display_name: data["displayName"],
+                                        user_id: data["externalId"], data: data, **attrs)
+      end
+
+      def create_users(number, **attrs)
+        Array.new(number) { create_user(**attrs) }
+      end
     end
   end
 end
