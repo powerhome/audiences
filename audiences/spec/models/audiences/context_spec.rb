@@ -5,12 +5,11 @@ require "rails_helper"
 RSpec.describe Audiences::Context do
   let(:owner) { ExampleOwner.new(name: "Example") }
 
-  describe "#refresh_users!" do
+  describe "#save" do
     it "publishes a notification about the context update" do
       expect do |blk|
         Audiences::Notifications.subscribe ExampleOwner, &blk
         owner.save!
-        owner.members_context.refresh_users!
       end.to yield_with_args(owner.members_context)
     end
   end

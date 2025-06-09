@@ -18,17 +18,19 @@ module Audiences
       self.extra_users = []
     end
 
+    after_commit :notify_subscriptions
+
     def users
       @users ||= matching_external_users
     end
 
     delegate :count, to: :users
 
-    def refresh_users!
+  private
+
+    def notify_subscriptions
       Notifications.publish(self)
     end
-
-  private
 
     def matching_external_users
       return ExternalUser.all if match_all

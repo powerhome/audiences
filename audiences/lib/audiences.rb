@@ -32,7 +32,6 @@ module_function
         criteria: ::Audiences::Criterion.map(criteria),
         extra_users: ::Audiences::ExternalUser.fetch(extra_users.pluck("externalId"))
       )
-      context.refresh_users!
     end
   end
 end
