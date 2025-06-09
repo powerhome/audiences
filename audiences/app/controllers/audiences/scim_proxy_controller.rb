@@ -2,12 +2,18 @@
 
 module Audiences
   class ScimProxyController < ApplicationController
+    def users
+      users = Audiences::ExternalUser.where('display_name LIKE "%?%"', params[:query])
+
+      render json: users
+    end
+
     def get
       resources = Audiences::Scim.resource(params[:scim_path].to_sym)
                                  .query(
                                    filter: filter_param,
                                    startIndex: params[:startIndex], count: params[:count],
-                                   attributes: Audiences.exposed_user_attributes.join(",")
+                                   attributes: %w[id externalId displayName photos].join(",")
                                  )
 
       render json: resources, except: %w[schemas meta]

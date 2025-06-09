@@ -59,7 +59,7 @@ module Audiences
     end
 
     def as_json(...)
-      data.as_json(...)
+      data&.slice("id", "externalId", "displayName", "photos")
     end
   end
 end
