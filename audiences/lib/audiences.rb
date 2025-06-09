@@ -29,7 +29,7 @@ module_function
     Audiences::Context.load(key) do |context|
       context.update!(
         match_all: match_all,
-        extra_users: ::Audiences::ExternalUser.from_scim(*extra_users),
+        extra_users: ::Audiences::ExternalUser.from_scim(*extra_users).map(&:as_json),
         criteria: ::Audiences::Criterion.map(criteria)
       )
     end
