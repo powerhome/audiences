@@ -62,9 +62,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
   it "creates user with group memberships" do
     new_groups = [
-      create_group("group-123"),
-      create_group("group-456"),
-      create_group("group-789"),
+      create_group(scim_id: "group-123"),
+      create_group(scim_id: "group-456"),
+      create_group(scim_id: "group-789"),
     ]
     params = {
       "id" => "internal-id-123",

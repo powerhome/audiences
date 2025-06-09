@@ -21,8 +21,8 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
   end
 
   it "updates a group that is configured in Audiences.config.group_types even with CreateEvent" do
-    params = { "id" => "internal-id-123", "displayName" => "My Group", "externalId" => "external-id-123" }
-    group = create_group("internal-id-123")
+    group = create_group
+    params = { "id" => group.scim_id, "displayName" => "My Group", "externalId" => "external-id-123" }
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Groups", params: params)
@@ -32,13 +32,13 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
 
     expect(group.resource_type).to eql "Groups"
     expect(group.display_name).to eql "My Group"
-    expect(group.scim_id).to eql "internal-id-123"
+    expect(group.scim_id).to eql group.scim_id
     expect(group.external_id).to eql "external-id-123"
   end
 
   it "updates a group that is configured in Audiences.config.group_types" do
-    params = { "id" => "internal-id-123", "displayName" => "My Group", "externalId" => "external-id-123" }
-    group = create_group("internal-id-123")
+    group = create_group
+    params = { "id" => group.scim_id, "displayName" => "My Group", "externalId" => "external-id-123" }
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Groups", params: params)
@@ -48,7 +48,7 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
 
     expect(group.resource_type).to eql "Groups"
     expect(group.display_name).to eql "My Group"
-    expect(group.scim_id).to eql "internal-id-123"
+    expect(group.scim_id).to eql group.scim_id
     expect(group.external_id).to eql "external-id-123"
   end
 end
