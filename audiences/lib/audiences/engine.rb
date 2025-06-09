@@ -10,8 +10,17 @@ module Audiences
   class Engine < ::Rails::Engine
     isolate_namespace Audiences
 
-    initializer "audiences.assets.precompile" do |app|
+    initializer "audiences.editor_helper" do |app|
       app.config.assets.precompile += %w[audiences-ujs.js] if app.config.respond_to?(:assets)
+
+      ActiveSupport.on_load(:action_view) do
+        require "audiences/editor_helper"
+        include Audiences::EditorHelper
+      end
+    end
+
+    initializer "audiences.logger" do
+      Audiences.config.logger ||= Rails.logger.tagged("Audiences")
     end
 
     initializer "audiences.model" do
