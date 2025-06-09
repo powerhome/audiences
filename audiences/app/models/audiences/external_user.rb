@@ -21,9 +21,8 @@ module Audiences
       end
     end
 
-    scope :matching_any, ->(criterion, *criterions) do
-      scope = matching(criterion)
-      criterions.reduce(scope) do |scope, criterion|
+    scope :matching_any, ->(first, *others) do
+      others.reduce(matching(first)) do |scope, criterion|
         scope.or matching(criterion)
       end
     end

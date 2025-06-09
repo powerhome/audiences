@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Audiences::ExternalUser, :aggregate_failures do
-  describe ".matching_criterion" do
+  describe ".matching" do
     it "must be a member of any group within each type" do
       user1, user2, user3, user4 = create_users(4)
 

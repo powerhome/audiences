@@ -58,10 +58,10 @@ RSpec.describe Audiences::ContextUsers do
 
       expect(users.size).to eql 3
       expect(users.pluck(:scim_id)).to match_array([
-        criterion_user1.scim_id,
-        criterion_user2.scim_id,
-        extra_user["id"].to_s,
-      ])
+                                                     criterion_user1.scim_id,
+                                                     criterion_user2.scim_id,
+                                                     extra_user["id"].to_s,
+                                                   ])
     end
   end
 end
