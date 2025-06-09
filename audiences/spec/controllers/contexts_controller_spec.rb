@@ -44,13 +44,6 @@ RSpec.describe Audiences::ContextsController do
 
     it "updates the context extra users" do
       user = create_user
-      stub_request(:get, "http://example.com/scim/v2/Users")
-        .with(query: {
-                attributes: "id,externalId,displayName,active,photos.type,photos.value",
-                count: 100,
-                filter: "(active eq true) and (externalId eq #{user.user_id})",
-              })
-        .to_return(status: 200, body: { "Resources" => [user.data] }.to_json)
 
       put :update, params: {
         key: example_context.signed_key,

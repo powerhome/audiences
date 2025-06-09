@@ -42,10 +42,7 @@ RSpec.describe Audiences::Context do
     it "is the total of all member users" do
       owner.save!
 
-      owner.members_context.users.create([
-                                           { user_id: 1 },
-                                           { user_id: 2 },
-                                         ])
+      owner.members_context.update(extra_users: create_users(2).map(&:data))
 
       expect(owner.members_context.count).to eql 2
     end

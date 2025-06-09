@@ -36,8 +36,7 @@ module Audiences
       return ExternalUser.all if match_all
 
       criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
-      ExternalUser.where(scim_id: extra_users&.pluck("id"))
-                  .or(criteria_scope)
+      ExternalUser.from_scim(*extra_users).or(criteria_scope)
     end
   end
 end

@@ -49,7 +49,7 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
 
       users = Audiences::ExternalUser.matching_any(
         { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title1.scim_id }] },
-        { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title2.scim_id }] },
+        { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title2.scim_id }] }
       )
 
       expect(users.pluck(:display_name)).to match_array [user1.display_name, user3.display_name]

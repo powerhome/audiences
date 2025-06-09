@@ -47,7 +47,7 @@ module Audiences
       params.permit(
         :match_all,
         criteria: [groups: {}],
-        extra_users: %i[externalId]
+        extra_users: %i[id]
       ).to_h.symbolize_keys
     end
   end

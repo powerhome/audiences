@@ -13,6 +13,10 @@ module Audiences
                             inverse_of: false
     end
 
+    scope :from_scim, ->(*scim_json) do
+      where(scim_id: scim_json&.pluck("id"))
+    end
+
     scope :matching, ->(criterion) do
       groups = (criterion.try(:groups) || criterion).values.reject(&:empty?)
       groups.reduce(self) do |scope, group|
