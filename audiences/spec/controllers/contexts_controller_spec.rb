@@ -91,20 +91,16 @@ RSpec.describe Audiences::ContextsController do
       end
 
       it "allows updating the group criteria" do
-        attrs = "id,externalId,displayName,active,photos.type,photos.value"
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                           "&filter=(active eq true) and (groups.value eq 123)")
-          .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                           "&filter=(active eq true) and (groups.value eq 321)")
-          .to_return(status: 200, body: users_response.to_json, headers: {})
+        users = create_users(2)
+        department = create_group(resource_type: "Departments", external_users: users)
+        territory = create_group(resource_type: "Territories", external_users: users)
 
         put :update, params: {
           key: example_context.signed_key,
           match_all: false,
           criteria: [
-            { groups: { Departments: [{ id: 123, displayName: "Finance" }],
-                        Territories: [{ id: 321, displayName: "Philadelphia" }] } },
+            { groups: { Departments: [{ id: department.scim_id }],
+                        Territories: [{ id: territory.scim_id }] } },
           ],
         }
 
@@ -117,9 +113,8 @@ RSpec.describe Audiences::ContextsController do
                                                     "id" => anything,
                                                     "count" => 2,
                                                     "groups" => {
-                                                      "Departments" => [{ "id" => "123", "displayName" => "Finance" }],
-                                                      "Territories" => [{ "id" => "321",
-                                                                          "displayName" => "Philadelphia" }],
+                                                      "Departments" => [{ "id" => department.scim_id }],
+                                                      "Territories" => [{ "id" => territory.scim_id }],
                                                     },
                                                   },
                                                 ],
@@ -157,32 +152,21 @@ RSpec.describe Audiences::ContextsController do
   end
 
   describe "GET /audiences/:context_key/users/:criterion_id" do
-    let(:criterion) { example_owner.members_context.criteria.create! }
-
     it_behaves_like "authenticated endpoint" do
-      subject { get :users, params: { key: example_context.signed_key, criterion_id: criterion.id } }
+      subject { get :users, params: { key: example_context.signed_key, criterion_id: 123 } }
     end
 
     it "is the list of users from an audience context's criterion" do
-      criterion.users.create!([
-                                { scim_id: 1, user_id: 1,
-                                  data: { "id" => 1, "externalId" => 1, "displayName" => "John" } },
-                                { scim_id: 2, user_id: 2,
-                                  data: { "id" => 2, "externalId" => 2, "displayName" => "Jose" } },
-                                { scim_id: 3, user_id: 3,
-                                  data: { "id" => 3, "externalId" => 3, "displayName" => "Nelson",
-                                          "confidential" => "data" } },
-                              ])
+      user = create_user
+      group = create_group(external_users: [user])
+
+      criterion = example_context.criteria.create(groups: { "Groups" => [{ "id" => group.scim_id, "externalId" => group.external_id }]})
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
 
       expect(response.parsed_body).to match_array({
-                                                    "count" => 3,
-                                                    "users" => [
-                                                      { "id" => 1, "externalId" => 1, "displayName" => "John" },
-                                                      { "id" => 2, "externalId" => 2, "displayName" => "Jose" },
-                                                      { "id" => 3, "externalId" => 3, "displayName" => "Nelson" },
-                                                    ],
+                                                    "count" => 1,
+                                                    "users" => [user.data],
                                                   })
     end
   end

@@ -27,40 +27,41 @@ RSpec.describe Audiences::ContextUsers do
 
   context "has criteria" do
     it "is the distinct union of users from the criteria" do
-      user1 = external_user!("id" => 1)
-      user2 = external_user!("id" => 2)
-      user3 = external_user!("id" => 3)
+      user1, user2, user3 = create_users(3)
 
-      criterion1 = Audiences::Criterion.new(users: [user1, user2])
-      criterion2 = Audiences::Criterion.new(users: [user2, user3])
+      criterion1 = Audiences::Criterion.new
+      allow(criterion1).to receive(:users) { [user1, user2] }
+      criterion2 = Audiences::Criterion.new
+      allow(criterion2).to receive(:users) { [user2, user3] }
       context = Audiences::Context.new(match_all: false, criteria: [criterion1, criterion2])
 
       users = Audiences::ContextUsers.new(context).to_a
 
-      expect(users.pluck(:user_id)).to match_array(%w[1 2 3])
+      expect(users.pluck(:id)).to match_array([user1.id, user2.id, user3.id])
     end
 
     it "includes the extra users uniquely" do
-      criterion = Audiences::Criterion.new(users: [external_user!("id" => 1),
-                                                   external_user!("id" => 2)])
+      criterion_user1, criterion_user2 = create_users(2)
+      criterion = Audiences::Criterion.new
+
+      scim_id = next_scim_id
+      extra_user = { "id" => scim_id, "externalId" => scim_id, "displayName" => "Extra User" }
+
       context = Audiences::Context.new(
         match_all: false,
         criteria: [criterion],
-        extra_users: [{ "id" => "1", "externalId" => 1 }, { "id" => "456", "externalId" => 456 },
-                      { "id" => "789", "externalId" => 789 }]
+        extra_users: [criterion_user1.data, extra_user]
       )
+      allow(criterion).to receive(:users) { [criterion_user1, criterion_user2] }
 
       users = Audiences::ContextUsers.new(context).to_a
 
-      expect(users.size).to eql 4
-      expect(users[0].scim_id).to eql "1"
-      expect(users[1].scim_id).to eql "456"
-      expect(users[2].scim_id).to eql "789"
-      expect(users[3].scim_id).to eql "2"
+      expect(users.size).to eql 3
+      expect(users.pluck(:scim_id)).to match_array([
+        criterion_user1.scim_id,
+        criterion_user2.scim_id,
+        extra_user["id"].to_s,
+      ])
     end
-  end
-
-  def external_user!(**data)
-    Audiences::ExternalUser.create(scim_id: data["id"], user_id: data["id"], data: data)
   end
 end
