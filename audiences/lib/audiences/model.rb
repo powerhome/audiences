@@ -10,25 +10,26 @@ module Audiences
       #
       # @param name [Symbol,String] the member relationship name
       #
-      # rubocop:disable Naming/PredicateName,Metrics/MethodLength,Metrics/AbcSize
+      # rubocop:disable Naming/PredicateName,Metrics/MethodLength
       def has_audience(name)
         has_one :"#{name}_context", -> { where(relation: name) },
                 as: :owner, dependent: :destroy,
                 class_name: "Audiences::Context"
-        has_many :"#{name}_external_users",
-                 through: :"#{name}_context", source: :users,
-                 class_name: "Audiences::ExternalUser"
-        has_many name, -> { readonly }, through: :"#{name}_external_users", source: :identity
 
-        scope :"with_#{name}", -> { includes(name) }
+        delegate :users, to: :"#{name}_context", prefix: :"#{name}_external"
+
+        define_method(name) do
+          send(:"#{name}_context").users.includes(:identity)
+                                        .map(&:identity)
+        end
+
         scope :"with_#{name}_context", -> { includes(:"#{name}_context") }
-        scope :"with_#{name}_external_users", -> { includes(:"#{name}_external_users") }
 
         after_initialize if: :new_record? do
           association(:"#{name}_context").build
         end
       end
-      # rubocop:enable Naming/PredicateName,Metrics/MethodLength,Metrics/AbcSize
+      # rubocop:enable Naming/PredicateName,Metrics/MethodLength
     end
   end
 end

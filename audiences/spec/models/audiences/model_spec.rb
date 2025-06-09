@@ -9,36 +9,37 @@ RSpec.describe Audiences::Model do
     it do
       is_expected.to have_one(:members_context).class_name("Audiences::Context")
     end
-    it do
-      is_expected.to have_many(:members_external_users).class_name("Audiences::ExternalUser")
-                                                       .through(:members_context)
-                                                       .source(:users)
+  end
+
+  describe "#relation_name" do
+    it "is the collection of identity objects from the context users" do
+      example_users = Array.new(3) { ExampleUser.create(name: "User #{_1}") }
+      external_users = example_users.map { create_user(user_id: _1.id) }
+
+      subject.members_context.update(extra_users: external_users.map(&:data))
+
+      expect(subject.members).to match_array example_users
     end
-    it do
-      is_expected.to have_many(:members).through(:members_external_users)
-                                        .source(:identity)
+  end
+
+  describe "#relation_name_external_users" do
+    it "is the collection of identity objects from the context users" do
+      example_users = Array.new(3) { ExampleUser.create(name: "User #{_1}") }
+      external_users = example_users.map { create_user(user_id: _1.id) }
+
+      subject.members_context.update(extra_users: external_users.map(&:data))
+
+      expect(subject.members_external_users).to match_array external_users
     end
   end
 
   describe "dynamic scopes" do
     before { subject.save! }
 
-    it "allows to eager load the members" do
-      owner = ExampleOwner.with_members.first
-
-      expect(owner.association(:members)).to be_loaded
-    end
-
-    it "allows to eager load the contexts" do
+    it "allows to eager load the context" do
       owner = ExampleOwner.with_members_context.first
 
       expect(owner.association(:members_context)).to be_loaded
-    end
-
-    it "allows to eager load the external users" do
-      owner = ExampleOwner.with_members_external_users.first
-
-      expect(owner.association(:members_external_users)).to be_loaded
     end
   end
 
