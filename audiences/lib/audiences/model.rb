@@ -20,7 +20,7 @@ module Audiences
 
         define_method(name) do
           send(:"#{name}_context").users.includes(:identity)
-                                        .map(&:identity)
+                                  .map(&:identity)
         end
 
         scope :"with_#{name}_context", -> { includes(:"#{name}_context") }
