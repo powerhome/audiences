@@ -7,7 +7,6 @@ module Audiences
   #
   class Context < ApplicationRecord
     include Locating
-    include ::Audiences::MembershipGroup
 
     belongs_to :owner, polymorphic: true
     has_many :criteria, class_name: "Audiences::Criterion",
@@ -19,10 +18,25 @@ module Audiences
       self.extra_users = []
     end
 
-    def refresh_users!
-      criteria.each(&:refresh_users!)
-      update!(users: ContextUsers.new(self).to_a)
+    after_commit :notify_subscriptions
+
+    def users
+      @users ||= matching_external_users
+    end
+
+    delegate :count, to: :users
+
+  private
+
+    def notify_subscriptions
       Notifications.publish(self)
+    end
+
+    def matching_external_users
+      return ExternalUser.all if match_all
+
+      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      ExternalUser.from_scim(*extra_users).or(criteria_scope)
     end
   end
 end

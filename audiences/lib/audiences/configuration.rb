@@ -16,13 +16,6 @@ module Audiences
     %w[Groups]
   end
 
-  # These are the user attributes that will be exposed in the audiences endpoints.
-  # They're required by the UI to display the user information.
-  #
-  config_accessor :exposed_user_attributes do
-    %w[id externalId displayName photos]
-  end
-
   #
   # Authentication configuration. This defaults to true, meaning that the audiences
   # endpoints are open to the public.
@@ -61,50 +54,6 @@ module Audiences
   # This configuration defaults to `:id`
   #
   config_accessor(:identity_key) { :id }
-
-  #
-  # SCIM service configurations. This should be a Hash containint, at least, the URI.
-  #
-  # I.e.:
-  #
-  #   Audiences.configure do |config|
-  #     config.scim = { uri: "http://localhost/api/scim" }
-  #   end
-  #
-  # It can also contain HTTP headers, such as "Authorization":
-  #
-  # I.e.:
-  #
-  #   Audiences.configure do |config|
-  #     config.scim = {
-  #       uri: "http://localhost/api/scim",
-  #       headers: { "Authorization" => "Bearer auth-token" }
-  #     }
-  #   end
-  #
-  config_accessor :scim
-
-  #
-  # Resources defaults. Change this configuration via the `resource` helper.
-  # This configuration lists the current Audiences accessible resource defaults,
-  # and defaults to Users only. To add other resource types for criteria building.
-  #
-  # @see `resource`.
-  #
-  config_accessor :resources do
-    { Users: Scim::Resource.new(type: :Users, attributes: ["active", { "photos" => %w[type value] }],
-                                filter: "active eq true") }
-  end
-
-  #
-  # Configures a resource default.
-  #
-  # @param type [Symbol] the resource type in plural, as in scim (i.e.: :Users)
-  # @param attributes [String] the list of attributes to fetch for the resource (i.e.: "id,externalId,displayName")
-  # @see [Audiences::Scim::Resource]
-  def config.resource(type, **kwargs)
-    resources[type] = Scim::Resource.new(type: type, **kwargs)
-  end
 
   #
   # Notifications configurations.
