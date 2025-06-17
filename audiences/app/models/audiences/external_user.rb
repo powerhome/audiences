@@ -42,7 +42,7 @@ module Audiences
     end
 
     def as_json(...)
-      data&.slice("id", "externalId", "displayName", "photos")
+      data&.slice(*Audiences.exposed_user_attributes)
     end
   end
 end
