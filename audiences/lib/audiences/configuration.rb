@@ -16,6 +16,13 @@ module Audiences
     %w[Groups]
   end
 
+  # These are the user attributes that will be exposed in the audiences endpoints.
+  # They're required by the UI to display the user information.
+  #
+  config_accessor :exposed_user_attributes do
+    %w[id externalId displayName photos]
+  end
+
   #
   # Authentication configuration. This defaults to true, meaning that the audiences
   # endpoints are open to the public.
