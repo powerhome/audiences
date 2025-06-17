@@ -42,7 +42,8 @@ module Audiences
     end
 
     def as_json(...)
-      data&.slice("id", "externalId", "displayName", "photos")
+      data&.slice("id", "externalId", "displayName", "photos", "title",
+                  "urn:ietf:params:scim:schemas:extension:authservice:2.0:User")
     end
   end
 end
