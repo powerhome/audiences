@@ -26,11 +26,12 @@ module Audiences
       def process_attributes!
         patch_op.process user, FieldMapping.new("externalId" => :user_id,
                                                 "displayName" => :display_name,
+                                                "active" => :active,
                                                 "photos" => { to: :picture_urls, find: :itself })
       end
 
       def user
-        @user ||= Audiences::ExternalUser.find_by!(scim_id: event_payload.id)
+        @user ||= Audiences::ExternalUser.unscoped.find_by!(scim_id: event_payload.id)
       end
     end
   end

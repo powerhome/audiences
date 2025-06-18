@@ -80,6 +80,31 @@ RSpec.describe Audiences::Scim::PatchUsersObserver do
     expect(user.picture_url).to eql "https://example.com/another/pic"
   end
 
+  it "patches active flag" do
+    user = Audiences::ExternalUser.create(scim_id: "internal-id-123",
+                                          user_id: "external-id-123",
+                                          active: false)
+
+    expect do
+      TwoPercent::UpdateEvent.create(resource: "Users",
+                                     id: "internal-id-123",
+                                     params: {
+                                       "Operations" => [
+                                         {
+                                           "op" => "replace",
+                                           "path" => "active",
+                                           "value" => true,
+                                         },
+                                       ],
+                                     })
+    end.to_not(change { Audiences::ExternalUser.unscoped.count })
+
+    user.reload
+
+    expect(user.scim_id).to eql "internal-id-123"
+    expect(user.active).to eql true
+  end
+
   it "updates the External User data" do
     user = Audiences::ExternalUser.create(scim_id: "internal-id-123",
                                           user_id: "external-id-123",

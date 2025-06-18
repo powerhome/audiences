@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_28_130640) do
+ActiveRecord::Schema.define(version: 2025_06_18_184332) do
 
   create_table "audiences_contexts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "owner_type", null: false
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 2025_05_28_130640) do
     t.string "scim_id"
     t.string "display_name"
     t.string "picture_url"
+    t.boolean "active", default: true, null: false
     t.index ["scim_id"], name: "index_audiences_external_users_on_scim_id", unique: true
     t.index ["user_id"], name: "index_audiences_external_users_on_user_id", unique: true
   end
@@ -60,6 +61,7 @@ ActiveRecord::Schema.define(version: 2025_05_28_130640) do
     t.string "resource_type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "active", default: true, null: false
     t.index ["resource_type", "external_id"], name: "index_audiences_groups_on_resource_type_and_external_id", unique: true
     t.index ["resource_type", "scim_id"], name: "index_audiences_groups_on_resource_type_and_scim_id", unique: true
   end
