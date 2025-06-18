@@ -20,7 +20,7 @@ module Audiences
       def scim_id = event_payload.params["id"]
 
       def external_user
-        @external_user ||= Audiences::ExternalUser.where(scim_id: scim_id).first_or_initialize
+        @external_user ||= Audiences::ExternalUser.unscoped.where(scim_id: scim_id).first_or_initialize
       end
 
       def upsert_action = external_user.persisted? ? "Updating" : "Creating"
