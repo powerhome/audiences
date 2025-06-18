@@ -80,7 +80,7 @@ RSpec.describe Audiences::Scim::PatchUsersObserver do
     expect(user.picture_url).to eql "https://example.com/another/pic"
   end
 
-  it "patches pictactivere_activerl" do
+  it "patches active flag" do
     user = Audiences::ExternalUser.create(scim_id: "internal-id-123",
                                           user_id: "external-id-123",
                                           active: false)
