@@ -4,7 +4,7 @@ class PopulateExternalUsersScimId < ActiveRecord::Migration[6.1]
   def down; end
 
   def up
-    Audiences::ExternalUser.find_each do |user|
+    Audiences::ExternalUser.unscoped.find_each do |user|
       user.update!(
         scim_id: user.data&.fetch("id", nil),
         display_name: user.data&.fetch("displayName", nil),
