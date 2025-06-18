@@ -7,11 +7,9 @@ module Audiences
       subscribe_to "two_percent.scim.replace.Users"
 
       def process
-        Audiences.logger.info "#{upsert_action} group #{new_display_name} (#{scim_id})"
+        Audiences.logger.info "#{upsert_action} group #{event_payload.params['displayName']} (#{scim_id})"
 
-        external_user.update! user_id: new_external_id, display_name: new_display_name,
-                              picture_urls: new_picture_urls, data: event_payload.params,
-                              groups: new_groups, active: new_active
+        external_user.update! updated_attributes
       rescue => e
         Audiences.logger.error e
         raise
@@ -27,11 +25,16 @@ module Audiences
 
       def upsert_action = external_user.persisted? ? "Updating" : "Creating"
 
-      def new_display_name = event_payload.params["displayName"]
-
-      def new_external_id = event_payload.params["externalId"]
-
-      def new_active = !!event_payload.params["active"]
+      def updated_attributes
+        {
+          user_id: event_payload.params["externalId"],
+          display_name: event_payload.params["displayName"],
+          picture_urls: new_picture_urls,
+          data: event_payload.params,
+          groups: new_groups,
+          active: event_payload.params.fetch("active", false),
+        }
+      end
 
       def new_picture_urls = event_payload.params["photos"]&.pluck("value")
 
