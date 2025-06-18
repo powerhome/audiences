@@ -2,6 +2,8 @@
 
 module Audiences
   class ExternalUser < ApplicationRecord
+    default_scope Audiences.default_users_scope
+
     has_many :group_memberships, dependent: :destroy
     has_many :groups, through: :group_memberships
 

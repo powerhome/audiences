@@ -52,6 +52,28 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
     expect(group.external_id).to eql "external-id-321"
   end
 
+  it "patches active" do
+    group = create_group(active: false)
+
+    expect do
+      TwoPercent::UpdateEvent.create(resource: "Groups",
+                                     id: group.scim_id,
+                                     params: {
+                                       "Operations" => [
+                                         {
+                                           "op" => "replace",
+                                           "path" => "active",
+                                           "value" => true,
+                                         },
+                                       ],
+                                     })
+    end.to_not(change { Audiences::Group.unscoped.count })
+
+    group.reload
+
+    expect(group.active).to eql true
+  end
+
   it "adds group members" do
     member = Audiences::ExternalUser.create(scim_id: "123", user_id: 1)
     new_member = Audiences::ExternalUser.create(scim_id: "321", user_id: 2)

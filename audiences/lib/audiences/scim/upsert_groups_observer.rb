@@ -11,7 +11,7 @@ module Audiences
       def process
         Audiences.logger.info "#{upsert_action} group #{new_display_name} (#{new_external_id})"
 
-        group.update! external_id: new_external_id, display_name: new_display_name
+        group.update! external_id: new_external_id, display_name: new_display_name, active: new_active
       rescue => e
         Audiences.logger.error e
         raise
@@ -25,8 +25,11 @@ module Audiences
 
       def new_display_name = event_payload.params["displayName"]
 
+      def new_active = !!event_payload.params["active"]
+
       def group
-        @group ||= Audiences::Group.where(resource_type: event_payload.resource,
+        @group ||= Audiences::Group.unscoped
+                                   .where(resource_type: event_payload.resource,
                                           scim_id: event_payload.params["id"])
                                    .first_or_initialize
       end
