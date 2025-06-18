@@ -11,6 +11,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       "id" => "internal-id-123",
       "displayName" => "My User",
       "externalId" => "external-id-123",
+      "active" => true,
       "photos" => [
         { "value" => "http://example.com/photo/1" },
         { "value" => "http://example.com/photo/2" },
@@ -28,21 +29,25 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(created_user.display_name).to eql "My User"
     expect(created_user.picture_url).to eql "http://example.com/photo/1"
     expect(created_user.data).to eql params
+    expect(created_user.active).to eql true
   end
 
   it "updates an existing external user on a CreateEvent" do
-    user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {})
-    params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
+    user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {},
+                                          active: true)
+    params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123",
+               "active" => false }
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end.to_not(change { Audiences::ExternalUser.count })
+    end.to_not(change { Audiences::ExternalUser.unscoped.count })
 
     user.reload
 
     expect(user.scim_id).to eql "internal-id-123"
     expect(user.user_id).to eql "external-id-123"
     expect(user.data).to eql params
+    expect(user.active).to eql false
   end
 
   it "updates an existing external user on an ReplaceEvent" do
@@ -51,7 +56,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to_not(change { Audiences::ExternalUser.count })
+    end.to_not(change { Audiences::ExternalUser.unscoped.count })
 
     user.reload
 
@@ -79,9 +84,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to(change { Audiences::ExternalUser.count })
+    end.to(change { Audiences::ExternalUser.unscoped.count })
 
-    user = Audiences::ExternalUser.last
+    user = Audiences::ExternalUser.unscoped.last
 
     expect(user.scim_id).to eql "internal-id-123"
     expect(user.user_id).to eql "external-id-123"

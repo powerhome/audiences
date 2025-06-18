@@ -11,7 +11,7 @@ module Audiences
 
         external_user.update! user_id: new_external_id, display_name: new_display_name,
                               picture_urls: new_picture_urls, data: event_payload.params,
-                              groups: new_groups
+                              groups: new_groups, active: new_active
       rescue => e
         Audiences.logger.error e
         raise
@@ -31,11 +31,13 @@ module Audiences
 
       def new_external_id = event_payload.params["externalId"]
 
+      def new_active = !!event_payload.params["active"]
+
       def new_picture_urls = event_payload.params["photos"]&.pluck("value")
 
       def new_groups
         event_payload.params.fetch("groups", []).filter_map do |group|
-          Audiences::Group.find_by(scim_id: group["value"])
+          Audiences::Group.unscoped.find_by(scim_id: group["value"])
         end
       end
     end
