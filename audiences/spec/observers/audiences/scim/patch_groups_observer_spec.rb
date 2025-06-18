@@ -62,7 +62,8 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                        "Operations" => [
                                          {
                                            "op" => "replace",
-                                           "path" => "active",
+                                           "path" => "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" \
+                                                     ":active",
                                            "value" => true,
                                          },
                                        ],

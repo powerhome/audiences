@@ -25,7 +25,7 @@ module Audiences
       def attributes_mapping
         FieldMapping.new("displayName" => :display_name,
                          "externalId" => :external_id,
-                         "active" => :active,
+                         "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group:active" => :active,
                          "members" => { to: :external_users,
                                         find: ->(value) { ExternalUser.find_by(user_id: value) } })
       end
