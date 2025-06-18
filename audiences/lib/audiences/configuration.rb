@@ -16,6 +16,52 @@ module Audiences
     %w[Groups]
   end
 
+  # Defines a default scope for users, so the users that are part of an audience can
+  # be filtered (i.e.: only active, only users in a specific group, etc)
+  #
+  # By default, only active users are listed.
+  #
+  # I.e.:
+  #
+  #   # Allowing inactive users
+  #   Audiences.configure do |config|
+  #     config.default_users_scope = -> { all }
+  #   end
+  #
+  #   # Accepting only users in certain groups
+  #   Audiences.configure do |config|
+  #     config.default_users_scope = -> { includes(:groups).merge(Audiences::Group.where(scim_id: ALLOWED_GROUPS)) }
+  #   end
+  #
+  # This configuration defaults to `-> { where(active: true) }`
+  #
+  config_accessor :default_users_scope do
+    ->(*) { where(active: true) }
+  end
+
+  # Defines a default scope for groups, so the groups that are part of an audience can
+  # be filtered (i.e.: only active, only specific groups, etc)
+  #
+  # By default, only active groups are listed.
+  #
+  # I.e.:
+  #
+  #   # Allowing inactive groups
+  #   Audiences.configure do |config|
+  #     config.default_groups_scope = -> { all }
+  #   end
+  #
+  #   # Accepting only groups in certain groups
+  #   Audiences.configure do |config|
+  #     config.default_groups_scope = -> { where(scim_id: ALLOWED_GROUPS) }
+  #   end
+  #
+  # This configuration defaults to `-> { where(active: true) }`
+  #
+  config_accessor :default_groups_scope do
+    ->(*) { where(active: true) }
+  end
+
   # These are the user attributes that will be exposed in the audiences endpoints.
   # They're required by the UI to display the user information.
   #
