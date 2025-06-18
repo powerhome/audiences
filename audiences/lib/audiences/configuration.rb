@@ -94,7 +94,20 @@ module Audiences
   #   end
   #
   config_accessor :authenticate do
-    ->(*) { true }
+    ->(*) do
+      Audiences.logger.warn(<<~MESSAGE)
+        Audiences authenticate is currently configured using a default and is blocking authenticaiton.
+
+        To make this wraning go away provide a configuration for `Audiences.config.authenticate`.
+
+        The value should:
+          1. Be callable like a Proc.
+          2. Return true when the request is permitted.
+          3. Return false when the request is not permitted.
+      MESSAGE
+
+      false
+    end
   end
 
   #
