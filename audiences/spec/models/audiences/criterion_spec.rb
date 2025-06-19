@@ -7,6 +7,26 @@ RSpec.describe Audiences::Criterion do
     it { is_expected.to belong_to(:context) }
   end
 
+  describe ".with_group" do
+    it "matches all criterion that includes the given group" do
+      group = create_group(resource_type: "Territories")
+      owner = ExampleOwner.create
+      context = Audiences::Context.create!(
+        owner: owner,
+        criteria: Audiences::Criterion.map([
+          { groups: { Territories: [{ id: group.scim_id }], Departments: [{ id: 2 }] } },
+          { groups: { Territories: [{ id: 3 }], Departments: [{ id: 4 }] } },
+          { groups: { Territories: [{ id: group.scim_id }], Departments: [{ id: 6 }] } },
+        ])
+      )
+      criterion1, criterion2, criterion3 = context.criteria
+
+      matching = Audiences::Criterion.with_group(group)
+
+      expect(matching).to match_array([criterion1, criterion3])
+    end
+  end
+
   describe ".map([])" do
     it "builds contexts with the given " do
       criteria = Audiences::Criterion.map(

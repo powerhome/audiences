@@ -7,6 +7,8 @@ require "aether_observatory"
 # SCIM backend updates a user, notifying matching audiences.
 #
 module Audiences
+  UnsupportedAdapter = Class.new(StandardError)
+
   autoload :Model, "audiences/model"
   autoload :Notifications, "audiences/notifications"
   autoload :Scim, "audiences/scim"
