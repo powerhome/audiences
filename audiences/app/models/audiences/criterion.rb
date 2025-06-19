@@ -6,13 +6,13 @@ module Audiences
     validates :groups, presence: true
 
     scope :with_group, ->(group) do
-      args = case connection.adapter_name
-             when /postgres/i then ["jsonb_path_exists(groups, format('$.\"%s\"[*] ? (@.id == \"%s\")', ?, ?))", group.resource_type]
-             when /mysql/i then ["JSON_CONTAINS(JSON_EXTRACT(`groups`, ?), JSON_OBJECT('id', ?))", "$.#{group.resource_type}"]
-             else raise Audiences::UnsupportedAdapter, connection.adapter_name
-             end
+      matcher = case connection.adapter_name
+                when /postgres/i then "jsonb_path_exists(groups, format('%s[*] ? (@.id == \"%s\")', ?, ?))"
+                when /mysql/i then "JSON_CONTAINS(JSON_EXTRACT(`groups`, ?), JSON_OBJECT('id', ?))"
+                else raise Audiences::UnsupportedAdapter, connection.adapter_name
+                end
 
-      where(*args, group.scim_id)
+      where(matcher, "$.\"#{group.resource_type}\"", group.scim_id)
     end
 
     def self.map(criteria)

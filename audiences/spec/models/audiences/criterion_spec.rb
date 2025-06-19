@@ -14,12 +14,14 @@ RSpec.describe Audiences::Criterion do
       context = Audiences::Context.create!(
         owner: owner,
         criteria: Audiences::Criterion.map([
-          { groups: { Territories: [{ id: group.scim_id }], Departments: [{ id: 2 }] } },
-          { groups: { Territories: [{ id: 3 }], Departments: [{ id: 4 }] } },
-          { groups: { Territories: [{ id: group.scim_id }], Departments: [{ id: 6 }] } },
-        ])
+                                             { groups: { Territories: [{ id: group.scim_id }],
+                                                         Departments: [{ id: 2 }] } },
+                                             { groups: { Territories: [{ id: 3 }], Departments: [{ id: 4 }] } },
+                                             { groups: { Territories: [{ id: group.scim_id }],
+                                                         Departments: [{ id: 6 }] } },
+                                           ])
       )
-      criterion1, criterion2, criterion3 = context.criteria
+      criterion1, _, criterion3 = context.criteria
 
       matching = Audiences::Criterion.with_group(group)
 
