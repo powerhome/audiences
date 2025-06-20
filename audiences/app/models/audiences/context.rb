@@ -26,6 +26,15 @@ module Audiences
 
     delegate :count, to: :users
 
+    def as_json(...)
+      {
+        match_all: match_all,
+        count: count,
+        extra_users: extra_users,
+        criteria: criteria,
+      }.as_json(...)
+    end
+
   private
 
     def notify_subscriptions
