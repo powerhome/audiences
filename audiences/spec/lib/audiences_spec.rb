@@ -36,8 +36,7 @@ RSpec.describe Audiences do
       )
 
       expect(updated_context.criteria.size).to eql(1)
-      expect(updated_context.criteria.first.groups).to match({ "Departments" => [department1.as_json,
-                                                                                 department2.as_json] })
+      expect(updated_context.criteria.first.groups).to match_array [department1, department2]
 
       updated_context = Audiences.update(
         token,
@@ -49,9 +48,8 @@ RSpec.describe Audiences do
       )
 
       expect(updated_context.criteria.size).to eql(2)
-      expect(updated_context.criteria.first.groups).to match({ "Departments" => [department1, department2].as_json,
-                                                               "Territories" => [territory1, territory2].as_json })
-      expect(updated_context.criteria.last.groups).to match({ "Titles" => [title1, title2].as_json })
+      expect(updated_context.criteria.first.groups).to match_array [department1, department2, territory1, territory2]
+      expect(updated_context.criteria.last.groups).to match_array [title1, title2]
     end
   end
 end
