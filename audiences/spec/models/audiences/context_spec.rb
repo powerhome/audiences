@@ -70,7 +70,7 @@ RSpec.describe Audiences::Context do
 
   describe "#match_all" do
     it "clears other criteria when set to match all" do
-      owner.members_context.criteria.build(groups: { Departments: [1, 3, 4] })
+      owner.members_context.criteria.build(groups: create_groups(1))
       owner.members_context.match_all = true
 
       owner.members_context.save!
