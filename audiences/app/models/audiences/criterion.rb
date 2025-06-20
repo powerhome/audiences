@@ -5,6 +5,9 @@ module Audiences
     belongs_to :context, class_name: "Audiences::Context"
     validates :groups, presence: true
 
+    has_many :criterion_groups
+    has_many :groups, through: :criterion_groups
+
     def self.map(criteria)
       Array(criteria).map do |attrs|
         attrs["groups"] = attrs["groups"]&.to_h do |resource_type, groups|
