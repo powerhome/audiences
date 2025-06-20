@@ -3,6 +3,30 @@
 require "rails_helper"
 
 RSpec.describe Audiences::ExternalUser, :aggregate_failures do
+  describe ".search(query)" do
+    it "returns users matching the query" do
+      user1 = create_user(display_name: "Alice Smith")
+      user2 = create_user(display_name: "Bob Johnson")
+      user3 = create_user(display_name: "Charlie Brown")
+
+      results = Audiences::ExternalUser.search("Alice")
+
+      expect(results).to contain_exactly(user1)
+      expect(results).not_to include(user2, user3)
+    end
+
+    it "performs a case insensitive search" do
+      user1 = create_user(display_name: "Alice Smith")
+      user2 = create_user(display_name: "Bob Johnson")
+      user3 = create_user(display_name: "Charlie Brown")
+
+      results = Audiences::ExternalUser.search("john")
+
+      expect(results).to contain_exactly(user2)
+      expect(results).not_to include(user1, user3)
+    end
+  end
+
   describe ".matching" do
     it "must be a member of any group within each type" do
       user1, user2, user3, user4 = create_users(4)

@@ -12,7 +12,7 @@ module Audiences
     validates :scim_id, presence: true
 
     scope :search, ->(display_name) do
-      where("display_name LIKE ?", "%#{display_name}%")
+      where(arel_table[:display_name].matches("%#{display_name}%"))
     end
 
     def as_json(...)

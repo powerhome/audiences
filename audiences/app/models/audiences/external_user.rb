@@ -16,7 +16,7 @@ module Audiences
     end
 
     scope :search, ->(display_name) do
-      where("display_name LIKE ?", "%#{display_name}%")
+      where(arel_table[:display_name].matches("%#{display_name}%"))
     end
 
     scope :from_scim, ->(*scim_json) do
