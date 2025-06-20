@@ -8,6 +8,10 @@ module Audiences
     has_many :criterion_groups
     has_many :groups, through: :criterion_groups
 
+    scope :relevant_to, ->(group) do
+      joins(:criterion_groups).where(criterion_groups: { group: group })
+    end
+
     # Maps an array of attribute hashes to Criterion objects.
     #
     # Each attribute hash should have a :groups key, whose value is a hash
