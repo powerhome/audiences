@@ -25,7 +25,10 @@ module Audiences
 
       def new_display_name = event_payload.params["displayName"]
 
-      def new_active = !!event_payload.params["active"]
+      def new_active
+        active = event_payload.params.dig("urn:ietf:params:scim:schemas:extension:authservice:2.0:Group", "active")
+        active.nil? || active
+      end
 
       def group
         @group ||= Audiences::Group.unscoped
