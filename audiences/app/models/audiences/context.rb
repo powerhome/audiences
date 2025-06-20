@@ -13,6 +13,10 @@ module Audiences
                         autosave: true,
                         dependent: :destroy
 
+    scope :relevant_to, ->(group) do
+      joins(:criteria).merge(Criterion.relevant_to(group))
+    end
+
     before_save if: :match_all do
       self.criteria = []
       self.extra_users = []

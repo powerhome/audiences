@@ -29,8 +29,10 @@ module Audiences
     #
     # @param context [Audiences::Context] updated context
     #
-    def publish(context)
-      subscriptions[context.owner.class]&.call(context)
+    def publish(*contexts)
+      contexts.each do |context|
+        subscriptions[context.owner.class]&.call(context)
+      end
     end
   end
 end
