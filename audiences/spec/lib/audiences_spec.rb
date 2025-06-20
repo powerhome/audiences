@@ -21,29 +21,31 @@ RSpec.describe Audiences do
     end
 
     it "updates group criterion" do
+      group1, group2, group3, group4, group5, group6, group7, group8 = create_groups(8)
+
       updated_context = Audiences.update(
         token,
         criteria: [
-          { groups: { Departments: [{ id: 3 }, { id: 4 }] } },
+          { groups: { Departments: [{ id: group1.scim_id }, { id: group2.scim_id }] } },
         ]
       )
 
       expect(updated_context.criteria.size).to eql(1)
-      expect(updated_context.criteria.first.groups).to match({ "Departments" => [{ "id" => 3 }, { "id" => 4 }] })
+      expect(updated_context.criteria.first.groups).to match_array [group1, group2]
 
       updated_context = Audiences.update(
         token,
         criteria: [
-          { groups: { Departments: [{ id: 1 }, { id: 2 }], Territories: [{ id: 3 }, { id: 4 }] } },
-          { groups: { Branches: [{ id: 5 }, { id: 6 }], Titles: [{ id: 7 }, { id: 8 }] } },
+          { groups: { Departments: [{ id: group1.scim_id }, { id: group2.scim_id }],
+                      Territories: [{ id: group3.scim_id }, { id: group4.scim_id }] } },
+          { groups: { Branches: [{ id: group5.scim_id }, { id: group6.scim_id }],
+                      Titles: [{ id: group7.scim_id }, { id: group8.scim_id }] } },
         ]
       )
 
       expect(updated_context.criteria.size).to eql(2)
-      expect(updated_context.criteria.first.groups).to match({ "Departments" => [{ "id" => 1 }, { "id" => 2 }],
-                                                               "Territories" => [{ "id" => 3 }, { "id" => 4 }] })
-      expect(updated_context.criteria.last.groups).to match({ "Branches" => [{ "id" => 5 }, { "id" => 6 }],
-                                                              "Titles" => [{ "id" => 7 }, { "id" => 8 }] })
+      expect(updated_context.criteria.first.groups).to match_array [group1, group2, group3, group4]
+      expect(updated_context.criteria.last.groups).to match_array [group5, group6, group7, group8]
     end
   end
 end

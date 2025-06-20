@@ -9,16 +9,18 @@ RSpec.describe Audiences::Criterion do
 
   describe ".map([])" do
     it "builds contexts with the given " do
+      group1, group2, group3, _group4 = create_groups(4)
+
       criteria = Audiences::Criterion.map(
         [
-          { groups: { Departments: [{ id: 1 }] } },
-          { groups: { Territories: [{ id: 3 }] } },
+          { groups: { Departments: [{ id: group1.scim_id }] } },
+          { groups: { Territories: [{ id: group2.scim_id }], Departments: [{ id: group3.scim_id }] } },
         ]
       )
 
       expect(criteria.size).to eql 2
-      expect(criteria.first.groups).to match({ "Departments" => [{ "id" => 1 }] })
-      expect(criteria.last.groups).to match({ "Territories" => [{ "id" => 3 }] })
+      expect(criteria.first.groups).to match_array [group1]
+      expect(criteria.last.groups).to match_array [group2, group3]
     end
   end
 

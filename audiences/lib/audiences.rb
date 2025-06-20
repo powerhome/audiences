@@ -19,7 +19,7 @@ module_function
   # Params might contain:
   #
   # match_all: Boolean
-  # criteria: Array<{ <group_type>: Array<Integer> }>
+  # criteria: { groups: Array<{ <group_type>: Array<{ id: Integer }> }> }
   #
   # @param token [String] a signed token (see #sign)
   # @param params [Hash] the updated params
@@ -30,7 +30,7 @@ module_function
       context.update!(
         match_all: match_all,
         extra_users: ::Audiences::ExternalUser.from_scim(*extra_users).map(&:as_json),
-        criteria: ::Audiences::Criterion.map(criteria)
+        criteria: ::Audiences::Criterion.map(criteria.map(&:deep_symbolize_keys))
       )
     end
   end
