@@ -19,8 +19,24 @@ module Audiences
                                         user_id: data["externalId"], data: data, **attrs)
       end
 
+      def create_example_owner
+        ExampleOwner.create
+      end
+
+      def create_context(owner: create_example_owner, **attrs)
+        Audiences::Context.create(owner: owner, **attrs)
+      end
+
+      def create_criterion(context: create_context, **attrs)
+        context.criteria.create(**attrs)
+      end
+
       def create_users(number, **attrs)
         Array.new(number) { create_user(**attrs) }
+      end
+
+      def create_groups(number, **attrs)
+        Array.new(number) { create_group(**attrs) }
       end
     end
   end

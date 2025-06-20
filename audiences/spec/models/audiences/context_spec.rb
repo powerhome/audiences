@@ -35,7 +35,7 @@ RSpec.describe Audiences::Context do
 
       expect(owner.members_external_users).to match_array extra_users
 
-      owner.members_context.criteria.create!(groups: { "Groups" => [group2] }.as_json)
+      owner.members_context.criteria.create!(groups: [group2])
 
       expect(owner.members_external_users).to match_array extra_users + group_users
     end
@@ -53,7 +53,7 @@ RSpec.describe Audiences::Context do
 
       expect(owner.members_external_users).to match_array [active_extra_user]
 
-      owner.members_context.criteria.create!(groups: { "Groups" => [group2] }.as_json)
+      owner.members_context.criteria.create!(groups: [group2])
 
       expect(owner.members_external_users).to match_array [active_extra_user, active_group_user]
     end
@@ -62,7 +62,7 @@ RSpec.describe Audiences::Context do
       extra_users = create_users(3)
 
       owner.save
-      owner.members_context.update!(extra_users: extra_users.map(&:as_json), match_all: false)
+      owner.members_context.update!(extra_users: extra_users, match_all: false)
 
       expect(owner.members_external_users).to match_array extra_users
     end

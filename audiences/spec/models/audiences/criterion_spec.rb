@@ -9,7 +9,7 @@ RSpec.describe Audiences::Criterion do
 
   describe "validations" do
     it "does not allow criterion groups with empty groups" do
-      criterion = Audiences::Criterion.new(groups: {})
+      criterion = Audiences::Criterion.new(groups: [])
       expect(criterion).not_to be_valid
       expect(criterion.errors[:groups]).to include("can't be blank")
     end
@@ -42,7 +42,7 @@ RSpec.describe Audiences::Criterion do
       )
 
       expect(criteria.size).to eql 1
-      expect(criteria.first.groups).to match({ "Departments" => [department.as_json] })
+      expect(criteria.first.groups).to match_array([department])
     end
   end
 
