@@ -17,6 +17,12 @@ module Audiences
       end
     end
 
+    def as_json(...)
+      groups = self.groups.group_by(&:resource_type)
+
+      { id: id, count: count, groups: groups }.as_json(...)
+    end
+
     def users
       @users ||= Audiences::ExternalUser.matching(self)
     end
