@@ -91,8 +91,8 @@ RSpec.describe Audiences::ContextsController do
                                                     "id" => anything,
                                                     "count" => 2,
                                                     "groups" => {
-                                                      "Departments" => [{ "id" => department.scim_id }],
-                                                      "Territories" => [{ "id" => territory.scim_id }],
+                                                      "Departments" => [hash_including("id" => department.scim_id)],
+                                                      "Territories" => [hash_including("id" => territory.scim_id)],
                                                     },
                                                   },
                                                 ],
@@ -129,8 +129,7 @@ RSpec.describe Audiences::ContextsController do
       user = create_user
       group = create_group(external_users: [user])
 
-      criterion = example_context.criteria.create(groups: { "Groups" => [{ "id" => group.scim_id,
-                                                                           "externalId" => group.external_id }] })
+      criterion = example_context.criteria.create(groups: [group])
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
 
