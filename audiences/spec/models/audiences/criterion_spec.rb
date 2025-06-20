@@ -28,8 +28,8 @@ RSpec.describe Audiences::Criterion do
       )
 
       expect(criteria.size).to eql 2
-      expect(criteria.first.groups).to match({ "Departments" => [department.as_json] })
-      expect(criteria.last.groups).to match({ "Territories" => [territory.as_json] })
+      expect(criteria.first.groups).to match_array [department]
+      expect(criteria.last.groups).to match_array [territory]
     end
 
     it "allows setting creating groups not matching the default group scope" do
