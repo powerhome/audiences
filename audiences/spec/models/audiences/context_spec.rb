@@ -5,19 +5,18 @@ require "rails_helper"
 RSpec.describe Audiences::Context do
   let(:owner) { ExampleOwner.new(name: "Example") }
 
-  describe "#refresh_users!" do
+  describe "#save" do
     it "publishes a notification about the context update" do
       expect do |blk|
         Audiences::Notifications.subscribe ExampleOwner, &blk
         owner.save!
-        owner.members_context.refresh_users!
       end.to yield_with_args(owner.members_context)
     end
   end
 
   describe "#match_all" do
     it "clears other criteria when set to match all" do
-      owner.members_context.criteria.build(groups: { Departments: [1, 3, 4] })
+      owner.members_context.criteria.build(groups: create_groups(1))
       owner.members_context.match_all = true
 
       owner.save!
@@ -43,10 +42,7 @@ RSpec.describe Audiences::Context do
     it "is the total of all member users" do
       owner.save!
 
-      owner.members_context.users.create([
-                                           { user_id: 1 },
-                                           { user_id: 2 },
-                                         ])
+      owner.members_context.update(extra_users: create_users(2).map(&:data))
 
       expect(owner.members_context.count).to eql 2
     end

@@ -2,19 +2,52 @@
 
 module Audiences
   class Criterion < ApplicationRecord
-    include ::Audiences::MembershipGroup
-
     belongs_to :context, class_name: "Audiences::Context"
+    validates :groups, presence: true
 
+    has_many :criterion_groups
+    has_many :groups, through: :criterion_groups
+
+    scope :relevant_to, ->(group) do
+      joins(:criterion_groups).where(criterion_groups: { group: group })
+    end
+
+    # Maps an array of attribute hashes to Criterion objects.
+    #
+    # Each attribute hash should have a :groups key, whose value is a hash
+    # mapping resource types (e.g., "Departments", "Territories") to arrays of group hashes,
+    # each containing an :id key (the SCIM group ID).
+    #
+    # Example input:
+    #
+    #   [
+    #     { groups: { Departments: [{ id: "1" }] } },
+    #     { groups: { Territories: [{ id: "2" }], Departments: [{ id: "3" }] } },
+    #   ]
+    #
+    # Returns an array of new Criterion objects, each initialized with the corresponding group criterion.
+    #
+    # @param [Array<Hash>] criteria Array of attribute hashes describing groups
+    # @return [Array<Criterion>] Array of Criterion objects
     def self.map(criteria)
-      Array(criteria).map { new(_1) }
+      Array(criteria).map do |attrs|
+        groups = attrs[:groups].values.flat_map do |scim_groups|
+          scim_groups.pluck(:id)
+        end
+        new(groups: Audiences::Group.where(scim_id: groups))
+      end
     end
 
-    def refresh_users!
-      update!(
-        users: CriterionUsers.new(groups || {}).to_a,
-        refreshed_at: Time.current
-      )
+    def as_json(...)
+      groups = self.groups.group_by(&:resource_type)
+
+      { id: id, count: count, groups: groups }.as_json(...)
     end
+
+    def users
+      @users ||= Audiences::ExternalUser.matching(self)
+    end
+
+    delegate :count, to: :users
   end
 end

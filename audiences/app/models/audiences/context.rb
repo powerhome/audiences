@@ -7,22 +7,49 @@ module Audiences
   #
   class Context < ApplicationRecord
     include Locating
-    include ::Audiences::MembershipGroup
 
     belongs_to :owner, polymorphic: true
     has_many :criteria, class_name: "Audiences::Criterion",
                         autosave: true,
                         dependent: :destroy
 
+    scope :relevant_to, ->(group) do
+      joins(:criteria).merge(Criterion.relevant_to(group))
+    end
+
     before_save if: :match_all do
       self.criteria = []
       self.extra_users = []
     end
 
-    def refresh_users!
-      criteria.each(&:refresh_users!)
-      update!(users: ContextUsers.new(self).to_a)
+    after_commit :notify_subscriptions
+
+    def users
+      @users ||= matching_external_users
+    end
+
+    delegate :count, to: :users
+
+    def as_json(...)
+      {
+        match_all: match_all,
+        count: count,
+        extra_users: extra_users,
+        criteria: criteria,
+      }.as_json(...)
+    end
+
+  private
+
+    def notify_subscriptions
       Notifications.publish(self)
+    end
+
+    def matching_external_users
+      return ExternalUser.all if match_all
+
+      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      ExternalUser.from_scim(*extra_users).or(criteria_scope)
     end
   end
 end

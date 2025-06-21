@@ -19,7 +19,7 @@ module_function
   # Params might contain:
   #
   # match_all: Boolean
-  # criteria: Array<{ <group_type>: Array<Integer> }>
+  # criteria: { groups: Array<{ <group_type>: Array<{ id: Integer }> }> }
   #
   # @param token [String] a signed token (see #sign)
   # @param params [Hash] the updated params
@@ -29,13 +29,11 @@ module_function
     Audiences::Context.load(key) do |context|
       context.update!(
         match_all: match_all,
-        criteria: ::Audiences::Criterion.map(criteria),
-        extra_users: ::Audiences::ExternalUser.fetch(extra_users.pluck("externalId"))
+        extra_users: ::Audiences::ExternalUser.from_scim(*extra_users).map(&:as_json),
+        criteria: ::Audiences::Criterion.map(criteria.map(&:deep_symbolize_keys))
       )
-      context.refresh_users!
     end
   end
 end
 
 require "audiences/configuration"
-require "audiences/railtie"

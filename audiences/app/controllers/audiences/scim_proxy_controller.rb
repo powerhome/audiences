@@ -3,23 +3,20 @@
 module Audiences
   class ScimProxyController < ApplicationController
     def get
-      resources = Audiences::Scim.resource(params[:scim_path].to_sym)
-                                 .query(
-                                   filter: filter_param,
-                                   startIndex: params[:startIndex], count: params[:count],
-                                   attributes: Audiences.exposed_user_attributes.join(",")
-                                 )
+      resources = scope.search(params[:query])
+                       .offset(params[:startIndex])
+                       .limit(params[:count])
 
-      render json: resources, except: %w[schemas meta]
+      render json: resources
     end
 
   private
 
-    def filter_param
-      if params[:query]
-        "displayName co \"#{params[:query]}\""
+    def scope
+      if params[:scim_path].eql?("Users")
+        Audiences::ExternalUser
       else
-        params[:filter]
+        Audiences::Group.where(resource_type: params[:scim_path])
       end
     end
   end

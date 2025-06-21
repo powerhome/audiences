@@ -3,11 +3,11 @@
 module Audiences
   class ContextsController < ApplicationController
     def show
-      render_context Audiences::Context.load(params.require(:key))
+      render json: Audiences::Context.load(params.require(:key))
     end
 
     def update
-      render_context Audiences.update(params.require(:key), **context_params)
+      render json: Audiences.update(params.require(:key), **context_params)
     end
 
     def users
@@ -17,7 +17,7 @@ module Audiences
                                limit: params[:limit],
                                offset: params[:offset])
 
-      render json: search, only: Audiences.exposed_user_attributes
+      render json: search
     end
 
   private
@@ -32,22 +32,11 @@ module Audiences
       @current_criterion ||= current_context.criteria.find(params[:criterion_id])
     end
 
-    def render_context(context)
-      json_setting = {
-        only: %i[match_all],
-        methods: %i[count],
-        include: { criteria: { only: %i[id groups], methods: %i[count] } },
-      }
-      extra_users = context.extra_users.as_json(only: Audiences.exposed_user_attributes)
-
-      render json: { extra_users: extra_users, **context.as_json(json_setting) }
-    end
-
     def context_params
       params.permit(
         :match_all,
         criteria: [groups: {}],
-        extra_users: %i[externalId]
+        extra_users: %i[id]
       ).to_h.symbolize_keys
     end
   end
