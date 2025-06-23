@@ -5,7 +5,7 @@ module Audiences
     belongs_to :context, class_name: "Audiences::Context"
     validates :groups, presence: true
 
-    has_many :criterion_groups
+    has_many :criterion_groups, autosave: true, dependent: :destroy
     has_many :groups, through: :criterion_groups
 
     scope :relevant_to, ->(group) do
