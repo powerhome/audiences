@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MoveGroupCriterionToCriterionGroups < ActiveRecord::Migration[6.1]
   def up
     Audiences::Criterion.find_each do |criterion|
