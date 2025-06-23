@@ -3,6 +3,11 @@
 require "rails_helper"
 
 RSpec.describe Audiences::ExternalUser, :aggregate_failures do
+  describe "associations" do
+    it { is_expected.to have_many(:group_memberships).dependent(:destroy) }
+    it { is_expected.to have_many(:groups).through(:group_memberships).dependent(:destroy) }
+  end
+
   describe ".search(query)" do
     it "returns users matching the query" do
       user1 = create_user(display_name: "Alice Smith")
