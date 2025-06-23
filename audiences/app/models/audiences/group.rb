@@ -10,5 +10,13 @@ module Audiences
     validates :display_name, presence: true
     validates :external_id, presence: true
     validates :scim_id, presence: true
+
+    scope :search, ->(display_name) do
+      where(arel_table[:display_name].matches("%#{display_name}%"))
+    end
+
+    def as_json(...)
+      { "id" => scim_id, "externalId" => external_id, "displayName" => display_name }.as_json(...)
+    end
   end
 end

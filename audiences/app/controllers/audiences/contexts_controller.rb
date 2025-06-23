@@ -17,7 +17,7 @@ module Audiences
                                limit: params[:limit],
                                offset: params[:offset])
 
-      render json: search, only: Audiences.exposed_user_attributes
+      render json: search
     end
 
   private
@@ -36,18 +36,19 @@ module Audiences
       json_setting = {
         only: %i[match_all],
         methods: %i[count],
-        include: { criteria: { only: %i[id groups], methods: %i[count] } },
+        include: {
+          criteria: { only: %i[id groups], methods: %i[count] },
+        },
       }
-      extra_users = context.extra_users.as_json(only: Audiences.exposed_user_attributes)
 
-      render json: { extra_users: extra_users, **context.as_json(json_setting) }
+      render json: { extra_users: context.extra_users, **context.as_json(json_setting) }
     end
 
     def context_params
       params.permit(
         :match_all,
         criteria: [groups: {}],
-        extra_users: %i[externalId]
+        extra_users: %i[id]
       ).to_h.symbolize_keys
     end
   end

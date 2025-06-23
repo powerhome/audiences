@@ -32,53 +32,31 @@ RSpec.describe Audiences::ContextsController do
     end
 
     it "updates the audience context to match all" do
-      stub_request(:get, "http://example.com/scim/v2/Users")
-        .with(query: {
-                attributes: "id,externalId,displayName,active,photos.type,photos.value",
-                filter: "active eq true",
-              })
-        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "externalId" => 123,
-                                                          "id" => 321 }] }.to_json)
+      create_users 5
 
       put :update, params: { key: example_context.signed_key, match_all: true }
 
       example_context.reload
 
       expect(example_context).to be_match_all
-      expect(example_context.memberships.count).to eq(1)
+      expect(example_context.users.count).to eq(5)
     end
 
     it "updates the context extra users" do
-      stub_request(:get, "http://example.com/scim/v2/Users")
-        .with(query: {
-                attributes: "id,externalId,displayName,active,photos.type,photos.value",
-                count: 100,
-                filter: "(active eq true) and (externalId eq 123)",
-              })
-        .to_return(status: 200, body: { "Resources" => [{ "displayName" => "John Doe", "confidential" => "data",
-                                                          "externalId" => 123, "id" => 321 }] }.to_json)
+      user = create_user
 
       put :update, params: {
         key: example_context.signed_key,
-        extra_users: [{ externalId: 123, id: 321, displayName: "John Doe", photos: [{ value: "http://example.com" }] }],
+        extra_users: [user.data],
       }
 
       example_context.reload
 
-      expect(example_context.extra_users).to eql [{
-        "id" => 321,
-        "externalId" => 123,
-        "displayName" => "John Doe",
-        "confidential" => "data",
-      }]
+      expect(example_context.extra_users).to eql [user.data]
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 1,
-                                              "extra_users" => [{
-                                                "id" => 321,
-                                                "externalId" => 123,
-                                                "displayName" => "John Doe",
-                                              }],
+                                              "extra_users" => [user.data],
                                               "criteria" => [],
                                             })
     end
@@ -91,20 +69,16 @@ RSpec.describe Audiences::ContextsController do
       end
 
       it "allows updating the group criteria" do
-        attrs = "id,externalId,displayName,active,photos.type,photos.value"
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                           "&filter=(active eq true) and (groups.value eq 123)")
-          .to_return(status: 200, body: users_response.to_json, headers: {})
-        stub_request(:get, "http://example.com/scim/v2/Users?attributes=#{attrs}" \
-                           "&filter=(active eq true) and (groups.value eq 321)")
-          .to_return(status: 200, body: users_response.to_json, headers: {})
+        users = create_users(2)
+        department = create_group(resource_type: "Departments", external_users: users)
+        territory = create_group(resource_type: "Territories", external_users: users)
 
         put :update, params: {
           key: example_context.signed_key,
           match_all: false,
           criteria: [
-            { groups: { Departments: [{ id: 123, displayName: "Finance" }],
-                        Territories: [{ id: 321, displayName: "Philadelphia" }] } },
+            { groups: { Departments: [{ id: department.scim_id }],
+                        Territories: [{ id: territory.scim_id }] } },
           ],
         }
 
@@ -117,9 +91,8 @@ RSpec.describe Audiences::ContextsController do
                                                     "id" => anything,
                                                     "count" => 2,
                                                     "groups" => {
-                                                      "Departments" => [{ "id" => "123", "displayName" => "Finance" }],
-                                                      "Territories" => [{ "id" => "321",
-                                                                          "displayName" => "Philadelphia" }],
+                                                      "Departments" => [{ "id" => department.scim_id }],
+                                                      "Territories" => [{ "id" => territory.scim_id }],
                                                     },
                                                   },
                                                 ],
@@ -134,55 +107,36 @@ RSpec.describe Audiences::ContextsController do
     end
 
     it "is the list of users from an audience context" do
-      example_owner.members_context.users.create([
-                                                   { user_id: 123, scim_id: 123,
-                                                     data: { "externalId" => 123, "id" => 123 } },
-                                                   { user_id: 456, scim_id: 456,
-                                                     data: { "externalId" => 456, "id" => 456 } },
-                                                   { user_id: 789, scim_id: 789,
-                                                     data: { "externalId" => 789, "id" => 789 } },
-                                                 ])
+      users = create_users 3
+
+      example_context.update(extra_users: users.map(&:data))
 
       get :users, params: { key: example_context.signed_key }
 
       expect(response.parsed_body).to match({
                                               "count" => 3,
-                                              "users" => [
-                                                { "externalId" => 123, "id" => 123 },
-                                                { "externalId" => 456, "id" => 456 },
-                                                { "externalId" => 789, "id" => 789 },
-                                              ],
+                                              "users" => match_array(users.map(&:data)),
                                             })
     end
   end
 
   describe "GET /audiences/:context_key/users/:criterion_id" do
-    let(:criterion) { example_owner.members_context.criteria.create! }
-
     it_behaves_like "authenticated endpoint" do
-      subject { get :users, params: { key: example_context.signed_key, criterion_id: criterion.id } }
+      subject { get :users, params: { key: example_context.signed_key, criterion_id: 123 } }
     end
 
     it "is the list of users from an audience context's criterion" do
-      criterion.users.create!([
-                                { scim_id: 1, user_id: 1,
-                                  data: { "id" => 1, "externalId" => 1, "displayName" => "John" } },
-                                { scim_id: 2, user_id: 2,
-                                  data: { "id" => 2, "externalId" => 2, "displayName" => "Jose" } },
-                                { scim_id: 3, user_id: 3,
-                                  data: { "id" => 3, "externalId" => 3, "displayName" => "Nelson",
-                                          "confidential" => "data" } },
-                              ])
+      user = create_user
+      group = create_group(external_users: [user])
+
+      criterion = example_context.criteria.create(groups: { "Groups" => [{ "id" => group.scim_id,
+                                                                           "externalId" => group.external_id }] })
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
 
       expect(response.parsed_body).to match_array({
-                                                    "count" => 3,
-                                                    "users" => [
-                                                      { "id" => 1, "externalId" => 1, "displayName" => "John" },
-                                                      { "id" => 2, "externalId" => 2, "displayName" => "Jose" },
-                                                      { "id" => 3, "externalId" => 3, "displayName" => "Nelson" },
-                                                    ],
+                                                    "count" => 1,
+                                                    "users" => [user.data],
                                                   })
     end
   end

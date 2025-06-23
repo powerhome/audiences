@@ -67,9 +67,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
   it "creates user with group memberships" do
     new_groups = [
-      create_group("group-123"),
-      create_group("group-456"),
-      create_group("group-789"),
+      create_group(scim_id: "group-123"),
+      create_group(scim_id: "group-456"),
+      create_group(scim_id: "group-789"),
     ]
     params = {
       "id" => "internal-id-123",
@@ -92,10 +92,5 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(user.user_id).to eql "external-id-123"
     expect(user.groups).to match_array new_groups
     expect(user.data).to eql params
-  end
-
-  def create_group(scim_id)
-    Audiences::Group.create!(scim_id: scim_id, display_name: "Group #{scim_id}", external_id: scim_id,
-                             resource_type: "Groups")
   end
 end
