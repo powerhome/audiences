@@ -3,7 +3,7 @@
 module Audiences
   class ExternalUser < ApplicationRecord
     has_many :group_memberships, dependent: :destroy
-    has_many :groups, through: :group_memberships
+    has_many :groups, through: :group_memberships, dependent: :destroy
 
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
