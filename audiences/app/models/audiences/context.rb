@@ -51,10 +51,15 @@ module Audiences
     end
 
     def matching_external_users
-      return ExternalUser.all if match_all
+      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
+    end
 
-      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
-      ExternalUser.where(id: extra_users.select(:id)).or(criteria_scope)
+    def matching_extra_users
+      ExternalUser.where(id: extra_users.select(:id))
+    end
+
+    def matching_criteria
+      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
     end
   end
 end

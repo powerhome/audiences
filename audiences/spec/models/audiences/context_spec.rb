@@ -31,7 +31,7 @@ RSpec.describe Audiences::Context do
       extra_users = create_users(2)
 
       owner.save
-      owner.members_context.update!(extra_users: extra_users.map(&:as_json))
+      owner.members_context.update!(extra_users: extra_users)
 
       expect(owner.members_external_users).to match_array extra_users
 
@@ -49,7 +49,7 @@ RSpec.describe Audiences::Context do
       inactive_extra_user = create_user(active: false)
 
       owner.save
-      owner.members_context.update!(extra_users: [active_extra_user, inactive_extra_user].map(&:as_json))
+      owner.members_context.update!(extra_users: [active_extra_user, inactive_extra_user])
 
       expect(owner.members_external_users).to match_array [active_extra_user]
 
@@ -65,6 +65,42 @@ RSpec.describe Audiences::Context do
       owner.members_context.update!(extra_users: extra_users, match_all: false)
 
       expect(owner.members_external_users).to match_array extra_users
+    end
+  end
+
+  describe "#users" do
+    def matching_external_users
+      return ExternalUser.all if match_all
+
+      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      ExternalUser.merge(extra_users).or(criteria_scope)
+    end
+
+    it "is all users in the database when match_all is true" do
+      users = create_users(4)
+      context = create_context(match_all: true)
+
+      expect(context.users).to match_array users
+    end
+
+    it "is the union of extra users and criteria matches when match_all is false" do
+      group1, group2, _group3 = create_groups(3)
+      group_users = create_users(2, groups: [group1, group2])
+      extra_users = create_users(2)
+      context = create_context(extra_users: extra_users)
+
+      expect(context.users).to match_array extra_users
+
+      create_criterion(context: context, groups: [group2])
+
+      expect(context.users).to match_array extra_users + group_users
+    end
+
+    it "is only the extra users when no criteria are set and match_all is false" do
+      extra_users = create_users(3)
+      context = create_context(extra_users: extra_users)
+
+      expect(context.users).to match_array extra_users
     end
   end
 
