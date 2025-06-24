@@ -13,6 +13,11 @@ module Audiences
                         autosave: true,
                         dependent: :destroy
 
+    has_many :context_extra_users, class_name: "Audiences::ContextExtraUser"
+    has_many :extra_users, class_name: "Audiences::ExternalUser",
+                           through: :context_extra_users,
+                           source: :external_user
+
     scope :relevant_to, ->(group) do
       joins(:criteria).merge(Criterion.relevant_to(group))
     end
@@ -49,7 +54,7 @@ module Audiences
       return ExternalUser.all if match_all
 
       criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
-      ExternalUser.from_scim(*extra_users).or(criteria_scope)
+      ExternalUser.where(id: extra_users.select(:id)).or(criteria_scope)
     end
   end
 end
