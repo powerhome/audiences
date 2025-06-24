@@ -17,7 +17,7 @@ RSpec.describe Audiences do
       user1, user2 = create_users(2)
 
       updated_context = Audiences.update(token, extra_users: [{ "id" => user1.scim_id }, { "id" => user2.scim_id }])
-      expect(updated_context.extra_users).to eql([user1.data, user2.data])
+      expect(updated_context.extra_users).to match_array([user1, user2])
     end
 
     it "updates group criterion" do

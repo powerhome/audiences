@@ -70,21 +70,24 @@ RSpec.describe Audiences::Context do
 
   describe "#match_all" do
     it "clears other criteria when set to match all" do
-      owner.members_context.criteria.build(groups: create_groups(1))
-      owner.members_context.match_all = true
+      context = create_context(extra_users: create_users(2))
+      create_criterion(context: context, groups: create_groups(1))
 
-      owner.members_context.save!
+      expect(context.criteria.size).to eql 1
 
-      expect(owner.members_context.criteria).to be_empty
+      context.update!(match_all: true)
+
+      expect(context.criteria).to be_empty
     end
 
     it "clears extra users when set to match all" do
-      owner.members_context.extra_users = [{ "id" => 123 }]
-      owner.members_context.match_all = true
+      context = create_context(extra_users: create_users(2))
 
-      owner.members_context.save!
+      expect(context.extra_users.size).to eql 2
 
-      expect(owner.members_context.extra_users).to be_empty
+      context.update!(match_all: true)
+
+      expect(context.extra_users).to be_empty
     end
   end
 
@@ -94,7 +97,9 @@ RSpec.describe Audiences::Context do
 
   describe "#count" do
     it "is the total of all member users" do
-      owner.members_context.update(extra_users: create_users(2).map(&:data))
+      owner.save!
+
+      owner.members_context.update(extra_users: create_users(2))
 
       expect(owner.members_context.count).to eql 2
     end

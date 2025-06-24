@@ -20,7 +20,7 @@ RSpec.describe Audiences::ContextsController do
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 0,
-                                              "extra_users" => nil,
+                                              "extra_users" => [],
                                               "criteria" => [],
                                             })
     end
@@ -52,7 +52,7 @@ RSpec.describe Audiences::ContextsController do
 
       example_context.reload
 
-      expect(example_context.extra_users).to eql [user.data]
+      expect(example_context.extra_users).to match_array [user]
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 1,
@@ -71,7 +71,7 @@ RSpec.describe Audiences::ContextsController do
 
       example_context.reload
 
-      expect(example_context.extra_users).to eql [user.data]
+      expect(example_context.extra_users).to match_array [user]
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 1,
@@ -159,7 +159,7 @@ RSpec.describe Audiences::ContextsController do
     it "is the list of users from an audience context" do
       users = create_users 3
 
-      example_context.update(extra_users: users.map(&:data))
+      example_context.update(extra_users: users)
 
       get :users, params: { key: example_context.signed_key }
 
