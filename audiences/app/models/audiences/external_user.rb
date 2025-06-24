@@ -20,7 +20,8 @@ module Audiences
     end
 
     scope :from_scim, ->(*scim_json) do
-      where(scim_id: scim_json&.pluck("id"))
+      where(scim_id: scim_json.pluck("id").compact)
+        .or(where(user_id: scim_json.pluck("externalId").compact))
     end
 
     scope :matching, ->(criterion) do
