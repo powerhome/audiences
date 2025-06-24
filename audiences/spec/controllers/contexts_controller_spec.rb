@@ -110,9 +110,40 @@ RSpec.describe Audiences::ContextsController do
                                                     "id" => anything,
                                                     "count" => 2,
                                                     "groups" => {
-                                                      "Departments" => [{ "id" => department.scim_id }],
-                                                      "Territories" => [{ "id" => territory.scim_id }],
-                                                    },
+                                                      "Departments" => [department],
+                                                      "Territories" => [territory],
+                                                    }.as_json,
+                                                  },
+                                                ],
+                                              })
+      end
+
+      it "allows updating the group criteria with group external ids" do
+        users = create_users(2)
+        department = create_group(resource_type: "Departments", external_users: users)
+        territory = create_group(resource_type: "Territories", external_users: users)
+
+        put :update, params: {
+          key: example_context.signed_key,
+          match_all: false,
+          criteria: [
+            { groups: { Departments: [{ externalId: department.external_id }],
+                        Territories: [{ externalId: territory.external_id }] } },
+          ],
+        }
+
+        expect(response.parsed_body).to match({
+                                                "match_all" => false,
+                                                "extra_users" => [],
+                                                "count" => 2,
+                                                "criteria" => [
+                                                  {
+                                                    "id" => anything,
+                                                    "count" => 2,
+                                                    "groups" => {
+                                                      "Departments" => [department],
+                                                      "Territories" => [territory],
+                                                    }.as_json,
                                                   },
                                                 ],
                                               })

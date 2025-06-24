@@ -21,29 +21,37 @@ RSpec.describe Audiences do
     end
 
     it "updates group criterion" do
+      department1 = create_group(resource_type: "Departments")
+      department2 = create_group(resource_type: "Departments")
+      territory1 = create_group(resource_type: "Territories")
+      territory2 = create_group(resource_type: "Territories")
+      title1 = create_group(resource_type: "Titles")
+      title2 = create_group(resource_type: "Titles")
+
       updated_context = Audiences.update(
         token,
         criteria: [
-          { groups: { Departments: [{ id: 3 }, { id: 4 }] } },
+          { "groups" => { "Departments" => [{ "id" => department1.scim_id }, { "id" => department2.scim_id }] } },
         ]
       )
 
       expect(updated_context.criteria.size).to eql(1)
-      expect(updated_context.criteria.first.groups).to match({ "Departments" => [{ "id" => 3 }, { "id" => 4 }] })
+      expect(updated_context.criteria.first.groups).to match({ "Departments" => [department1.as_json,
+                                                                                 department2.as_json] })
 
       updated_context = Audiences.update(
         token,
         criteria: [
-          { groups: { Departments: [{ id: 1 }, { id: 2 }], Territories: [{ id: 3 }, { id: 4 }] } },
-          { groups: { Branches: [{ id: 5 }, { id: 6 }], Titles: [{ id: 7 }, { id: 8 }] } },
+          { "groups" => { "Departments" => [{ "id" => department1.scim_id }, { "id" => department2.scim_id }],
+                          "Territories" => [{ "id" => territory1.scim_id }, { "id" => territory2.scim_id }] } },
+          { "groups" => { "Titles" => [{ "id" => title1.scim_id }, { "id" => title2.scim_id }] } },
         ]
       )
 
       expect(updated_context.criteria.size).to eql(2)
-      expect(updated_context.criteria.first.groups).to match({ "Departments" => [{ "id" => 1 }, { "id" => 2 }],
-                                                               "Territories" => [{ "id" => 3 }, { "id" => 4 }] })
-      expect(updated_context.criteria.last.groups).to match({ "Branches" => [{ "id" => 5 }, { "id" => 6 }],
-                                                              "Titles" => [{ "id" => 7 }, { "id" => 8 }] })
+      expect(updated_context.criteria.first.groups).to match({ "Departments" => [department1, department2].as_json,
+                                                               "Territories" => [territory1, territory2].as_json })
+      expect(updated_context.criteria.last.groups).to match({ "Titles" => [title1, title2].as_json })
     end
   end
 end

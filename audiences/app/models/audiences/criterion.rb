@@ -6,7 +6,12 @@ module Audiences
     validates :groups, presence: true
 
     def self.map(criteria)
-      Array(criteria).map { new(_1) }
+      Array(criteria).map do |attrs|
+        attrs["groups"] = attrs["groups"]&.to_h do |resource_type, groups|
+          [resource_type, Audiences::Group.from_scim(resource_type, *groups).as_json]
+        end
+        new(attrs)
+      end
     end
 
     def users
