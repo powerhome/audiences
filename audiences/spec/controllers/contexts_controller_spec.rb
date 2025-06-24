@@ -75,9 +75,9 @@ RSpec.describe Audiences::ContextsController do
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 1,
-                                              "extra_users" => [user.data],
+                                              "extra_users" => [user],
                                               "criteria" => [],
-                                            })
+                                            }.as_json)
     end
 
     context "updating a group criteria" do
@@ -165,7 +165,7 @@ RSpec.describe Audiences::ContextsController do
 
       expect(response.parsed_body).to match({
                                               "count" => 3,
-                                              "users" => match_array(users.map(&:data)),
+                                              "users" => match_array(users.map(&:as_json)),
                                             })
     end
   end
@@ -185,8 +185,8 @@ RSpec.describe Audiences::ContextsController do
 
       expect(response.parsed_body).to match_array({
                                                     "count" => 1,
-                                                    "users" => [user.data],
-                                                  })
+                                                    "users" => [user],
+                                                  }.as_json)
     end
   end
 end
