@@ -24,7 +24,9 @@ module Audiences
       end
 
       def create_context(owner: create_example_owner, **attrs)
-        Audiences::Context.create(owner: owner, **attrs)
+        owner.members_context.tap do |context|
+          context.update!(attrs)
+        end
       end
 
       def create_criterion(context: create_context, **attrs)
