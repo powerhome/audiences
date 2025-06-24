@@ -14,6 +14,42 @@ RSpec.describe Audiences::Context do
     end
   end
 
+  describe "#users" do
+    def matching_external_users
+      return ExternalUser.all if match_all
+
+      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      ExternalUser.merge(extra_users).or(criteria_scope)
+    end
+
+    it "is all users in the database when match_all is true" do
+      users = create_users(4)
+      context = create_context(match_all: true)
+
+      expect(context.users).to match_array users
+    end
+
+    it "is the union of extra users and criteria matches when match_all is false" do
+      group1, group2, _group3 = create_groups(3)
+      group_users = create_users(2, groups: [group1, group2])
+      extra_users = create_users(2)
+      context = create_context(extra_users: extra_users)
+
+      expect(context.users).to match_array extra_users
+
+      create_criterion(context: context, groups: [group2])
+
+      expect(context.users).to match_array extra_users + group_users
+    end
+
+    it "is only the extra users when no criteria are set and match_all is false" do
+      extra_users = create_users(3)
+      context = create_context(extra_users: extra_users)
+
+      expect(context.users).to match_array extra_users
+    end
+  end
+
   describe "#match_all" do
     it "clears other criteria when set to match all" do
       context = create_context(extra_users: create_users(2))

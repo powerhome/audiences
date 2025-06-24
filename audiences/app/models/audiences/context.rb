@@ -30,7 +30,7 @@ module Audiences
     after_commit :notify_subscriptions, on: :update
 
     def users
-      @users ||= matching_external_users
+      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
     end
 
     delegate :count, to: :users
@@ -50,11 +50,12 @@ module Audiences
       Notifications.publish(self)
     end
 
-    def matching_external_users
-      return ExternalUser.all if match_all
+    def matching_extra_users
+      ExternalUser.where(id: extra_users.select(:id))
+    end
 
-      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
-      ExternalUser.where(id: extra_users.select(:id)).or(criteria_scope)
+    def matching_criteria
+      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
     end
   end
 end
