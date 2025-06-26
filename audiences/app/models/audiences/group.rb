@@ -15,6 +15,11 @@ module Audiences
       where(arel_table[:display_name].matches("%#{display_name}%"))
     end
 
+    scope :from_scim, ->(resource_type, *scim_json) do
+      where(scim_id: scim_json.pluck("id"))
+        .or(where(resource_type: resource_type, external_id: scim_json.pluck("externalId")))
+    end
+
     def as_json(...)
       { "id" => scim_id, "externalId" => external_id, "displayName" => display_name }.as_json(...)
     end
