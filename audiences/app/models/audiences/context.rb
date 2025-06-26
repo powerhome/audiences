@@ -18,7 +18,7 @@ module Audiences
       self.extra_users = []
     end
 
-    after_commit :notify_subscriptions
+    after_commit :notify_subscriptions, on: :update
 
     def users
       @users ||= matching_external_users
