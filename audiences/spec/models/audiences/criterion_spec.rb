@@ -7,6 +7,19 @@ RSpec.describe Audiences::Criterion do
     it { is_expected.to belong_to(:context) }
   end
 
+  describe ".relevant_to" do
+    it "returns criteria relevant to the given group" do
+      group1, group2 = create_groups(2)
+      criterion1 = create_criterion(groups: [group1])
+      criterion2 = create_criterion(groups: [group2])
+      criterion3 = create_criterion(groups: [group1, group2])
+      create_criterion(groups: [])
+
+      expect(Audiences::Criterion.relevant_to(group1)).to match_array [criterion1, criterion3]
+      expect(Audiences::Criterion.relevant_to(group2)).to match_array [criterion2, criterion3]
+    end
+  end
+
   describe ".map([])" do
     it "builds contexts with the given " do
       department = create_group(resource_type: "Departments")
@@ -20,8 +33,8 @@ RSpec.describe Audiences::Criterion do
       )
 
       expect(criteria.size).to eql 2
-      expect(criteria.first.groups).to match({ "Departments" => [department.as_json] })
-      expect(criteria.last.groups).to match({ "Territories" => [territory.as_json] })
+      expect(criteria.first.groups).to match_array [department]
+      expect(criteria.last.groups).to match_array [territory]
     end
   end
 

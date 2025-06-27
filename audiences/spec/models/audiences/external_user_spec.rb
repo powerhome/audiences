@@ -3,6 +3,11 @@
 require "rails_helper"
 
 RSpec.describe Audiences::ExternalUser, :aggregate_failures do
+  describe "associations" do
+    it { is_expected.to have_many(:group_memberships).dependent(:destroy) }
+    it { is_expected.to have_many(:groups).through(:group_memberships).dependent(:destroy) }
+  end
+
   describe ".search(query)" do
     it "returns users matching the query" do
       user1 = create_user(display_name: "Alice Smith")
@@ -37,29 +42,11 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
       _department2 = create_group(resource_type: "Departments", external_users: [user3])
       department3 = create_group(resource_type: "Departments", external_users: [user4])
 
-      users = Audiences::ExternalUser.matching(
-        "Departments" => [{ "id" => department1.scim_id }, { "id" => department3.scim_id }],
-        "Titles" => [{ "id" => title1.scim_id }, { "id" => title2.scim_id }]
-      )
+      criterion = create_criterion(groups: [department1, department3, title1, title2])
+
+      users = Audiences::ExternalUser.matching(criterion)
 
       expect(users.pluck(:id)).to match_array [user1.id, user4.id]
-    end
-
-    it "ignores empty group types" do
-      user1, user2, user3, user4 = create_users(4)
-
-      _title1 = create_group(resource_type: "Titles", external_users: [user1, user2])
-      _title2 = create_group(resource_type: "Titles", external_users: [user3, user4])
-      department1 = create_group(resource_type: "Departments", external_users: [user1, user2])
-      _department2 = create_group(resource_type: "Departments", external_users: [user3, user4])
-      _department3 = create_group(resource_type: "Departments", external_users: [user4])
-
-      users = Audiences::ExternalUser.matching(
-        "Departments" => [{ "id" => department1.scim_id }],
-        "Titles" => []
-      )
-
-      expect(users.pluck(:id)).to match_array [user1.id, user2.id]
     end
   end
 
@@ -71,10 +58,10 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
       title2 = create_group(resource_type: "Titles", external_users: [user3])
       department1 = create_group(resource_type: "Departments", external_users: [user1, user3, user4])
 
-      users = Audiences::ExternalUser.matching_any(
-        { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title1.scim_id }] },
-        { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title2.scim_id }] }
-      )
+      criterion1 = create_criterion(groups: [department1, title1])
+      criterion2 = create_criterion(groups: [department1, title2])
+
+      users = Audiences::ExternalUser.matching_any(criterion1, criterion2)
 
       expect(users.pluck(:display_name)).to match_array [user1.display_name, user3.display_name]
     end

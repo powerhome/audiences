@@ -14,23 +14,62 @@ RSpec.describe Audiences::Context do
     end
   end
 
+  describe "#users" do
+    def matching_external_users
+      return ExternalUser.all if match_all
+
+      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      ExternalUser.merge(extra_users).or(criteria_scope)
+    end
+
+    it "is all users in the database when match_all is true" do
+      users = create_users(4)
+      context = create_context(match_all: true)
+
+      expect(context.users).to match_array users
+    end
+
+    it "is the union of extra users and criteria matches when match_all is false" do
+      group1, group2, _group3 = create_groups(3)
+      group_users = create_users(2, groups: [group1, group2])
+      extra_users = create_users(2)
+      context = create_context(extra_users: extra_users)
+
+      expect(context.users).to match_array extra_users
+
+      create_criterion(context: context, groups: [group2])
+
+      expect(context.users).to match_array extra_users + group_users
+    end
+
+    it "is only the extra users when no criteria are set and match_all is false" do
+      extra_users = create_users(3)
+      context = create_context(extra_users: extra_users)
+
+      expect(context.users).to match_array extra_users
+    end
+  end
+
   describe "#match_all" do
     it "clears other criteria when set to match all" do
-      owner.members_context.criteria.build(groups: { Departments: [1, 3, 4] })
-      owner.members_context.match_all = true
+      context = create_context(extra_users: create_users(2))
+      create_criterion(context: context, groups: create_groups(1))
 
-      owner.members_context.save!
+      expect(context.criteria.size).to eql 1
 
-      expect(owner.members_context.criteria).to be_empty
+      context.update!(match_all: true)
+
+      expect(context.criteria).to be_empty
     end
 
     it "clears extra users when set to match all" do
-      owner.members_context.extra_users = [{ "id" => 123 }]
-      owner.members_context.match_all = true
+      context = create_context(extra_users: create_users(2))
 
-      owner.members_context.save!
+      expect(context.extra_users.size).to eql 2
 
-      expect(owner.members_context.extra_users).to be_empty
+      context.update!(match_all: true)
+
+      expect(context.extra_users).to be_empty
     end
   end
 
@@ -40,7 +79,9 @@ RSpec.describe Audiences::Context do
 
   describe "#count" do
     it "is the total of all member users" do
-      owner.members_context.update(extra_users: create_users(2).map(&:data))
+      owner.save!
+
+      owner.members_context.update(extra_users: create_users(2))
 
       expect(owner.members_context.count).to eql 2
     end
