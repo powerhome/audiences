@@ -21,7 +21,7 @@ module Audiences
     after_commit :notify_subscriptions, on: :update
 
     def users
-      @users ||= matching_external_users
+      matching_external_users.instance_exec(&Audiences.default_users_scope)
     end
 
     delegate :count, to: :users
