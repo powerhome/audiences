@@ -40,7 +40,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end.to_not(change { Audiences::ExternalUser.unscoped.count })
+    end.to_not(change { Audiences::ExternalUser.count })
 
     user.reload
 
@@ -56,7 +56,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to_not(change { Audiences::ExternalUser.unscoped.count })
+    end.to_not(change { Audiences::ExternalUser.count })
 
     user.reload
 
@@ -84,9 +84,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to(change { Audiences::ExternalUser.unscoped.count })
+    end.to(change { Audiences::ExternalUser.count })
 
-    user = Audiences::ExternalUser.unscoped.last
+    user = Audiences::ExternalUser.last
 
     expect(user.scim_id).to eql "internal-id-123"
     expect(user.user_id).to eql "external-id-123"

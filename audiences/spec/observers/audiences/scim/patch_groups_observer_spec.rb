@@ -68,7 +68,7 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                          },
                                        ],
                                      })
-    end.to_not(change { Audiences::Group.unscoped.count })
+    end.to_not(change { Audiences::Group.count })
 
     group.reload
 
@@ -98,6 +98,26 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
     expect(group.external_users).to match_array [member, new_member]
   end
 
+  it "adds inactive group members" do
+    member = Audiences::ExternalUser.create(scim_id: "123", user_id: 1)
+    new_member = Audiences::ExternalUser.create(scim_id: "321", user_id: 2, active: false)
+    group = create_group(external_users: [member])
+
+    TwoPercent::UpdateEvent.create(resource: "Groups",
+                                   id: group.scim_id,
+                                   params: {
+                                     "Operations" => [
+                                       {
+                                         "op" => "add",
+                                         "path" => "members",
+                                         "value" => [{ "value" => new_member.user_id }],
+                                       },
+                                     ],
+                                   })
+
+    expect(new_member.reload.groups).to match_array [group]
+  end
+
   it "removes group members" do
     member = Audiences::ExternalUser.create(scim_id: "123", user_id: 1)
     new_member = Audiences::ExternalUser.create(scim_id: "321", user_id: 2)
@@ -119,5 +139,25 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
 
     expect(group.resource_type).to eql "Groups"
     expect(group.external_users).to match_array [member]
+  end
+
+  it "removes inactive group members" do
+    member = Audiences::ExternalUser.create(scim_id: "123", user_id: 1)
+    new_member = Audiences::ExternalUser.create(scim_id: "321", user_id: 2, active: false)
+    group = create_group(external_users: [member, new_member])
+
+    TwoPercent::UpdateEvent.create(resource: "Groups",
+                                   id: group.scim_id,
+                                   params: {
+                                     "Operations" => [
+                                       {
+                                         "op" => "remove",
+                                         "path" => "members",
+                                         "value" => [{ "value" => new_member.user_id }],
+                                       },
+                                     ],
+                                   })
+
+    expect(new_member.reload.groups).to match_array []
   end
 end
