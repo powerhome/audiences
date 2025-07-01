@@ -12,4 +12,16 @@ class MoveGroupCriterionToCriterionGroups < ActiveRecord::Migration[6.1]
       criterion.update!(groups: Audiences::Group.where(scim_id: groups))
     end
   end
+
+  def down
+    Audiences::Criterion.find_each do |criterion|
+      next if criterion.groups.blank?
+
+      groups_json = criterion.groups.group_by(&:resource_type).transform_values do |groups|
+        groups.map(&:as_json)
+      end
+
+      criterion.update!(groups_json: groups_json)
+    end
+  end
 end
