@@ -33,5 +33,25 @@ RSpec.describe Audiences::ScimProxyController do
 
       expect(response.parsed_body).to match [group3].as_json
     end
+
+    it "limits group resources by their default scope" do
+      create_group resource_type: "Groups", active: false
+      group2 = create_group resource_type: "Groups", active: true
+      group3 = create_group resource_type: "Groups", active: true
+
+      get :get, params: { scim_path: "Groups" }
+
+      expect(response.parsed_body).to match [group2, group3].as_json
+    end
+
+    it "limits user resources by their default scope" do
+      create_user active: false
+      user2 = create_user active: true
+      user3 = create_user active: true
+
+      get :get, params: { scim_path: "Users" }
+
+      expect(response.parsed_body).to match [user2, user3].as_json
+    end
   end
 end
