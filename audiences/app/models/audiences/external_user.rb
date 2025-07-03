@@ -5,12 +5,24 @@ module Audiences
     has_many :group_memberships, dependent: :destroy
     has_many :groups, through: :group_memberships, dependent: :destroy
 
+    has_many :context_extra_users, class_name: "Audiences::ContextExtraUser", dependent: :destroy
+    has_many :contexts, through: :context_extra_users, source: :context
+
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
                             primary_key: Audiences.config.identity_key,
                             foreign_key: :user_id,
                             optional: true,
                             inverse_of: false
+    end
+
+    after_commit if: :active_previously_changed?, on: %i[create update destroy] do
+      group_contexts = groups.flat_map do |group|
+        Audiences::Context.relevant_to(group).to_a
+      end
+      match_all_contexts = Audiences::Context.where(match_all: true)
+
+      Audiences::Notifications.publish(*[*contexts, *group_contexts, *match_all_contexts].uniq)
     end
 
     scope :search, ->(display_name) do

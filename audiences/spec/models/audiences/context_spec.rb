@@ -13,69 +13,8 @@ RSpec.describe Audiences::Context do
       end.to yield_with_args(owner.members_context)
     end
   end
-  describe "#users" do
-    it "is all users in the database when match_all is true" do
-      users = create_users(4)
-
-      owner.save
-      owner.members_context.update!(match_all: true)
-
-      expect(owner.members_external_users).to match_array users
-    end
-
-    it "is the union of extra users and criteria matches when match_all is false" do
-      group1 = create_group
-      group2 = create_group
-      _group3 = create_group
-      group_users = create_users(2, groups: [group1, group2])
-      extra_users = create_users(2)
-
-      owner.save
-      owner.members_context.update!(extra_users: extra_users)
-
-      expect(owner.members_external_users).to match_array extra_users
-
-      owner.members_context.criteria.create!(groups: [group2])
-
-      expect(owner.members_external_users).to match_array extra_users + group_users
-    end
-
-    it "ignores users not matching the default scope" do
-      group1 = create_group
-      group2 = create_group
-      _group3 = create_group
-      active_group_user, = create_user(groups: [group1, group2]), create_user(groups: [group1, group2], active: false)
-      active_extra_user = create_user
-      inactive_extra_user = create_user(active: false)
-
-      owner.save
-      owner.members_context.update!(extra_users: [active_extra_user, inactive_extra_user])
-
-      expect(owner.members_external_users).to match_array [active_extra_user]
-
-      owner.members_context.criteria.create!(groups: [group2])
-
-      expect(owner.members_external_users).to match_array [active_extra_user, active_group_user]
-    end
-
-    it "is only the extra users when no criteria are set and match_all is false" do
-      extra_users = create_users(3)
-
-      owner.save
-      owner.members_context.update!(extra_users: extra_users, match_all: false)
-
-      expect(owner.members_external_users).to match_array extra_users
-    end
-  end
 
   describe "#users" do
-    def matching_external_users
-      return ExternalUser.all if match_all
-
-      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
-      ExternalUser.merge(extra_users).or(criteria_scope)
-    end
-
     it "is all users in the database when match_all is true" do
       users = create_users(4)
       context = create_context(match_all: true)
@@ -101,6 +40,23 @@ RSpec.describe Audiences::Context do
       context = create_context(extra_users: extra_users)
 
       expect(context.users).to match_array extra_users
+    end
+
+    it "ignores users not matching the default scope" do
+      group1 = create_group
+      group2 = create_group
+      _group3 = create_group
+      active_group_user, = create_user(groups: [group1, group2]), create_user(groups: [group1, group2], active: false)
+      active_extra_user = create_user
+      inactive_extra_user = create_user(active: false)
+
+      context = create_context(extra_users: [active_extra_user, inactive_extra_user])
+
+      expect(context.users).to match_array [active_extra_user]
+
+      context.criteria.create!(groups: [group2])
+
+      expect(context.users).to match_array [active_extra_user, active_group_user]
     end
   end
 

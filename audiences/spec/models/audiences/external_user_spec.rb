@@ -8,6 +8,74 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
     it { is_expected.to have_many(:groups).through(:group_memberships).dependent(:destroy) }
   end
 
+  describe "notifications" do
+    it "publishes notifications for relevant contexts based on its gropus when active is changed" do
+      group1, _group2 = create_groups(2)
+      external_user = create_user(groups: [group1])
+
+      group_relevant_context = create_criterion(groups: [group1]).context
+      _irrelevant_context = create_context
+
+      allow(Audiences::Notifications).to receive(:publish)
+
+      external_user.update!(active: false)
+
+      expect(Audiences::Notifications).to(
+        have_received(:publish)
+          .with(group_relevant_context)
+      )
+    end
+
+    it "publishes notifications for relevant contexts where the user is an external user when active is changed" do
+      group1, _group2 = create_groups(2)
+      external_user = create_user(groups: [group1])
+
+      relevant_context = create_context(extra_users: [external_user])
+      _irrelevant_context = create_context
+
+      allow(Audiences::Notifications).to receive(:publish)
+
+      external_user.update!(active: false)
+
+      expect(Audiences::Notifications).to(
+        have_received(:publish)
+          .with(relevant_context)
+      )
+    end
+
+    it "publishes notifications for relevant match_all contexts when active is changed" do
+      group1, _group2 = create_groups(2)
+      external_user = create_user(groups: [group1])
+
+      relevant_context = create_context(match_all: true)
+      _irrelevant_context = create_context
+
+      allow(Audiences::Notifications).to receive(:publish)
+
+      external_user.update!(active: false)
+
+      expect(Audiences::Notifications).to(
+        have_received(:publish)
+          .with(relevant_context)
+      )
+    end
+
+    it "does not publish any notification for relevant contexts when active flag is not changed" do
+      group1, _group2 = create_groups(2)
+      external_user = create_user(groups: [group1])
+
+      create_criterion(groups: [group1]).context
+      create_context(extra_users: [external_user])
+      create_context(extra_users: [external_user])
+
+      allow(Audiences::Notifications).to receive(:publish)
+
+      external_user.update!(display_name: false)
+
+      expect(Audiences::Notifications).to_not have_received(:publish)
+    end
+  end
+
   describe ".search(query)" do
     it "returns users matching the query" do
       user1 = create_user(display_name: "Alice Smith")
