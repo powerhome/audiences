@@ -3,7 +3,7 @@
 module Audiences
   class Group < ApplicationRecord
     has_many :group_memberships, dependent: :destroy
-    has_many :external_users, through: :group_memberships
+    has_many :external_users, through: :group_memberships, dependent: :destroy
 
     validates :display_name, presence: true
     validates :external_id, presence: true

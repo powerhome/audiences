@@ -20,7 +20,7 @@ RSpec.describe Audiences::ContextsController do
       expect(response.parsed_body).to match({
                                               "match_all" => false,
                                               "count" => 0,
-                                              "extra_users" => nil,
+                                              "extra_users" => [],
                                               "criteria" => [],
                                             })
     end
@@ -52,13 +52,9 @@ RSpec.describe Audiences::ContextsController do
 
       example_context.reload
 
-      expect(example_context.extra_users).to eql [user.data]
-      expect(response.parsed_body).to match({
-                                              "match_all" => false,
-                                              "count" => 1,
-                                              "extra_users" => [user.data],
-                                              "criteria" => [],
-                                            })
+      expect(example_context.extra_users).to match_array [user]
+      expect(response.parsed_body).to match({ "match_all" => false, "count" => 1, "extra_users" => [user],
+                                              "criteria" => [] }.as_json)
     end
 
     it "updates the context extra users using the externalId" do
@@ -71,13 +67,9 @@ RSpec.describe Audiences::ContextsController do
 
       example_context.reload
 
-      expect(example_context.extra_users).to eql [user.data]
-      expect(response.parsed_body).to match({
-                                              "match_all" => false,
-                                              "count" => 1,
-                                              "extra_users" => [user.data],
-                                              "criteria" => [],
-                                            })
+      expect(example_context.extra_users).to match_array [user]
+      expect(response.parsed_body).to match({ "match_all" => false, "count" => 1, "extra_users" => [user],
+                                              "criteria" => [] }.as_json)
     end
 
     context "updating a group criteria" do
@@ -159,14 +151,11 @@ RSpec.describe Audiences::ContextsController do
     it "is the list of users from an audience context" do
       users = create_users 3
 
-      example_context.update(extra_users: users.map(&:data))
+      example_context.update(extra_users: users)
 
       get :users, params: { key: example_context.signed_key }
 
-      expect(response.parsed_body).to match({
-                                              "count" => 3,
-                                              "users" => match_array(users.map(&:data)),
-                                            })
+      expect(response.parsed_body).to match({ "count" => 3, "users" => users }.as_json)
     end
   end
 
@@ -179,15 +168,11 @@ RSpec.describe Audiences::ContextsController do
       user = create_user
       group = create_group(external_users: [user])
 
-      criterion = example_context.criteria.create(groups: { "Groups" => [{ "id" => group.scim_id,
-                                                                           "externalId" => group.external_id }] })
+      criterion = example_context.criteria.create(groups: [group])
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
 
-      expect(response.parsed_body).to match_array({
-                                                    "count" => 1,
-                                                    "users" => [user.data],
-                                                  })
+      expect(response.parsed_body).to match({ "count" => 1, "users" => [user] }.as_json)
     end
   end
 end

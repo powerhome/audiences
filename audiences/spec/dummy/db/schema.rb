@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_18_184332) do
+ActiveRecord::Schema.define(version: 2025_07_01_173946) do
+
+  create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "external_user_id"
+    t.bigint "context_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["context_id"], name: "index_audiences_context_extra_users_on_context_id"
+    t.index ["external_user_id"], name: "index_audiences_context_extra_users_on_external_user_id"
+  end
 
   create_table "audiences_contexts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "owner_type", null: false
@@ -18,13 +27,22 @@ ActiveRecord::Schema.define(version: 2025_06_18_184332) do
     t.boolean "match_all", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.json "extra_users"
+    t.json "extra_users_json"
     t.string "relation"
     t.index ["owner_type", "owner_id", "relation"], name: "index_audiences_contexts_on_owner_type_owner_id_relation", unique: true
   end
 
+  create_table "audiences_criterion_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "criterion_id"
+    t.bigint "group_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["criterion_id"], name: "index_audiences_criterion_groups_on_criterion_id"
+    t.index ["group_id"], name: "index_audiences_criterion_groups_on_group_id"
+  end
+
   create_table "audiences_criterions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.json "groups"
+    t.json "groups_json"
     t.bigint "context_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

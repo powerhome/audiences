@@ -3,7 +3,10 @@
 module Audiences
   class ExternalUser < ApplicationRecord
     has_many :group_memberships, dependent: :destroy
-    has_many :groups, through: :group_memberships
+    has_many :groups, through: :group_memberships, dependent: :destroy
+
+    has_many :context_extra_users, class_name: "Audiences::ContextExtraUser", dependent: :destroy
+    has_many :contexts, through: :context_extra_users, source: :context
 
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
@@ -11,6 +14,15 @@ module Audiences
                             foreign_key: :user_id,
                             optional: true,
                             inverse_of: false
+    end
+
+    after_commit if: :active_previously_changed?, on: %i[create update destroy] do
+      group_contexts = groups.flat_map do |group|
+        Audiences::Context.relevant_to(group).to_a
+      end
+      match_all_contexts = Audiences::Context.where(match_all: true)
+
+      Audiences::Notifications.publish(*[*contexts, *group_contexts, *match_all_contexts].uniq)
     end
 
     scope :search, ->(display_name) do
@@ -23,12 +35,13 @@ module Audiences
     end
 
     scope :matching, ->(criterion) do
-      groups = (criterion.try(:groups) || criterion).values.reject(&:empty?)
-      return none if groups.empty?
+      return none if criterion.groups.empty?
 
-      groups.reduce(self) do |scope, group|
-        group_ids = Audiences::Group.where(scim_id: group.pluck("id")).pluck(:id)
-        scope.where(id: Audiences::GroupMembership.where(group_id: group_ids).select(:external_user_id))
+      criterion.groups
+               .group_by(&:resource_type)
+               .values
+               .reduce(self) do |scope, groups|
+        scope.where(id: Audiences::GroupMembership.where(group_id: groups.pluck(:id)).select(:external_user_id))
       end
     end
 

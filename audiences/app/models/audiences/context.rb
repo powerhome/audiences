@@ -13,6 +13,15 @@ module Audiences
                         autosave: true,
                         dependent: :destroy
 
+    has_many :context_extra_users, class_name: "Audiences::ContextExtraUser"
+    has_many :extra_users, class_name: "Audiences::ExternalUser",
+                           through: :context_extra_users,
+                           source: :external_user
+
+    scope :relevant_to, ->(group) do
+      joins(:criteria).merge(Criterion.relevant_to(group))
+    end
+
     before_save if: :match_all do
       self.criteria = []
       self.extra_users = []
@@ -26,6 +35,15 @@ module Audiences
 
     delegate :count, to: :users
 
+    def as_json(...)
+      {
+        match_all: match_all,
+        count: count,
+        extra_users: extra_users,
+        criteria: criteria,
+      }.as_json(...)
+    end
+
   private
 
     def notify_subscriptions
@@ -33,10 +51,15 @@ module Audiences
     end
 
     def matching_external_users
-      return ExternalUser.all if match_all
+      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
+    end
 
-      criteria_scope = criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
-      ExternalUser.from_scim(*extra_users).or(criteria_scope)
+    def matching_extra_users
+      ExternalUser.where(id: extra_users.select(:id))
+    end
+
+    def matching_criteria
+      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
     end
   end
 end
