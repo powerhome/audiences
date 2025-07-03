@@ -61,6 +61,14 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
 
       expect(users.pluck(:id)).to match_array [user1.id, user2.id]
     end
+
+    it "ignores invalid criterion" do
+      create_users(3)
+
+      users = Audiences::ExternalUser.matching("Departments" => [])
+
+      expect(users).to be_empty
+    end
   end
 
   describe ".matching_any" do
@@ -76,7 +84,21 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
         { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title2.scim_id }] }
       )
 
-      expect(users.pluck(:display_name)).to match_array [user1.display_name, user3.display_name]
+      expect(users).to match_array [user1, user3]
+    end
+
+    it "ignores invalid criterion" do
+      user1, user2, user3, user4 = create_users(4)
+
+      title1 = create_group(resource_type: "Titles", external_users: [user1, user2])
+      department1 = create_group(resource_type: "Departments", external_users: [user1, user3, user4])
+
+      users = Audiences::ExternalUser.matching_any(
+        { "Departments" => [{ "id" => department1.scim_id }], "Titles" => [{ "id" => title1.scim_id }] },
+        { "Departments" => [], "Titles" => [] }
+      )
+
+      expect(users).to match_array [user1]
     end
   end
 end

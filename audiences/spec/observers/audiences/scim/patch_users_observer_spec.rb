@@ -97,7 +97,7 @@ RSpec.describe Audiences::Scim::PatchUsersObserver do
                                          },
                                        ],
                                      })
-    end.to_not(change { Audiences::ExternalUser.unscoped.count })
+    end.to_not(change { Audiences::ExternalUser.count })
 
     user.reload
 

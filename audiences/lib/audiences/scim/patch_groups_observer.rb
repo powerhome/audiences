@@ -31,8 +31,8 @@ module Audiences
       end
 
       def group
-        @group ||= Audiences::Group.unscoped.find_by!(resource_type: event_payload.resource,
-                                                      scim_id: event_payload.id)
+        @group ||= Group.find_by!(resource_type: event_payload.resource,
+                                  scim_id: event_payload.id)
       end
     end
   end

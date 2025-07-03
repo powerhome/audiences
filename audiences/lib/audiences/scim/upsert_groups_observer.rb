@@ -31,8 +31,7 @@ module Audiences
       end
 
       def group
-        @group ||= Audiences::Group.unscoped
-                                   .where(resource_type: event_payload.resource,
+        @group ||= Audiences::Group.where(resource_type: event_payload.resource,
                                           scim_id: event_payload.params["id"])
                                    .first_or_initialize
       end

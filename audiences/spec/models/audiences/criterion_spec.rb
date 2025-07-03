@@ -7,6 +7,14 @@ RSpec.describe Audiences::Criterion do
     it { is_expected.to belong_to(:context) }
   end
 
+  describe "validations" do
+    it "does not allow criterion groups with empty groups" do
+      criterion = Audiences::Criterion.new(groups: {})
+      expect(criterion).not_to be_valid
+      expect(criterion.errors[:groups]).to include("can't be blank")
+    end
+  end
+
   describe ".map([])" do
     it "builds contexts with the given " do
       department = create_group(resource_type: "Departments")
@@ -22,6 +30,19 @@ RSpec.describe Audiences::Criterion do
       expect(criteria.size).to eql 2
       expect(criteria.first.groups).to match({ "Departments" => [department.as_json] })
       expect(criteria.last.groups).to match({ "Territories" => [territory.as_json] })
+    end
+
+    it "allows setting creating groups not matching the default group scope" do
+      department = create_group(resource_type: "Departments", scim_id: "123", active: false)
+
+      criteria = Audiences::Criterion.map(
+        [
+          { "groups" => { "Departments" => [department.as_json] } },
+        ]
+      )
+
+      expect(criteria.size).to eql 1
+      expect(criteria.first.groups).to match({ "Departments" => [department.as_json] })
     end
   end
 

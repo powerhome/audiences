@@ -11,7 +11,7 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
                "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => true } }
     expect do
       TwoPercent::CreateEvent.create(resource: "Groups", params: params)
-    end.to change { Audiences::Group.unscoped.count }.by(1)
+    end.to change { Audiences::Group.count }.by(1)
 
     created_group = Audiences::Group.last
 
@@ -29,7 +29,7 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Groups", params: params)
-    end.to_not(change { Audiences::Group.unscoped.count })
+    end.to_not(change { Audiences::Group.count })
 
     group.reload
 
@@ -47,7 +47,7 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Groups", params: params)
-    end.to_not(change { Audiences::Group.unscoped.count })
+    end.to_not(change { Audiences::Group.count })
 
     group.reload
 

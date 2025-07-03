@@ -14,9 +14,10 @@ module Audiences
 
     def scope
       if params[:scim_path].eql?("Users")
-        Audiences::ExternalUser
+        Audiences::ExternalUser.instance_exec(&Audiences.default_users_scope)
       else
         Audiences::Group.where(resource_type: params[:scim_path])
+                        .instance_exec(&Audiences.default_groups_scope)
       end
     end
   end

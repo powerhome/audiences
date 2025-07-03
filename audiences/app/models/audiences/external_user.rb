@@ -2,8 +2,6 @@
 
 module Audiences
   class ExternalUser < ApplicationRecord
-    default_scope Audiences.default_users_scope
-
     has_many :group_memberships, dependent: :destroy
     has_many :groups, through: :group_memberships
 
@@ -26,6 +24,8 @@ module Audiences
 
     scope :matching, ->(criterion) do
       groups = (criterion.try(:groups) || criterion).values.reject(&:empty?)
+      return none if groups.empty?
+
       groups.reduce(self) do |scope, group|
         group_ids = Audiences::Group.where(scim_id: group.pluck("id")).pluck(:id)
         scope.where(id: Audiences::GroupMembership.where(group_id: group_ids).select(:external_user_id))

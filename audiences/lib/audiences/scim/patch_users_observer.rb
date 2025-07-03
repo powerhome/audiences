@@ -31,7 +31,7 @@ module Audiences
       end
 
       def user
-        @user ||= Audiences::ExternalUser.unscoped.find_by!(scim_id: event_payload.id)
+        @user ||= Audiences::ExternalUser.find_by!(scim_id: event_payload.id)
       end
     end
   end
