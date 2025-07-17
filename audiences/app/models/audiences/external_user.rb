@@ -25,6 +25,8 @@ module Audiences
       Audiences::Notifications.publish(*[*contexts, *group_contexts, *match_all_contexts].uniq)
     end
 
+    scope :active, -> { where(active: true) }
+
     scope :members_of, ->(*groups) do
       where(id: Audiences::GroupMembership.where(group_id: groups.pluck(:id)).select(:external_user_id))
     end
