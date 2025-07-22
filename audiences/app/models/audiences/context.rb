@@ -39,7 +39,7 @@ module Audiences
       {
         match_all: match_all,
         count: count,
-        extra_users: extra_users,
+        extra_users: extra_users.instance_exec(&Audiences.default_users_scope),
         criteria: criteria,
       }.as_json(...)
     end
