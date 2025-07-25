@@ -9,6 +9,8 @@ module Audiences
     validates :external_id, presence: true
     validates :scim_id, presence: true
 
+    scope :active, -> { where(active: true) }
+
     scope :search, ->(display_name) do
       where(arel_table[:display_name].matches("%#{display_name}%"))
     end
