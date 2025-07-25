@@ -3,11 +3,16 @@
   "extends": [
     "github>powerhome/renovate-config"
   ],
-  "baseBranches": ["main", "1-0-stable"],
+  "baseBranchPatterns": [
+    "main",
+    "1-0-stable"
+  ],
   "packageRules": [
     {
       "description": "Auto-merge NPM package updates",
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
       "automerge": true
     }
   ]
