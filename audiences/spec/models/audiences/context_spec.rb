@@ -96,4 +96,17 @@ RSpec.describe Audiences::Context do
       expect(owner.members_context.count).to eql 2
     end
   end
+
+  describe "#as_json" do
+    it "does not include users not matching the default scope" do
+      Audiences.config.default_users_scope = -> { where(active: true) }
+
+      active_user = create_user(active: true)
+      inactive_user = create_user(active: false)
+
+      context = create_context(extra_users: [active_user, inactive_user])
+
+      expect(context.as_json["extra_users"]).to eql([active_user.as_json])
+    end
+  end
 end
