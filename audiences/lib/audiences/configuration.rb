@@ -33,10 +33,10 @@ module Audiences
   #     config.default_users_scope = -> { includes(:groups).merge(Audiences::Group.where(scim_id: ALLOWED_GROUPS)) }
   #   end
   #
-  # This configuration defaults to `-> { where(active: true) }`
+  # This configuration defaults to `-> { active }`
   #
   config_accessor :default_users_scope do
-    ->(*) { where(active: true) }
+    ->(*) { active }
   end
 
   # Defines a default scope for groups, so the groups that are part of an audience can
@@ -56,10 +56,10 @@ module Audiences
   #     config.default_groups_scope = -> { where(scim_id: ALLOWED_GROUPS) }
   #   end
   #
-  # This configuration defaults to `-> { where(active: true) }`
+  # This configuration defaults to `-> { active }`
   #
   config_accessor :default_groups_scope do
-    ->(*) { where(active: true) }
+    ->(*) { active }
   end
 
   # These are the user attributes that will be exposed in the audiences endpoints.

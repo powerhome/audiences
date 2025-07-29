@@ -25,6 +25,12 @@ module Audiences
       Audiences::Notifications.publish(*[*contexts, *group_contexts, *match_all_contexts].uniq)
     end
 
+    scope :active, -> { where(active: true) }
+
+    scope :members_of, ->(*groups) do
+      where(id: Audiences::GroupMembership.where(group_id: groups.pluck(:id)).select(:external_user_id))
+    end
+
     scope :search, ->(display_name) do
       where(arel_table[:display_name].matches("%#{display_name}%"))
     end
@@ -41,7 +47,7 @@ module Audiences
                .group_by(&:resource_type)
                .values
                .reduce(self) do |scope, groups|
-        scope.where(id: Audiences::GroupMembership.where(group_id: groups.pluck(:id)).select(:external_user_id))
+        scope.members_of(*groups)
       end
     end
 
