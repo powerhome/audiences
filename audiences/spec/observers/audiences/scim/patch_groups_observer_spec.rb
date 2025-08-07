@@ -160,4 +160,28 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
 
     expect(new_member.reload.groups).to match_array []
   end
+
+  it "publishes a replace event for the users involved" do
+    member = Audiences::ExternalUser.create(scim_id: "123", user_id: 1)
+    new_member1 = Audiences::ExternalUser.create(scim_id: "321", user_id: 2)
+    new_member2 = Audiences::ExternalUser.create(scim_id: "333", user_id: 3)
+    group = create_group(external_users: [member])
+
+    allow(TwoPercent::ReplaceEvent).to receive(:create)
+
+    TwoPercent::UpdateEvent.create(resource: "Groups",
+                                   id: group.scim_id,
+                                   params: {
+                                     "Operations" => [
+                                       {
+                                         "op" => "add",
+                                         "path" => "members",
+                                         "value" => [{ "value" => new_member1.user_id }, { "value" => new_member2.user_id }],
+                                       },
+                                     ],
+                                   })
+
+    expect(TwoPercent::ReplaceEvent).to have_received(:create).with(resource: "Users", id: new_member1.scim_id, params: anything)
+    expect(TwoPercent::ReplaceEvent).to have_received(:create).with(resource: "Users", id: new_member2.scim_id, params: anything)
+  end
 end
