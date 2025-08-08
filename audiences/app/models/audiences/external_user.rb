@@ -68,7 +68,7 @@ module Audiences
     end
 
     def as_scim(...)
-      names = groups.reduce({}) { |names, group| names.merge(group.resource_type => group.display_name) }
+      names = groups.reduce({}) { |nam, group| nam.merge(group.resource_type => group.display_name) }
 
       (data || {}).merge(
         "title" => names["Titles"],

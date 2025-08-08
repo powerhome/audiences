@@ -176,12 +176,15 @@ RSpec.describe Audiences::Scim::PatchGroupsObserver do
                                        {
                                          "op" => "add",
                                          "path" => "members",
-                                         "value" => [{ "value" => new_member1.user_id }, { "value" => new_member2.user_id }],
+                                         "value" => [{ "value" => new_member1.user_id },
+                                                     { "value" => new_member2.user_id }],
                                        },
                                      ],
                                    })
 
-    expect(TwoPercent::ReplaceEvent).to have_received(:create).with(resource: "Users", id: new_member1.scim_id, params: anything)
-    expect(TwoPercent::ReplaceEvent).to have_received(:create).with(resource: "Users", id: new_member2.scim_id, params: anything)
+    expect(TwoPercent::ReplaceEvent).to have_received(:create).with(resource: "Users", id: new_member1.scim_id,
+                                                                    params: anything)
+    expect(TwoPercent::ReplaceEvent).to have_received(:create).with(resource: "Users", id: new_member2.scim_id,
+                                                                    params: anything)
   end
 end

@@ -166,7 +166,7 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
         user_id: "user-id",
         display_name: "Display Name",
         active: true,
-        data: { "displayName" => "value", "hiddenAttribute" => "Does Not Matter" },
+        data: { "displayName" => "value", "hiddenAttribute" => "Does Not Matter" }
       )
 
       expect(user.as_json).to eq("displayName" => "value")
@@ -180,7 +180,7 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
         user_id: "user-id",
         display_name: "Display Name",
         active: true,
-        data: { "displayName" => "Display Name" },
+        data: { "displayName" => "Display Name" }
       )
       create_group(resource_type: "Titles", display_name: "Engineer", external_users: [user])
       create_group(resource_type: "Roles", display_name: "Admin", external_users: [user])
