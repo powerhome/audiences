@@ -64,7 +64,7 @@ module Audiences
     end
 
     def as_json(...)
-      as_scim&.slice(*Audiences.exposed_user_attributes)
+      as_scim.slice(*Audiences.exposed_user_attributes)
     end
 
     def as_scim(...)
