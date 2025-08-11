@@ -71,6 +71,7 @@ module Audiences
       names = groups.reduce({}) { |nam, group| nam.merge(group.resource_type => group.display_name) }
 
       (data || {}).merge(
+        "groups" => groups.map { |g| { "value" => g.scim_id, "display" => g.display_name } },
         "title" => names["Titles"],
         "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
           "role" => names["Roles"],
