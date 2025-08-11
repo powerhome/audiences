@@ -68,18 +68,20 @@ module Audiences
     end
 
     def as_scim(...)
+      (data || {}).merge(groups_as_scim)
+    end
+
+    def groups_as_scim
       names = groups.reduce({}) { |nam, group| nam.merge(group.resource_type => group.display_name) }
 
-      (data || {}).merge(
+      {
         "groups" => groups.map { |g| { "value" => g.scim_id, "display" => g.display_name } },
         "title" => names["Titles"],
         "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
-          "role" => names["Roles"],
-          "department" => names["Departments"],
-          "territory" => names["Territories"],
-          "territoryAbbr" => TERRITORY_ABBRS[names["Territories"]],
-        }
-      )
+          "role" => names["Roles"], "department" => names["Departments"],
+          "territory" => names["Territories"], "territoryAbbr" => TERRITORY_ABBRS[names["Territories"]]
+        },
+      }
     end
 
     TERRITORY_ABBRS = {

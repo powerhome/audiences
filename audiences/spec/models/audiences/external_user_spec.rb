@@ -193,7 +193,7 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
           { "value" => title.scim_id, "display" => "Engineer" },
           { "value" => role.scim_id, "display" => "Admin" },
           { "value" => department.scim_id, "display" => "Engineering" },
-          { "value" => territory.scim_id, "display" => "Long Island" }
+          { "value" => territory.scim_id, "display" => "Long Island" },
         ],
         "title" => "Engineer",
         "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
