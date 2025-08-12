@@ -158,4 +158,51 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
       expect(users).to match_array [user1]
     end
   end
+
+  describe "#as_json" do
+    it "returns only exposed attributes" do
+      user = create_user(
+        scim_id: "scim-id",
+        user_id: "user-id",
+        display_name: "Display Name",
+        active: true,
+        data: { "displayName" => "value", "hiddenAttribute" => "Does Not Matter" }
+      )
+
+      expect(user.as_json).to eq("displayName" => "value")
+    end
+  end
+
+  describe "#as_scim" do
+    it "includes the updated groups from the relational data" do
+      user = create_user(
+        scim_id: "scim-id",
+        user_id: "user-id",
+        display_name: "Display Name",
+        active: true,
+        data: { "displayName" => "Display Name", "groups" => [] }
+      )
+      title = create_group(resource_type: "Titles", display_name: "Engineer", external_users: [user])
+      role = create_group(resource_type: "Roles", display_name: "Admin", external_users: [user])
+      department = create_group(resource_type: "Departments", display_name: "Engineering", external_users: [user])
+      territory = create_group(resource_type: "Territories", display_name: "Long Island", external_users: [user])
+
+      expect(user.as_scim).to eq(
+        "displayName" => "Display Name",
+        "groups" => [
+          { "value" => title.scim_id, "display" => "Engineer" },
+          { "value" => role.scim_id, "display" => "Admin" },
+          { "value" => department.scim_id, "display" => "Engineering" },
+          { "value" => territory.scim_id, "display" => "Long Island" },
+        ],
+        "title" => "Engineer",
+        "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
+          "role" => "Admin",
+          "department" => "Engineering",
+          "territory" => "Long Island",
+          "territoryAbbr" => "LI",
+        }
+      )
+    end
+  end
 end

@@ -64,7 +64,52 @@ module Audiences
     end
 
     def as_json(...)
-      data&.slice(*Audiences.exposed_user_attributes)
+      as_scim.slice(*Audiences.exposed_user_attributes)
     end
+
+    def as_scim(...)
+      (data || {}).merge(groups_as_scim)
+    end
+
+    def groups_as_scim
+      names = groups.reduce({}) { |nam, group| nam.merge(group.resource_type => group.display_name) }
+
+      {
+        "groups" => groups.map { |g| { "value" => g.scim_id, "display" => g.display_name } },
+        "title" => names["Titles"],
+        "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
+          "role" => names["Roles"], "department" => names["Departments"],
+          "territory" => names["Territories"], "territoryAbbr" => TERRITORY_ABBRS[names["Territories"]]
+        },
+      }
+    end
+
+    TERRITORY_ABBRS = {
+      "Philadelphia" => "PHL",
+      "New Jersey" => "NJ",
+      "Maryland" => "MD",
+      "Connecticut" => "CT",
+      "Long Island" => "LI",
+      "Boston" => "BOS",
+      "Atlanta" => "ATL",
+      "Chicago" => "CHI",
+      "Detroit" => "DET",
+      "Houston" => "HOU",
+      "Dallas" => "DAL",
+      "Denver" => "DEN",
+      "Tampa" => "TPA",
+      "Austin" => "AUS",
+      "Charlotte" => "CLT",
+      "Nashville" => "NSH",
+      "Phoenix" => "PHX",
+      "Pittsburgh" => "PIT",
+      "San Antonio" => "SAO",
+      "Fort Lauderdale" => "FLL",
+      "Las Vegas" => "LVS",
+      "Orlando" => "ORL",
+      "Cincinnati" => "CIN",
+      "Columbus" => "CLB",
+      "Jacksonville" => "JAX",
+    }.freeze
   end
 end
