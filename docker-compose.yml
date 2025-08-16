@@ -4,7 +4,7 @@ volumes:
   scim_stub_db:
 services:
   dummy-web:
-    image: ruby:3.4.1
+    image: ruby:3.4.1@sha256:f78dc1bba60f85d40d6dc6d6722ca2cda0b5273fc179119badd0f7654d5d1d6e
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     environment:
@@ -30,7 +30,7 @@ services:
       - .:/app
       - dummy_web_bundle:/usr/local/bundle
   dummy-vite:
-    image: node:22.13.1-alpine
+    image: node:22.13.1-alpine@sha256:e2b39f7b64281324929257d0f8004fb6cb4bf0fdfb9aa8cedb235a766aec31da
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     command:
@@ -44,7 +44,7 @@ services:
     volumes:
       - .:/app
   scim-stub:
-    image: powerhome/scim-stub
+    image: powerhome/scim-stub@sha256:94cb79f0a5af57c028d682b63d9f32656d6307aa3673a6e876bc72a55a411ce2
     platform: linux/x86_64
     command:
       - /bin/sh
@@ -58,7 +58,7 @@ services:
     volumes:
       - scim_stub_db:/app/db/development.sqlite3
   mysql:
-    image: mysql:latest
+    image: mysql:latest@sha256:a776e89aad2d425c248ccfb840115aaa52883499ff36512db4d503b11aae455a
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
