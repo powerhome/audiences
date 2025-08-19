@@ -27,8 +27,8 @@ module Audiences
 
     scope :active, -> { where(active: true) }
 
-    scope :members_of, ->(*groups) do
-      where(id: Audiences::GroupMembership.where(group_id: groups.pluck(:id)).select(:external_user_id))
+    scope :members_of, ->(groups) do
+      where(id: Audiences::GroupMembership.where(group: groups).select(:external_user_id))
     end
 
     scope :search, ->(display_name) do
@@ -47,7 +47,7 @@ module Audiences
                .group_by(&:resource_type)
                .values
                .reduce(self) do |scope, groups|
-        scope.members_of(*groups)
+        scope.members_of(groups)
       end
     end
 
