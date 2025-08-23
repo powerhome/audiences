@@ -16,12 +16,14 @@ type AudienceEditorProps = {
   uri: string
   context?: string
   allowIndividuals?: boolean
+  allowMatchAll?: boolean
   fetchOptions?: Parameters<typeof useAudiences>[2]
 }
 export function AudienceEditor({
   uri,
   context,
   allowIndividuals = true,
+  allowMatchAll = true,
   fetchOptions = {},
 }: AudienceEditorProps) {
   const audiencesUri = context ? uri : audiencesRoot(uri)
@@ -34,6 +36,7 @@ export function AudienceEditor({
         userResource={UserResourceId}
         groupResources={AllowedGroupIds}
         allowIndividuals={allowIndividuals}
+        allowMatchAll={allowMatchAll}
       />
     </Audiences.Provider>
   )

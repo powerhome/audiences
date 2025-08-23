@@ -16,12 +16,14 @@ type AudienceFormProps = {
   userResource: string
   groupResources: string[]
   allowIndividuals: boolean
+  allowMatchAll: boolean
 }
 
 export const AudienceForm = ({
   userResource,
   groupResources,
   allowIndividuals = true,
+  allowMatchAll = true,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
   const { error, value: context, change } = useAudiencesContext()
@@ -41,7 +43,7 @@ export const AudienceForm = ({
   }
 
   return (
-    <MatchAllToggleCard>
+    <MatchAllToggleCard allowMatchAll={allowMatchAll}>
       {error && (
         <FixedConfirmationToast status="error" text={error} margin="sm" />
       )}

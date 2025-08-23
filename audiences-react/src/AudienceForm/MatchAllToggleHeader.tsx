@@ -7,8 +7,9 @@ import { useAudiencesContext } from "../audiences"
 
 type MatchAllToggleCardProps = {
   children: ReactNode
+  allowMatchAll: boolean
 }
-export function MatchAllToggleCard({ children }: MatchAllToggleCardProps) {
+export function MatchAllToggleCard({ children, allowMatchAll }: MatchAllToggleCardProps) {
   const { value: context, isDirty, change } = useAudiencesContext()
   const handleToggle = () => change("match_all", !context.match_all)
 
@@ -33,18 +34,20 @@ export function MatchAllToggleCard({ children }: MatchAllToggleCardProps) {
               />
             )}
           </FlexItem>
-          <FlexItem>
-            <Flex justify="right" orientation="row" align="center">
-              <Toggle>
-                <input
-                  type="checkbox"
-                  checked={context.match_all}
-                  onChange={handleToggle}
-                />
-              </Toggle>
-              <Caption marginLeft="xs" size="xs" text={"All Employees"} />
-            </Flex>
-          </FlexItem>
+          {allowMatchAll && (
+            <FlexItem>
+              <Flex justify="right" orientation="row" align="center">
+                <Toggle>
+                  <input
+                    type="checkbox"
+                    checked={context.match_all}
+                    onChange={handleToggle}
+                  />
+                </Toggle>
+                <Caption marginLeft="xs" size="xs" text={"All Employees"} />
+              </Flex>
+            </FlexItem>
+          )}
         </Flex>
       </Card.Header>
 
