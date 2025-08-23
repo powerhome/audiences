@@ -9,6 +9,8 @@ module Audiences
                     react_class: "AudiencesEditor",
                     audiences_uri: uri,
                     audiences_context: context.signed_key,
+                    allow_match_all: allow_match_all,
+                    allow_individuals: allow_individuals,
                   },
                   class: html_class)
     end
