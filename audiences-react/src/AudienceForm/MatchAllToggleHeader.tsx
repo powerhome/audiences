@@ -7,7 +7,9 @@ import { useAudiencesContext } from "../audiences"
 type MatchAllToggleHeaderProps = {
   allowMatchAll: boolean
 }
-export function MatchAllToggleHeader({ allowMatchAll }: MatchAllToggleHeaderProps) {
+export function MatchAllToggleHeader({
+  allowMatchAll,
+}: MatchAllToggleHeaderProps) {
   const { value: context, isDirty, change } = useAudiencesContext()
   const handleToggle = () => change("match_all", !context.match_all)
 

@@ -1,5 +1,11 @@
 import { useState } from "react"
-import { FixedConfirmationToast, Button, Flex, Card, FlexItem } from "playbook-ui"
+import {
+  FixedConfirmationToast,
+  Button,
+  Flex,
+  Card,
+  FlexItem,
+} from "playbook-ui"
 import { isEmpty } from "lodash/fp"
 
 import { ScimObject } from "../types"
@@ -58,7 +64,9 @@ export const AudienceForm = ({
                 <ScimResourceTypeahead
                   label="Add Individuals"
                   value={context.extra_users || []}
-                  onChange={(users: ScimObject[]) => change("extra_users", users)}
+                  onChange={(users: ScimObject[]) =>
+                    change("extra_users", users)
+                  }
                   resourceId={userResource}
                 />
               )}
