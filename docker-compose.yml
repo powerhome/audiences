@@ -10,7 +10,6 @@ services:
     environment:
       RAILS_ENV: development
       VITE_RUBY_HOST: dummy-vite
-      SCIM_V2_API: http://scim-stub:3002/api/scim/v2/
       DATABASE_HOST: mysql
     command:
       - /bin/sh
@@ -43,20 +42,6 @@ services:
       - "3036:3036"
     volumes:
       - .:/app
-  scim-stub:
-    image: powerhome/scim-stub
-    platform: linux/x86_64
-    command:
-      - /bin/sh
-      - -c
-      - |
-        bundle exec rails db:setup
-        rm -f tmp/pids/server.pid
-        bundle exec rails server --binding '0.0.0.0' --port '3002'
-    ports:
-      - "3002:3002"
-    volumes:
-      - scim_stub_db:/app/db/development.sqlite3
   mysql:
     image: mysql:latest
     restart: always
