@@ -1,5 +1,22 @@
 # Unreleased
 
+# Version 2.0 (2025-08-25)
+
+The all new 2.0 release inverts the SCIM logic, where now Audiences no longer pulls data from SCIM, but rather it will receive and cache SCIM data, allowing for an in database calculation of audiences. This improved process allows audiences to be more independent from SCIM, while still compatible with the protocol.
+
+- Update ExternalUser on membership changeas [#541](https://github.com/powerhome/audiences/pull/541)
+- Filter extra_users in context JSON [#540](https://github.com/powerhome/audiences/pull/540)
+- Introduce helpful scopes [#538](https://github.com/powerhome/audiences/pull/538)
+- Allow inactive groups in criteria [#537](https://github.com/powerhome/audiences/pull/537)
+- Allow creating external users and groups with internal and external ids [#536](https://github.com/powerhome/audiences/pull/536)
+- Reactive audience recalculation [#535](https://github.com/powerhome/audiences/pull/535)
+- match group criteria [#534](https://github.com/powerhome/audiences/pull/534)
+- Configurable default user and groups scope [#533](https://github.com/powerhome/audiences/pull/533)
+- Default authentication to reject requests [#532](https://github.com/powerhome/audiences/pull/532)
+- scim proxy with local data [#531](https://github.com/powerhome/audiences/pull/531)
+- Local audience calculations [#530](https://github.com/powerhome/audiences/pull/530)
+- Local user and group info updated with TwoPercent [#519](https://github.com/powerhome/audiences/pull/519)
+
 # Version 1.6 (2025-03-19)
 
 - Prepackaged audiences-react in UJS [#510](https://github.com/powerhome/audiences/pull/510)
