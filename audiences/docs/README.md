@@ -42,17 +42,6 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 ### Configuring Audiences
 
-The `Audience.config.scim` should point to the SCIM endpoint. Configure the endpoint and the credentials/headers as follows:
-
-```ruby
-Audiences.configure do |config|
-  config.scim = {
-    uri: ENV.fetch("SCIM_V2_API"),
-    headers: { "Authorization" => "Bearer #{ENV.fetch('SCIM_V2_TOKEN')}" }
-  }
-end
-```
-
 ### Adding Audiences to a Model
 
 A model object can contain multiple audience contexts using the `has_audience` module helper, which is added to ActiveRecord automatically when configured:
