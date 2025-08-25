@@ -13,12 +13,16 @@ function mountAudiencesEditors() {
       if (!element.dataset.reactMounted) {
         const uri = element.dataset.audiencesUri
         const context = element.dataset.audiencesContext
+        const allowIndividuals = element.dataset.allowIndividuals != "false"
+        const allowMatchAll = element.dataset.allowMatchAll != "false"
         element.dataset.reactMounted = true
 
         ReactDOM.render(
           React.createElement(window.AudiencesRails.AudienceEditor, {
             uri,
             context,
+            allowIndividuals,
+            allowMatchAll,
           }),
           element,
         )
