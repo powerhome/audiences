@@ -23,6 +23,8 @@ type AudienceFormProps = {
   groupResources: string[]
   allowIndividuals: boolean
   allowMatchAll: boolean
+  isMobile?: boolean
+  onSkip?: () => void
 }
 
 export const AudienceForm = ({
@@ -30,6 +32,8 @@ export const AudienceForm = ({
   groupResources,
   allowIndividuals = true,
   allowMatchAll = true,
+  isMobile = true,
+  onSkip
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
   const { error, value: context, change } = useAudiencesContext()
@@ -43,17 +47,19 @@ export const AudienceForm = ({
       <CriteriaForm
         resources={groupResources}
         criterion={editing}
+        isMobile={isMobile}
+        onSkip={onSkip}
         onExit={() => setEditing(undefined)}
       />
     )
   }
 
   return (
-    <Card margin="xs" padding="xs">
-      <Card.Header headerColor={context.match_all ? "none" : "white"}>
-        <MatchAllToggleHeader allowMatchAll={allowMatchAll} />
+    <Card margin="xs" padding="xs" borderNone={isMobile}>
+      <Card.Header paddingX={isMobile && "xs"} headerColor={context.match_all ? "none" : "white"}>
+        <MatchAllToggleHeader allowMatchAll={allowMatchAll} isMobile={isMobile} />
       </Card.Header>
-      <Card.Body>
+      <Card.Body paddingX={isMobile && "xs"}>
         <Flex orientation="column" align="stretch">
           {error && (
             <FixedConfirmationToast status="error" text={error} margin="sm" />
@@ -68,6 +74,7 @@ export const AudienceForm = ({
                     change("extra_users", users)
                   }
                   resourceId={userResource}
+                  isMobile={isMobile}
                 />
               )}
               <CriteriaList onEditCriteria={setEditing} />
@@ -75,6 +82,8 @@ export const AudienceForm = ({
                 <Button
                   fixedWidth
                   marginTop="md"
+                  paddingX={isMobile && "xs"}
+                  size={isMobile ? "sm" : "md"}
                   onClick={() => setEditing(context.criteria.length)}
                   text={`Add Members by ${toSentence(groupResources)}`}
                   variant="link"
@@ -82,10 +91,9 @@ export const AudienceForm = ({
               </FlexItem>
             </>
           )}
-
-          <ActionBar />
         </Flex>
       </Card.Body>
+      <ActionBar isMobile={isMobile} onSkip={onSkip} />
     </Card>
   )
 }

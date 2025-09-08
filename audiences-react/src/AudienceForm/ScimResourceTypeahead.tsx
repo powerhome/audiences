@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash"
-import { Typeahead } from "playbook-ui"
+import { Typeahead, Title, User } from "playbook-ui"
 import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
@@ -12,6 +12,7 @@ type PlaybookOption = ScimObject & {
 }
 
 function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
+  console.log("the obj", objects)
   return objects
     ? objects.map((object: ScimObject) => ({
         ...object,
@@ -27,11 +28,13 @@ type ScimResourceTypeaheadProps = {
   value: ScimObject[]
   onChange: (values: ScimObject[]) => void
   resourceId: string
+  isMobile?: boolean
 }
 export function ScimResourceTypeahead({
   resourceId,
   onChange,
   value,
+  isMobile,
   ...typeaheadProps
 }: ScimResourceTypeaheadProps) {
   const { query } = useContext(Audiences)!
@@ -64,6 +67,7 @@ export function ScimResourceTypeahead({
   }
 
   return (
+      <>
     <Typeahead
       isMulti
       async
@@ -73,5 +77,21 @@ export function ScimResourceTypeahead({
       value={playbookOptions(value)}
       onChange={handleChange}
     />
+      {isMobile && value && value.map(user => {
+        const extension = user["urn:ietf:params:scim:schemas:extension:authservice:2.0:User"] || {}
+        return (
+          <User
+              key={user.id}
+              align="left"
+              avatarUrl={get(user, "photos.0.value")}
+              name={user.displayName}
+              orientation="horizontal"
+              territory={extension.territoryAbbr}
+              title={user.title}
+              marginBottom="sm"
+          />
+        )
+      })}
+    </>
   )
 }

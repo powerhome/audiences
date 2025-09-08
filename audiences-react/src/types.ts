@@ -6,6 +6,7 @@ export interface ScimObject {
     type: "primary" | "thumb"
     value: string
   }[]
+  [key: string]: any
 }
 
 export interface Groups {
