@@ -28,7 +28,7 @@ export function AudienceEditor({
   allowMatchAll = true,
   fetchOptions = {},
   isMobile = false,
-  onSkip
+  onSkip,
 }: AudienceEditorProps) {
   const audiencesUri = context ? uri : audiencesRoot(uri)
   const contextKey = context ? context : audiencesContext(uri)

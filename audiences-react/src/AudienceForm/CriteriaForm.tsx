@@ -69,8 +69,19 @@ export function CriteriaForm({
         {emptyCriteria || <CriteriaDescription groups={value.groups} />}
         {isMobile ? (
           <Flex orientation="column" align="center" marginTop="md">
-            <Button fullWidth onClick={handleSave} text="Save" disabled={emptyCriteria} />
-            <Button fullWidth marginTop="xs" onClick={handleCancel} text="Skip for now" variant="secondary" />
+            <Button
+              fullWidth
+              onClick={handleSave}
+              text="Save"
+              disabled={emptyCriteria}
+            />
+            <Button
+              fullWidth
+              marginTop="xs"
+              onClick={handleCancel}
+              text="Skip for now"
+              variant="secondary"
+            />
           </Flex>
         ) : (
           <Flex justify="between" marginTop="md">

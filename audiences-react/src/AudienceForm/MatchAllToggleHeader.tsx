@@ -10,13 +10,13 @@ type MatchAllToggleHeaderProps = {
 }
 export function MatchAllToggleHeader({
   allowMatchAll,
-  isMobile
+  isMobile,
 }: MatchAllToggleHeaderProps) {
   const { value: context, isDirty, change } = useAudiencesContext()
   const handleToggle = () => change("match_all", !context.match_all)
 
   return (
-    <Flex orientation={ isMobile ? "column" : "row"} spacing="between" wrap>
+    <Flex orientation={isMobile ? "column" : "row"} spacing="between" wrap>
       <FlexItem>
         <Caption text={`Members ${isDirty() ? "" : context.count}`} />
         {isDirty() ? (

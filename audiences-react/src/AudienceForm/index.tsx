@@ -33,7 +33,7 @@ export const AudienceForm = ({
   allowIndividuals = true,
   allowMatchAll = true,
   isMobile = true,
-  onSkip
+  onSkip,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
   const { error, value: context, change } = useAudiencesContext()
@@ -56,8 +56,14 @@ export const AudienceForm = ({
 
   return (
     <Card margin="xs" padding="xs" borderNone={isMobile}>
-      <Card.Header paddingX={isMobile && "xs"} headerColor={context.match_all ? "none" : "white"}>
-        <MatchAllToggleHeader allowMatchAll={allowMatchAll} isMobile={isMobile} />
+      <Card.Header
+        paddingX={isMobile && "xs"}
+        headerColor={context.match_all ? "none" : "white"}
+      >
+        <MatchAllToggleHeader
+          allowMatchAll={allowMatchAll}
+          isMobile={isMobile}
+        />
       </Card.Header>
       <Card.Body paddingX={isMobile && "xs"}>
         <Flex orientation="column" align="stretch">
