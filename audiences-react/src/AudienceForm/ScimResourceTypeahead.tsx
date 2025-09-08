@@ -1,15 +1,21 @@
 import { debounce, get } from "lodash"
-import { Typeahead, Title, User } from "playbook-ui"
+import { Typeahead, User, ListItem, List } from "playbook-ui"
 import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
 import { ScimObject } from "../types"
 
+
+/**
+ * @description This has to be hardcoded because the API returns an object where the key for the user details
+ * can only be accessed using this SCIM_USER_KEY constant. We should update this later.
+ */
+const SCIM_USER_KEY = "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" as const;
+
 type PlaybookOption = ScimObject & {
-  value: any
-  label: string
-  imageUrl?: string
-}
+  value: number;
+  label: string;
+};
 
 function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
   console.log("the obj", objects)
@@ -18,7 +24,6 @@ function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
         ...object,
         value: parseInt(object.id),
         label: object.displayName,
-        imageUrl: get(object, "photos.0.value"),
       }))
     : []
 }
@@ -70,6 +75,8 @@ export function ScimResourceTypeahead({
       <>
     <Typeahead
       isMulti
+      multiKit="smallPill"
+      truncate={1}
       async
       loadOptions={loadOptions}
       placeholder=""
@@ -77,19 +84,23 @@ export function ScimResourceTypeahead({
       value={playbookOptions(value)}
       onChange={handleChange}
     />
-      {isMobile && value && value.map(user => {
-        const extension = user["urn:ietf:params:scim:schemas:extension:authservice:2.0:User"] || {}
+      {isMobile && value && value.map((user: ScimObject) => {
+        // NOTE: This is a workaround for the SCIM API's structure
+        const extension = (user[SCIM_USER_KEY] || {} as ScimObject[typeof SCIM_USER_KEY])
         return (
-          <User
-              key={user.id}
-              align="left"
-              avatarUrl={get(user, "photos.0.value")}
-              name={user.displayName}
-              orientation="horizontal"
-              territory={extension.territoryAbbr}
-              title={user.title}
-              marginBottom="sm"
-          />
+          <List borderless>
+            <ListItem>
+              <User
+                  key={user.id}
+                  align="left"
+                  avatarUrl={get(user, "photos.0.value")}
+                  name={user.displayName}
+                  orientation="horizontal"
+                  territory={extension?.territoryAbbr}
+                  title={user.title}
+              />
+            </ListItem>
+          </List>
         )
       })}
     </>
