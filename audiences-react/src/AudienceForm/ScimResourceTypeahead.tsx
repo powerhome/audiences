@@ -18,7 +18,6 @@ type PlaybookOption = ScimObject & {
 }
 
 function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
-  console.log("the obj", objects)
   return objects
     ? objects.map((object: ScimObject) => ({
         ...object,
