@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash"
-import { Typeahead, User, ListItem, List } from "playbook-ui"
+import { Typeahead, User, ListItem, List, Icon, Button, Flex, FlexItem } from "playbook-ui"
 import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
@@ -89,20 +89,32 @@ export function ScimResourceTypeahead({
           // NOTE: This is a workaround for the SCIM API's structure
           const extension =
             user[SCIM_USER_KEY] || ({} as ScimObject[typeof SCIM_USER_KEY])
+          const handleRemoveUser = () => {
+            const newValue = value.filter(u => u.id !== user.id)
+            onChange(newValue)
+          }
           return (
-            <List borderless>
-              <ListItem>
-                <User
-                  key={user.id}
-                  align="left"
-                  avatarUrl={get(user, "photos.0.value")}
-                  name={user.displayName}
-                  orientation="horizontal"
-                  territory={extension?.territoryAbbr}
-                  title={user.title}
-                />
-              </ListItem>
-            </List>
+                <Flex justify="between" key={user.id} marginBottom="sm">
+                  <FlexItem>
+                    <User
+                      align="left"
+                      avatarUrl={get(user, "photos.0.value")}
+                      name={user.displayName}
+                      orientation="horizontal"
+                      territory={extension?.territoryAbbr}
+                      title={user.title}
+                    />
+                  </FlexItem>
+                  <FlexItem>
+                    <Button
+                      onClick={handleRemoveUser}
+                      paddingRight="none"
+                      variant="link"
+                    >
+                      <Icon fixedWidth size="lg" icon="xmark" />
+                    </Button>
+                  </FlexItem>
+                </Flex>
           )
         })}
     </>
