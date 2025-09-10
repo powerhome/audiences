@@ -1,5 +1,4 @@
 import { Button, Icon, PbReactPopover, List, ListItem } from "playbook-ui"
-import { useState } from "react"
 import { MembersModalButton } from "./MembersModalButton"
 import { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
@@ -9,15 +8,18 @@ type CriteriaActionsProps = {
   onRequestEdit: () => void
   onRequestRemove: () => void
   viewUsers: boolean
+  showPopover: boolean
+  setShowPopover: (show: boolean) => void
 }
 export function CriteriaActions({
   viewUsers,
   criterion,
   onRequestRemove,
   onRequestEdit,
+  showPopover,
+  setShowPopover,
 }: CriteriaActionsProps) {
-  const [showPopover, togglePopover] = useState(false)
-  const switchPopover = () => togglePopover(!showPopover)
+  const switchPopover = () => setShowPopover(!showPopover)
 
   const actionPopoverTrigger = (
     <div className="pb_circle_icon_button_kit">
@@ -35,7 +37,7 @@ export function CriteriaActions({
   const handleAndClose = (handler: () => void) => {
     return () => {
       handler()
-      togglePopover(false)
+      setShowPopover(false)
     }
   }
 
@@ -45,8 +47,11 @@ export function CriteriaActions({
       padding="xs"
       placement="bottom"
       reference={actionPopoverTrigger}
-      shouldClosePopover={(close: boolean) => togglePopover(!close)}
+      shouldClosePopover={(close: boolean) => {
+        setShowPopover(!close)
+      }}
       show={showPopover}
+      zIndex={3}
     >
       <List>
         <ListItem padding="none">

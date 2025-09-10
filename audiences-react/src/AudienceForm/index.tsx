@@ -32,7 +32,7 @@ export const AudienceForm = ({
   groupResources,
   allowIndividuals = true,
   allowMatchAll = true,
-  isMobile = true,
+  isMobile,
   onSkip,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()

@@ -38,6 +38,10 @@ export function CriteriaForm({
   }
 
   const handleCancel = () => {
+   onExit()
+  }
+
+  const handleClose = () => {
     onSkip ? onSkip() : onExit()
   }
 
@@ -78,7 +82,7 @@ export function CriteriaForm({
             <Button
               fullWidth
               marginTop="xs"
-              onClick={handleCancel}
+              onClick={handleClose}
               text="Skip for now"
               variant="secondary"
             />
