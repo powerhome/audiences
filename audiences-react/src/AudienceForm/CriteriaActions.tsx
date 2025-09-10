@@ -24,10 +24,7 @@ export function CriteriaActions({
   const actionPopoverTrigger = (
     <div className="pb_circle_icon_button_kit">
       <Button className="" onClick={switchPopover} variant="link">
-        <Icon
-          fixedWidth
-          icon="ellipsis"
-        />
+        <Icon fixedWidth icon="ellipsis" />
       </Button>
     </div>
   )

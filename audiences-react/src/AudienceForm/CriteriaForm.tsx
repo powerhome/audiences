@@ -38,7 +38,7 @@ export function CriteriaForm({
   }
 
   const handleCancel = () => {
-   onExit()
+    onExit()
   }
 
   const handleClose = () => {
