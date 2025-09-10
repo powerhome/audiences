@@ -26,9 +26,7 @@ export function CriteriaActions({
       <Button className="" onClick={switchPopover} variant="link">
         <Icon
           fixedWidth
-          fontStyle="fas"
-          icon="ellipsis-vertical"
-          rotation={90}
+          icon="ellipsis"
         />
       </Button>
     </div>
