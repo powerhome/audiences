@@ -90,31 +90,30 @@ export function ScimResourceTypeahead({
           const extension =
             user[SCIM_USER_KEY] || ({} as ScimObject[typeof SCIM_USER_KEY])
           const handleRemoveUser = () => {
-            const newValue = value.filter(u => u.id !== user.id)
+            const newValue = value.filter((u) => u.id !== user.id)
             onChange(newValue)
           }
           return (
-                <Flex justify="between" key={user.id} marginBottom="sm">
-                  <FlexItem>
-                    <User
-                      align="left"
-                      avatarUrl={get(user, "photos.0.value")}
-                      name={user.displayName}
-                      orientation="horizontal"
-                      territory={extension?.territoryAbbr}
-                      title={user.title}
-                    />
-                  </FlexItem>
-                  <FlexItem>
-                    <IconButton
-                      onClick={() => console.log("close")}
-                      icon="xmark"
-                      size="sm"
-                      color="default"
-                    >
-                    </IconButton>
-                  </FlexItem>
-                </Flex>
+            <Flex justify="between" key={user.id} marginBottom="sm">
+              <FlexItem>
+                <User
+                  align="left"
+                  avatarUrl={get(user, "photos.0.value")}
+                  name={user.displayName}
+                  orientation="horizontal"
+                  territory={extension?.territoryAbbr}
+                  title={user.title}
+                />
+              </FlexItem>
+              <FlexItem>
+                <IconButton
+                  onClick={() => console.log("close")}
+                  icon="xmark"
+                  size="sm"
+                  color="default"
+                ></IconButton>
+              </FlexItem>
+            </Flex>
           )
         })}
     </>
