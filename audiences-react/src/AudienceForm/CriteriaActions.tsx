@@ -46,7 +46,6 @@ export function CriteriaActions({
         setShowPopover(!close)
       }}
       show={showPopover}
-      zIndex={3}
     >
       <List>
         <ListItem padding="none">
