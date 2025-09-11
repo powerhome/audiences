@@ -17,12 +17,13 @@ type PlaybookOption = ScimObject & {
   label: string
 }
 
-function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
+function playbookOptions(objects: ScimObject[], isMobile: boolean): PlaybookOption[] {
   return objects
     ? objects.map((object: ScimObject) => ({
         ...object,
         value: parseInt(object.id),
         label: object.displayName,
+        imageUrl: !isMobile ? get(object, "photos.0.value") : undefined,
       }))
     : []
 }
@@ -51,7 +52,7 @@ export function ScimResourceTypeahead({
     debounce(
       async (search: string, callback: (options: PlaybookOption[]) => void) => {
         const options = await query(resourceId, search)
-        callback(playbookOptions(options))
+        callback(playbookOptions(options, isMobile || false))
       },
       600,
     ),
@@ -74,13 +75,13 @@ export function ScimResourceTypeahead({
     <>
       <Typeahead
         isMulti
-        multiKit="smallPill"
+        multiKit={isMobile ? "smallPill" : ""}
         truncate={1}
         async
         loadOptions={loadOptions}
         placeholder=""
         {...typeaheadProps}
-        value={playbookOptions(value)}
+        value={playbookOptions(value, isMobile || false)}
         onChange={handleChange}
       />
       {isMobile &&
