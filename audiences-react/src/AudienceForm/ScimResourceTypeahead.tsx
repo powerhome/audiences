@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash"
-import { Typeahead, User, ListItem, List, Icon, Button, Flex, FlexItem } from "playbook-ui"
+import { Typeahead, User, IconButton, Flex, FlexItem } from "playbook-ui"
 import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
@@ -106,13 +106,13 @@ export function ScimResourceTypeahead({
                     />
                   </FlexItem>
                   <FlexItem>
-                    <Button
-                      onClick={handleRemoveUser}
-                      paddingRight="none"
-                      variant="link"
+                    <IconButton
+                      onClick={() => console.log("close")}
+                      icon="xmark"
+                      size="sm"
+                      color="default"
                     >
-                      <Icon fixedWidth size="lg" icon="xmark" />
-                    </Button>
+                    </IconButton>
                   </FlexItem>
                 </Flex>
           )
