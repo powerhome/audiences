@@ -107,7 +107,7 @@ export function ScimResourceTypeahead({
               </FlexItem>
               <FlexItem>
                 <IconButton
-                  onClick={() => console.log("close")}
+                  onClick={handleRemoveUser}
                   icon="xmark"
                   size="sm"
                   color="default"
