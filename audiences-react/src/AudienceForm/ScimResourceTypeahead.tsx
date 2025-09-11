@@ -17,7 +17,10 @@ type PlaybookOption = ScimObject & {
   label: string
 }
 
-function playbookOptions(objects: ScimObject[], isMobile: boolean): PlaybookOption[] {
+function playbookOptions(
+  objects: ScimObject[],
+  isMobile: boolean,
+): PlaybookOption[] {
   return objects
     ? objects.map((object: ScimObject) => ({
         ...object,
