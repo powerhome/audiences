@@ -12,6 +12,7 @@ import { ScimObject } from "../types"
 import { toSentence } from "./toSentence"
 
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
+import { MobileTypeahead } from "./MobileTypeahead"
 import { CriteriaList } from "./CriteriaList"
 import { CriteriaForm } from "./CriteriaForm"
 import { ActionBar } from "./ActionBar"
@@ -71,9 +72,9 @@ export const AudienceForm = ({
             <FixedConfirmationToast status="error" text={error} margin="sm" />
           )}
           {!context.match_all && (
-            <>
-              {allowIndividuals && (
-                <ScimResourceTypeahead
+            <>{isMobile ? 
+                            (allowIndividuals && (
+                <MobileTypeahead
                   label="Add Individuals"
                   value={context.extra_users || []}
                   onChange={(users: ScimObject[]) =>
@@ -82,7 +83,19 @@ export const AudienceForm = ({
                   resourceId={userResource}
                   isMobile={isMobile}
                 />
-              )}
+              ))
+              :
+              (allowIndividuals && (
+                <ScimResourceTypeahead
+                  label="Add Individuals"
+                  value={context.extra_users || []}
+                  onChange={(users: ScimObject[]) =>
+                    change("extra_users", users)
+                  }
+                  resourceId={userResource}
+                />
+              ))
+            }
               <CriteriaList onEditCriteria={setEditing} />
               <FlexItem alignSelf="center">
                 <Button
