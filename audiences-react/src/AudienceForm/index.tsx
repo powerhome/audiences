@@ -72,30 +72,29 @@ export const AudienceForm = ({
             <FixedConfirmationToast status="error" text={error} margin="sm" />
           )}
           {!context.match_all && (
-            <>{isMobile ? 
-                            (allowIndividuals && (
-                <MobileTypeahead
-                  label="Add Individuals"
-                  value={context.extra_users || []}
-                  onChange={(users: ScimObject[]) =>
-                    change("extra_users", users)
-                  }
-                  resourceId={userResource}
-                  isMobile={isMobile}
-                />
-              ))
-              :
-              (allowIndividuals && (
-                <ScimResourceTypeahead
-                  label="Add Individuals"
-                  value={context.extra_users || []}
-                  onChange={(users: ScimObject[]) =>
-                    change("extra_users", users)
-                  }
-                  resourceId={userResource}
-                />
-              ))
-            }
+            <>
+              {isMobile
+                ? allowIndividuals && (
+                    <MobileTypeahead
+                      label="Add Individuals"
+                      value={context.extra_users || []}
+                      onChange={(users: ScimObject[]) =>
+                        change("extra_users", users)
+                      }
+                      resourceId={userResource}
+                      isMobile={isMobile}
+                    />
+                  )
+                : allowIndividuals && (
+                    <ScimResourceTypeahead
+                      label="Add Individuals"
+                      value={context.extra_users || []}
+                      onChange={(users: ScimObject[]) =>
+                        change("extra_users", users)
+                      }
+                      resourceId={userResource}
+                    />
+                  )}
               <CriteriaList onEditCriteria={setEditing} />
               <FlexItem alignSelf="center">
                 <Button

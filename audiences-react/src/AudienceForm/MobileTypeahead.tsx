@@ -17,9 +17,7 @@ type PlaybookOption = ScimObject & {
   label: string
 }
 
-function playbookOptions(
-  objects: ScimObject[],
-): PlaybookOption[] {
+function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
   return objects
     ? objects.map((object: ScimObject) => ({
         ...object,
@@ -73,9 +71,9 @@ export function MobileTypeahead({
     debouncedFetchOptions(search, callback)
   }
 
-    const formatOptionLabel = (user: ScimObject) => {
-      const extension =
-            user[SCIM_USER_KEY] || ({} as ScimObject[typeof SCIM_USER_KEY])
+  const formatOptionLabel = (user: ScimObject) => {
+    const extension =
+      user[SCIM_USER_KEY] || ({} as ScimObject[typeof SCIM_USER_KEY])
     return (
       <User
         align="left"
@@ -84,19 +82,19 @@ export function MobileTypeahead({
         orientation="horizontal"
         territory={extension?.territoryAbbr}
         title={user.title}
-    />
+      />
     )
   }
 
-    const customComponents = {
+  const customComponents = {
     Option: (highlightProps: OptionProps<PlaybookOption, true>) => (
-      <components.Option {...highlightProps}/>
+      <components.Option {...highlightProps} />
     ),
     SingleValue: (props: SingleValueProps<PlaybookOption, true>) => (
       <components.SingleValue {...props}>
         <span>{props.data.displayName}</span>
       </components.SingleValue>
-    )
+    ),
   }
 
   return (
