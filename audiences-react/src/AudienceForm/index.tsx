@@ -73,8 +73,8 @@ export const AudienceForm = ({
           )}
           {!context.match_all && (
             <>
-              {allowIndividuals && (
-                isMobile ? (
+              {allowIndividuals &&
+                (isMobile ? (
                   <MobileTypeahead
                     label="Add Individuals"
                     value={context.extra_users || []}
@@ -92,8 +92,7 @@ export const AudienceForm = ({
                     }
                     resourceId={userResource}
                   />
-                )
-              )}
+                ))}
               <CriteriaList onEditCriteria={setEditing} />
               <FlexItem alignSelf="center">
                 <Button
