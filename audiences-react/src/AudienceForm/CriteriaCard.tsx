@@ -1,6 +1,5 @@
 import { Card, Flex, FlexItem, Caption } from "playbook-ui"
 import { isEmpty } from "lodash"
-import { useState } from "react"
 
 import type { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
@@ -19,8 +18,6 @@ export function CriteriaCard({
   onRequestRemove,
   onRequestEdit,
 }: CriteriaCardProps) {
-  const [showPopover, setShowPopover] = useState(false)
-
   if (!criterion || isEmpty(criterion.groups)) {
     return null
   }
@@ -41,8 +38,6 @@ export function CriteriaCard({
             onRequestRemove={onRequestRemove}
             onRequestEdit={onRequestEdit}
             viewUsers={viewUsers}
-            showPopover={showPopover}
-            setShowPopover={setShowPopover}
           />
         </FlexItem>
       </Flex>
