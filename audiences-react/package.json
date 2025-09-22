@@ -1,6 +1,6 @@
 {
   "name": "audiences",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Audiences SCIM client",
   "files": [
     "dist/*.*",
@@ -36,7 +36,8 @@
   "author": "Carlos Palhares",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "react-select": "^5.10.2"
   },
   "prettier": "@powerhome/eslint-config/prettier",
   "peerDependencies": {

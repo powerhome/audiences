@@ -1,8 +1,8 @@
 import { Button, Icon, PbReactPopover, List, ListItem } from "playbook-ui"
-import { useState } from "react"
 import { MembersModalButton } from "./MembersModalButton"
 import { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
+import { useState } from "react"
 
 type CriteriaActionsProps = {
   criterion: GroupCriterion
@@ -22,7 +22,7 @@ export function CriteriaActions({
   const actionPopoverTrigger = (
     <div className="pb_circle_icon_button_kit">
       <Button className="" onClick={switchPopover} variant="link">
-        <Icon fixedWidth fontStyle="fas" icon="ellipsis-vertical" />
+        <Icon fixedWidth icon="ellipsis" />
       </Button>
     </div>
   )
@@ -42,6 +42,7 @@ export function CriteriaActions({
       reference={actionPopoverTrigger}
       shouldClosePopover={(close: boolean) => togglePopover(!close)}
       show={showPopover}
+      zIndex={10}
     >
       <List>
         <ListItem padding="none">

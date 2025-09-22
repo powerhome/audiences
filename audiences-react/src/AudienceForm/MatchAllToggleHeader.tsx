@@ -6,15 +6,17 @@ import { useAudiencesContext } from "../audiences"
 
 type MatchAllToggleHeaderProps = {
   allowMatchAll: boolean
+  isMobile?: boolean
 }
 export function MatchAllToggleHeader({
   allowMatchAll,
+  isMobile,
 }: MatchAllToggleHeaderProps) {
   const { value: context, isDirty, change } = useAudiencesContext()
   const handleToggle = () => change("match_all", !context.match_all)
 
   return (
-    <Flex orientation="row" spacing="between" wrap>
+    <Flex orientation={isMobile ? "column" : "row"} spacing="between" wrap>
       <FlexItem>
         <Caption text={`Members ${isDirty() ? "" : context.count}`} />
         {isDirty() ? (

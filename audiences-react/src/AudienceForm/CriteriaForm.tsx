@@ -10,6 +10,8 @@ import useFormReducer from "../useFormReducer"
 export type CriteriaFormProps = {
   resources: string[]
   criterion: number
+  isMobile?: boolean
+  onSkip?: () => void
   onExit: () => void
 }
 function buildCriterion(resources: string[]) {
@@ -19,9 +21,11 @@ function buildCriterion(resources: string[]) {
 export function CriteriaForm({
   resources,
   criterion,
+  isMobile,
+  onSkip,
   onExit,
 }: CriteriaFormProps) {
-  const { value: context, updateCriteria } = useAudiencesContext()
+  const { value: context, updateCriteria, reset } = useAudiencesContext()
   const { value, change } = useFormReducer<GroupCriterion>(
     context.criteria[criterion] || buildCriterion(resources),
   )
@@ -37,9 +41,13 @@ export function CriteriaForm({
     onExit()
   }
 
+  const handleClose = () => {
+    onSkip ? onSkip() : onExit()
+  }
+
   return (
-    <Card>
-      <Card.Header headerColor="white">
+    <Card paddingX={isMobile && "sm"} borderNone={isMobile}>
+      <Card.Header paddingX={isMobile && "xs"} headerColor="white">
         <Button onClick={handleCancel} variant="link" padding="none">
           <IconValue
             fixedWidth
@@ -51,7 +59,7 @@ export function CriteriaForm({
         </Button>
       </Card.Header>
 
-      <Card.Body>
+      <Card.Body paddingX={isMobile && "xs"}>
         {resources.map((resourceId) => (
           <ScimResourceTypeahead
             resourceId={resourceId}
@@ -63,11 +71,28 @@ export function CriteriaForm({
         ))}
 
         {emptyCriteria || <CriteriaDescription groups={value.groups} />}
-
-        <Flex justify="between" marginTop="md">
-          <Button onClick={handleSave} text="Save" disabled={emptyCriteria} />
-          <Button onClick={handleCancel} text="Cancel" variant="link" />
-        </Flex>
+        {isMobile ? (
+          <Flex orientation="column" align="center" marginTop="md">
+            <Button
+              fullWidth
+              onClick={handleSave}
+              text="Save"
+              disabled={emptyCriteria}
+            />
+            <Button
+              fullWidth
+              marginTop="xs"
+              onClick={handleClose}
+              text="Skip for now"
+              variant="secondary"
+            />
+          </Flex>
+        ) : (
+          <Flex justify="between" marginTop="md">
+            <Button onClick={handleSave} text="Save" disabled={emptyCriteria} />
+            <Button onClick={handleCancel} text="Cancel" variant="link" />
+          </Flex>
+        )}
       </Card.Body>
     </Card>
   )
