@@ -19,6 +19,7 @@ type AudienceEditorProps = {
   allowMatchAll?: boolean
   fetchOptions?: Parameters<typeof useAudiences>[2]
   isMobile?: boolean
+  isPrivate?: boolean
   onSkip?: () => void
 }
 export function AudienceEditor({
@@ -28,6 +29,7 @@ export function AudienceEditor({
   allowMatchAll = true,
   fetchOptions = {},
   isMobile = false,
+  isPrivate,
   onSkip,
 }: AudienceEditorProps) {
   const audiencesUri = context ? uri : audiencesRoot(uri)
@@ -42,6 +44,7 @@ export function AudienceEditor({
         allowIndividuals={allowIndividuals}
         allowMatchAll={allowMatchAll}
         isMobile={isMobile}
+        isPrivate={isPrivate}
         onSkip={onSkip}
       />
     </Audiences.Provider>

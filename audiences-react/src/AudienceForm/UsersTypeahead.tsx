@@ -17,31 +17,34 @@ type PlaybookOption = ScimObject & {
   label: string
 }
 
-function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
+function playbookOptions(
+  objects: ScimObject[],
+  isMobile?: boolean,
+): PlaybookOption[] {
   return objects
     ? objects.map((object: ScimObject) => ({
         ...object,
         value: parseInt(object.id),
         label: object.displayName,
-        imageUrl: get(object, "photos.0.value"),
+        imageUrl: !isMobile && get(object, "photos.0.value"),
       }))
     : []
 }
 
-type MobileTypeaheadProps = {
+type UsersTypeaheadProps = {
   label: string
   value: ScimObject[]
   onChange: (values: ScimObject[]) => void
   resourceId: string
   isMobile?: boolean
 }
-export function MobileTypeahead({
+export function UsersTypeahead({
   resourceId,
   onChange,
   value,
   isMobile,
   ...typeaheadProps
-}: MobileTypeaheadProps) {
+}: UsersTypeaheadProps) {
   const { query } = useContext(Audiences)!
 
   function handleChange(value: any, ...event: any[]) {
@@ -52,7 +55,7 @@ export function MobileTypeahead({
     debounce(
       async (search: string, callback: (options: PlaybookOption[]) => void) => {
         const options = await query(resourceId, search)
-        callback(playbookOptions(options))
+        callback(playbookOptions(options, isMobile))
       },
       600,
     ),
@@ -109,10 +112,11 @@ export function MobileTypeahead({
         loadOptions={loadOptions}
         placeholder=""
         {...typeaheadProps}
-        value={playbookOptions(value)}
+        value={playbookOptions(value, isMobile)}
         onChange={handleChange}
       />
-      {value &&
+      {isMobile &&
+        value &&
         value.map((user: ScimObject) => {
           // NOTE: This is a workaround for the SCIM API's structure
           const extension =

@@ -16,6 +16,13 @@ import type { GroupCriterion, ScimObject } from "../../types"
 import styles from "./style.module.css"
 import { useAudiencesContext } from "../../audiences"
 
+/**
+ * @description This has to be hardcoded because the API returns an object where the key for the user details
+ * can only be accessed using this SCIM_USER_KEY constant. We should update this later.
+ */
+const SCIM_USER_KEY =
+  "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" as const
+
 type MembersModalButtonProps = any & {
   criterion?: GroupCriterion
   title: React.ReactNode
@@ -75,7 +82,6 @@ export function MembersModalButton({
             <Body color="light" text={title} />
           </Flex>
         </Dialog.Header>
-
         {current && (
           <Dialog.Body className="px-5">
             <Flex orientation="column" align="stretch">
@@ -85,16 +91,24 @@ export function MembersModalButton({
                 value={search}
               />
               <List className={styles.list}>
-                {current.users.map((user: ScimObject, index: number) => (
-                  <ListItem key={`users-${index}`} padding="xs">
-                    <User
-                      avatar
-                      avatarUrl={get(user, "photos.0.value")}
-                      margin="none"
-                      name={user.displayName}
-                    />
-                  </ListItem>
-                ))}
+                {current.users.map((user: ScimObject, index: number) => {
+                  const extension =
+                    user[SCIM_USER_KEY] ||
+                    ({} as ScimObject[typeof SCIM_USER_KEY])
+                  return (
+                    <ListItem key={`users-${index}`} padding="xs">
+                      <User
+                        avatar
+                        avatarUrl={get(user, "photos.0.value")}
+                        margin="none"
+                        name={user.displayName}
+                        orientation="horizontal"
+                        territory={extension?.territoryAbbr}
+                        title={user.title}
+                      />
+                    </ListItem>
+                  )
+                })}
                 <ListItem>
                   {current.users.length < current.count && (
                     <Button
