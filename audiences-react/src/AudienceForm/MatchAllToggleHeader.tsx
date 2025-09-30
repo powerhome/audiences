@@ -23,7 +23,7 @@ export function MatchAllToggleHeader({
           <Caption
             size="xs"
             marginTop="sm"
-            text="Audience members will update when the page is saved"
+            text="Save changes to view all members"
           />
         ) : (
           <MembersModalButton

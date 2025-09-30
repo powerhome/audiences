@@ -18,6 +18,7 @@ import { CriteriaForm } from "./CriteriaForm"
 import { ActionBar } from "./ActionBar"
 import { MatchAllToggleHeader } from "./MatchAllToggleHeader"
 import { useAudiencesContext } from "../audiences"
+import { CustomizedActionBar } from "./CustomizedActionBar"
 
 type AudienceFormProps = {
   userResource: string
@@ -26,6 +27,7 @@ type AudienceFormProps = {
   allowMatchAll: boolean
   isMobile?: boolean
   isPrivate?: boolean
+  isSkipButton?: boolean
   onSkip?: () => void
 }
 
@@ -36,6 +38,7 @@ export const AudienceForm = ({
   allowMatchAll = true,
   isMobile,
   isPrivate,
+  isSkipButton,
   onSkip,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
@@ -103,7 +106,11 @@ export const AudienceForm = ({
           )}
         </Flex>
       </Card.Body>
-      <ActionBar isMobile={isMobile} onSkip={onSkip} />
+      {onSkip ? (
+        <CustomizedActionBar isMobile={isMobile} isSkipButton={isSkipButton} onSkip={onSkip} />
+      ) : (
+        <ActionBar isMobile={isMobile} />
+      )}
     </Card>
   )
 }

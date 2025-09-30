@@ -20,6 +20,7 @@ type AudienceEditorProps = {
   fetchOptions?: Parameters<typeof useAudiences>[2]
   isMobile?: boolean
   isPrivate?: boolean
+  isSkipButton?: boolean
   onSkip?: () => void
 }
 export function AudienceEditor({
@@ -30,6 +31,7 @@ export function AudienceEditor({
   fetchOptions = {},
   isMobile = false,
   isPrivate,
+  isSkipButton = false,
   onSkip,
 }: AudienceEditorProps) {
   const audiencesUri = context ? uri : audiencesRoot(uri)
@@ -45,6 +47,7 @@ export function AudienceEditor({
         allowMatchAll={allowMatchAll}
         isMobile={isMobile}
         isPrivate={isPrivate}
+        isSkipButton={isSkipButton}
         onSkip={onSkip}
       />
     </Audiences.Provider>
