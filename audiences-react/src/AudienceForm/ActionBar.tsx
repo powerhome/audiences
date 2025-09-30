@@ -2,9 +2,7 @@ import { Flex, Button } from "playbook-ui"
 import { useAudiencesContext } from "../audiences"
 import { useState } from "react"
 
-export function ActionBar({ isMobile = false }: {
-  isMobile?: boolean
-}) {
+export function ActionBar({ isMobile = false }: { isMobile?: boolean }) {
   const { save, isDirty, reset } = useAudiencesContext()
   const [saving, setSaving] = useState(false)
 

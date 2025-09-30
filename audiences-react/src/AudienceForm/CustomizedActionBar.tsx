@@ -18,11 +18,18 @@ export function CustomizedActionBar({
     setSaving(true)
     await save()
     setSaving(false)
-    if (onSkip) onSkip()
+    if (saving && onSkip) onSkip()
   }
 
   return isSkipButton ? (
-    <Flex orientation={isMobile ? "column" : "row"} justify={isMobile ? "center" : "between"} align="center" marginTop="md" paddingX= {isMobile ? "xs" : "md"} paddingBottom={isMobile ? "" : "md"}>
+    <Flex
+      orientation={isMobile ? "column" : "row"}
+      justify={isMobile ? "center" : "between"}
+      align="center"
+      marginTop="md"
+      paddingX={isMobile ? "xs" : "md"}
+      paddingBottom={isMobile ? "" : "md"}
+    >
       <Button
         fullWidth={isMobile}
         disabled={!isDirty()}
@@ -38,8 +45,8 @@ export function CustomizedActionBar({
         variant="secondary"
         htmlType="reset"
         onClick={() => {
-        if (isDirty()) reset()
-        if (onSkip) onSkip()
+          if (isDirty()) reset()
+          if (onSkip) onSkip()
         }}
       />
     </Flex>
@@ -60,7 +67,7 @@ export function CustomizedActionBar({
         onClick={() => {
           if (isDirty()) reset()
           if (onSkip) onSkip()
-      }}
+        }}
       />
     </Flex>
   )

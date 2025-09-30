@@ -107,7 +107,11 @@ export const AudienceForm = ({
         </Flex>
       </Card.Body>
       {onSkip ? (
-        <CustomizedActionBar isMobile={isMobile} isSkipButton={isSkipButton} onSkip={onSkip} />
+        <CustomizedActionBar
+          isMobile={isMobile}
+          isSkipButton={isSkipButton}
+          onSkip={onSkip}
+        />
       ) : (
         <ActionBar isMobile={isMobile} />
       )}
