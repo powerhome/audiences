@@ -4,6 +4,14 @@ import { useContext, useEffect, useRef } from "react"
 import { components, SingleValueProps, OptionProps } from "react-select"
 import Audiences from "../audiences"
 import { ScimObject } from "../types"
+import { CSSObject } from "@emotion/react"
+
+const customStyles = {
+  menuPortal: (base: CSSObject) => ({
+    ...base,
+    zIndex: 2000,
+  }),
+}
 
 /**
  * @description This has to be hardcoded because the API returns an object where the key for the user details
@@ -114,6 +122,8 @@ export function UsersTypeahead({
         {...typeaheadProps}
         value={playbookOptions(value, isMobile)}
         onChange={handleChange}
+        menuPortalTarget={document.body}
+        styles={customStyles}
       />
       {isMobile &&
         value &&
