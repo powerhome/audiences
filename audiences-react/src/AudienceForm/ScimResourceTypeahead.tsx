@@ -4,6 +4,14 @@ import { useContext, useEffect, useRef } from "react"
 
 import Audiences from "../audiences"
 import { ScimObject } from "../types"
+import { CSSObject } from "@emotion/react"
+
+const customStyles = {
+  menuPortal: (base: CSSObject) => ({
+    ...base,
+    zIndex: 2000,
+  }),
+}
 
 type PlaybookOption = ScimObject & {
   value: any
@@ -71,6 +79,8 @@ export function ScimResourceTypeahead({
       {...typeaheadProps}
       value={playbookOptions(value)}
       onChange={handleChange}
+      menuPortalTarget={document.body}
+      styles={customStyles}
     />
   )
 }
