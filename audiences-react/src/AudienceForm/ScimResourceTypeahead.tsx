@@ -17,7 +17,6 @@ function playbookOptions(objects: ScimObject[]): PlaybookOption[] {
         ...object,
         value: parseInt(object.id),
         label: object.displayName,
-        imageUrl: get(object, "photos.0.value"),
       }))
     : []
 }

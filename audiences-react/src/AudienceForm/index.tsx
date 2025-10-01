@@ -12,7 +12,7 @@ import { ScimObject } from "../types"
 import { toSentence } from "./toSentence"
 
 import { ScimResourceTypeahead } from "./ScimResourceTypeahead"
-import { MobileTypeahead } from "./MobileTypeahead"
+import { UsersTypeahead } from "./UsersTypeahead"
 import { CriteriaList } from "./CriteriaList"
 import { CriteriaForm } from "./CriteriaForm"
 import { ActionBar } from "./ActionBar"
@@ -25,6 +25,7 @@ type AudienceFormProps = {
   allowIndividuals: boolean
   allowMatchAll: boolean
   isMobile?: boolean
+  isPrivate?: boolean
   onSkip?: () => void
 }
 
@@ -34,11 +35,11 @@ export const AudienceForm = ({
   allowIndividuals = true,
   allowMatchAll = true,
   isMobile,
+  isPrivate,
   onSkip,
 }: AudienceFormProps) => {
   const [editing, setEditing] = useState<number>()
   const { error, value: context, change } = useAudiencesContext()
-
   if (isEmpty(context)) {
     return null
   }
@@ -73,38 +74,31 @@ export const AudienceForm = ({
           )}
           {!context.match_all && (
             <>
-              {allowIndividuals &&
-                (isMobile ? (
-                  <MobileTypeahead
-                    label="Add Individuals"
-                    value={context.extra_users || []}
-                    onChange={(users: ScimObject[]) =>
-                      change("extra_users", users)
-                    }
-                    resourceId={userResource}
-                  />
-                ) : (
-                  <ScimResourceTypeahead
-                    label="Add Individuals"
-                    value={context.extra_users || []}
-                    onChange={(users: ScimObject[]) =>
-                      change("extra_users", users)
-                    }
-                    resourceId={userResource}
-                  />
-                ))}
-              <CriteriaList onEditCriteria={setEditing} />
-              <FlexItem alignSelf="center">
-                <Button
-                  fixedWidth
-                  marginTop="md"
-                  paddingX={isMobile && "xs"}
-                  size={isMobile ? "sm" : "md"}
-                  onClick={() => setEditing(context.criteria.length)}
-                  text={`Add Members by ${toSentence(groupResources)}`}
-                  variant="link"
+              {allowIndividuals && (
+                <UsersTypeahead
+                  label="Add Individuals"
+                  value={context.extra_users || []}
+                  isMobile={isMobile}
+                  onChange={(users: ScimObject[]) =>
+                    change("extra_users", users)
+                  }
+                  resourceId={userResource}
                 />
-              </FlexItem>
+              )}
+              <CriteriaList onEditCriteria={setEditing} />
+              {isPrivate !== false && (
+                <FlexItem alignSelf="center">
+                  <Button
+                    fixedWidth
+                    marginTop="md"
+                    paddingX={isMobile && "xs"}
+                    size={isMobile ? "sm" : "md"}
+                    onClick={() => setEditing(context.criteria.length)}
+                    text={`Add Members by ${toSentence(groupResources)}`}
+                    variant="link"
+                  />
+                </FlexItem>
+              )}
             </>
           )}
         </Flex>

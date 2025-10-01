@@ -69,13 +69,23 @@ export function useAudiences(
     search?: string,
     offset?: number,
   ) {
-    return get<{ count: number; users: ScimObject[] }>(
+    const result = await get<{ count: number; users: ScimObject[] }>(
       `${key}/users/${criterion?.id || ""}?offset=${offset}&search=${search}`,
     )
+    result.users = result.users.sort((a, b) =>
+      a.displayName.localeCompare(b.displayName),
+    )
+    return result
   }
 
   async function query(resourceId: string, displayName: string) {
-    return await get<ScimObject[]>(`scim/${resourceId}?query=${displayName}`)
+    const results = await get<ScimObject[]>(
+      `scim/${resourceId}?query=${displayName}`,
+    )
+    if (resourceId !== "Territories") {
+      return results.sort((a, b) => a.displayName.localeCompare(b.displayName))
+    }
+    return results
   }
 
   async function save() {

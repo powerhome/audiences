@@ -9,9 +9,7 @@ export function CriteriaList({ onEditCriteria }: CriteriaListProps) {
   const { value: context, removeCriteria } = useAudiencesContext()
 
   const handleRemoveCriteria = (index: number) => {
-    if (confirm("Remove criteria?")) {
-      removeCriteria(index)
-    }
+    removeCriteria(index)
   }
 
   return (
