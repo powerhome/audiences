@@ -15,6 +15,7 @@ export function ActionBar({ isMobile = false }: { isMobile?: boolean }) {
   return (
     <Flex justify="between" marginTop="md">
       <Button
+        loading={saving}
         fullWidth={isMobile}
         disabled={!isDirty()}
         text="Save"

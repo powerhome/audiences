@@ -31,6 +31,7 @@ export function CustomizedActionBar({
       paddingBottom={isMobile ? "" : "md"}
     >
       <Button
+        loading={saving}
         fullWidth={isMobile}
         disabled={!isDirty()}
         text="Save"
@@ -53,6 +54,7 @@ export function CustomizedActionBar({
   ) : (
     <Flex justify="between" paddingX="md" paddingBottom="md">
       <Button
+        loading={saving}
         disabled={!isDirty()}
         text="Save"
         htmlType="submit"
