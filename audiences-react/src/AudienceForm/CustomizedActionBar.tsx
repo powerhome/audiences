@@ -18,7 +18,7 @@ export function CustomizedActionBar({
     setSaving(true)
     await save()
     setSaving(false)
-    if (saving && onSkip) onSkip()
+    if (onSkip) onSkip()
   }
 
   return isSkipButton ? (
