@@ -1,5 +1,5 @@
 import { Button, Icon, PbReactPopover, List, ListItem } from "playbook-ui"
-import { MembersModalButton } from "./MembersModalButton"
+import { MembersModal } from "./MembersModal"
 import { GroupCriterion } from "../types"
 import { CriteriaDescription } from "./CriteriaDescription"
 import { useState } from "react"
@@ -18,6 +18,7 @@ export function CriteriaActions({
 }: CriteriaActionsProps) {
   const [showPopover, togglePopover] = useState(false)
   const switchPopover = () => togglePopover(!showPopover)
+  const [showMembers, setShowMembers] = useState(false)
 
   const actionPopoverTrigger = (
     <div className="pb_circle_icon_button_kit">
@@ -35,46 +36,55 @@ export function CriteriaActions({
   }
 
   return (
-    <PbReactPopover
-      closeOnClick="outside"
-      padding="xs"
-      placement="bottom"
-      reference={actionPopoverTrigger}
-      shouldClosePopover={(close: boolean) => togglePopover(!close)}
-      show={showPopover}
-      zIndex={10}
-    >
-      <List>
-        <ListItem padding="none">
-          <Button
-            variant="link"
-            size="xs"
-            padding="xs"
-            onClick={handleAndClose(onRequestEdit)}
-            text="Edit Filter"
-          />
-        </ListItem>
-        <ListItem padding="none">
-          {viewUsers && (
-            <MembersModalButton
+    <>
+      <PbReactPopover
+        closeOnClick="outside"
+        padding="xs"
+        placement="bottom"
+        reference={actionPopoverTrigger}
+        shouldClosePopover={(close: boolean) => togglePopover(!close)}
+        show={showPopover}
+        zIndex={10}
+      >
+        <List>
+          <ListItem padding="none">
+            <Button
+              variant="link"
+              size="xs"
               padding="xs"
-              text="View Members"
-              title={<CriteriaDescription groups={criterion.groups} />}
-              total={criterion.count}
-              criterion={criterion}
+              onClick={handleAndClose(onRequestEdit)}
+              text="Edit Filter"
             />
-          )}
-        </ListItem>
-        <ListItem padding="none">
-          <Button
-            variant="link"
-            size="xs"
-            padding="xs"
-            onClick={handleAndClose(onRequestRemove)}
-            text="Delete Filter"
-          />
-        </ListItem>
-      </List>
-    </PbReactPopover>
+          </ListItem>
+          <ListItem padding="none">
+            {viewUsers && (
+              <Button
+                variant="link"
+                size="xs"
+                padding="xs"
+                onClick={handleAndClose(() => setShowMembers(true))}
+                text="View Members"
+              />
+            )}
+          </ListItem>
+          <ListItem padding="none">
+            <Button
+              variant="link"
+              size="xs"
+              padding="xs"
+              onClick={handleAndClose(onRequestRemove)}
+              text="Delete Filter"
+            />
+          </ListItem>
+        </List>
+      </PbReactPopover>
+      <MembersModal
+        title={<CriteriaDescription groups={criterion.groups} />}
+        total={criterion.count}
+        criterion={criterion}
+        showMembers={showMembers}
+        setShowMembers={setShowMembers}
+      />
+    </>
   )
 }

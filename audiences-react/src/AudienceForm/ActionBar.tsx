@@ -2,13 +2,7 @@ import { Flex, Button } from "playbook-ui"
 import { useAudiencesContext } from "../audiences"
 import { useState } from "react"
 
-export function ActionBar({
-  isMobile = false,
-  onSkip,
-}: {
-  isMobile?: boolean
-  onSkip?: () => void
-}) {
+export function ActionBar({ isMobile = false }: { isMobile?: boolean }) {
   const { save, isDirty, reset } = useAudiencesContext()
   const [saving, setSaving] = useState(false)
 
@@ -18,10 +12,11 @@ export function ActionBar({
     setSaving(false)
   }
 
-  return isMobile ? (
-    <Flex orientation="column" align="center" marginTop="md" paddingX="xs">
+  return (
+    <Flex justify="between" marginTop="md">
       <Button
-        fullWidth
+        loading={saving}
+        fullWidth={isMobile}
         disabled={!isDirty()}
         text="Save"
         htmlType="submit"
@@ -31,30 +26,7 @@ export function ActionBar({
 
       {isDirty() && (
         <Button
-          fullWidth
-          marginTop="xs"
-          text="Skip for now"
-          variant="secondary"
-          htmlType="reset"
-          onClick={() => {
-            reset()
-            if (onSkip) onSkip()
-          }}
-        />
-      )}
-    </Flex>
-  ) : (
-    <Flex justify="between" paddingX="md" paddingBottom="md">
-      <Button
-        disabled={!isDirty()}
-        text="Save"
-        htmlType="submit"
-        saving={saving}
-        onClick={handleSave}
-      />
-
-      {isDirty() && (
-        <Button
+          fullWidth={isMobile}
           marginLeft="sm"
           text="Cancel"
           variant="link"

@@ -23,24 +23,27 @@ import { useAudiencesContext } from "../../audiences"
 const SCIM_USER_KEY =
   "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" as const
 
-type MembersModalButtonProps = any & {
+type MembersModalProps = any & {
   criterion?: GroupCriterion
   title: React.ReactNode
   total: number
+  showMembers?: boolean
+  setShowMembers?: (show: boolean) => void
 }
-export function MembersModalButton({
+export function MembersModal({
   title,
   total,
   criterion,
+  showMembers,
+  setShowMembers,
   ...buttonOptions
-}: MembersModalButtonProps) {
+}: MembersModalProps) {
   const { fetchUsers } = useAudiencesContext()
   const [loading, setLoading] = useState<boolean>()
   const [current, setUsers] = useState<
     Awaited<ReturnType<typeof fetchUsers>> | undefined
   >()
   const [search, setSearch] = useState("")
-  const [showMembers, setShowMembers] = useState(false)
 
   useEffect(() => {
     if (showMembers) {
@@ -71,11 +74,6 @@ export function MembersModalButton({
 
   return (
     <>
-      <Button
-        {...buttonOptions}
-        onClick={() => setShowMembers(true)}
-        variant="link"
-      />
       <Dialog opened={showMembers} onClose={() => setShowMembers(false)}>
         <Dialog.Header className="pb-4 pt-3 pl-5" closeButton>
           <Flex spacing="between" flex="1">
