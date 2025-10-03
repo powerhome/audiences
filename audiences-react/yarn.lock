@@ -2733,16 +2733,6 @@ he@^1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-highcharts-react-official@^3.2.1:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/highcharts-react-official/-/highcharts-react-official-3.2.3.tgz#9496db4a5bb0cf916e8b44a88bb41e66483ae6f1"
-  integrity sha512-2gL8bVGe6Pf75tSe6IB5Ucd0nIOJX7ZrpttQBZVrjN2J9StdVZ12aOinXHIOFvlc6EzP8CbN13WS8NUq+9mptA==
-
-highcharts@^11.4.8:
-  version "11.4.8"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-11.4.8.tgz#252e71b81c24ec9f99e756b76dbebd7546e18dda"
-  integrity sha512-5Tke9LuzZszC4osaFisxLIcw7xgNGz4Sy3Jc9pRMV+ydm6sYqsPYdU8ELOgpzGNrbrRNDRBtveoR5xS3SzneEA==
-
 hosted-git-info@^8.0.0, hosted-git-info@^8.0.2:
   version "8.0.2"
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-8.0.2.tgz#5bd7d8b5395616e41cc0d6578381a32f669b14b2"
@@ -4134,17 +4124,15 @@ pkg-types@^1.2.1:
     mlly "^1.7.2"
     pathe "^1.1.2"
 
-playbook-ui@15.1.0:
-  version "15.1.0"
-  resolved "https://registry.yarnpkg.com/playbook-ui/-/playbook-ui-15.1.0.tgz#1c7d255f2645103d29009495b3ace34cd6f70a60"
-  integrity sha512-T3+EQS7krXPB9XUGs2rKgGqFqjnL/IRhbPnevZPbvLD6me6cdOUUx2W4/l9TCyrz5DvVmvKxxJHvyF23wOwuQw==
+playbook-ui@15.1.0-alpha.alphaforaudiences151011003:
+  version "15.1.0-alpha.alphaforaudiences151011003"
+  resolved "https://registry.yarnpkg.com/playbook-ui/-/playbook-ui-15.1.0-alpha.alphaforaudiences151011003.tgz#d40a102ef0a77bab94f4e3d9c0ab67190777e47d"
+  integrity sha512-9NuLK8FW8UpeZ1RRtbPBIxTAIkWDrZN9wnU3VbusFmKdySqkng8x5YOjMmnz2zGlRK55SD1cxQ+tUgEljovmlQ==
   dependencies:
     "@floating-ui/dom" "^1.6.13"
     "@popperjs/core" "^2.11.8"
     classnames "2.5.1"
     flatpickr "^4.6.13"
-    highcharts "^11.4.8"
-    highcharts-react-official "^3.2.1"
     intl-tel-input "^24.7.0"
 
 possible-typed-array-names@^1.0.0:
@@ -4260,6 +4248,13 @@ react-refresh@^0.14.2:
   version "0.14.2"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.14.2.tgz#3833da01ce32da470f1f936b9d477da5c7028bf9"
   integrity sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==
+
+react-trix@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/react-trix/-/react-trix-0.10.2.tgz#ebe7f44d41087516ec59e5ce7af2ef2463120d03"
+  integrity sha512-bAALnBuoHBu3J3UfJWTvDXhmt1Tic1//w+vbBuSWuGO2gXzy+fyLBNBRiLKPrBcnOB5/t+rdXU8rLSBiz02R9w==
+  dependencies:
+    trix "^1.3.1"
 
 react@^18.0.0:
   version "18.3.1"
@@ -4925,6 +4920,11 @@ treeverse@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/treeverse/-/treeverse-3.0.0.tgz#dd82de9eb602115c6ebd77a574aae67003cb48c8"
   integrity sha512-gcANaAnd2QDZFmHFEOF4k7uc1J/6a6z3DJMd/QwEyxLoKGiptJRwid582r7QIsFlFMIZ3SnxfS52S4hm2DHkuQ==
+
+trix@^1.3.1:
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/trix/-/trix-1.3.5.tgz#87c214ce75fbaacff127f6e70fc64b2ff41e3e7a"
+  integrity sha512-JGQtfTU40DZYWS64rjUSbzAN6C+VFbyMLtdVzVTbI1mt3WJCP9+e3lju8Mtuivs9NwXOxowInNA4B34h7dVEZg==
 
 ts-api-utils@^1.3.0:
   version "1.3.0"
