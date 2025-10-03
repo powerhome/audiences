@@ -36,7 +36,8 @@
   "author": "Carlos Palhares",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "react-trix": "^0.10.2"
   },
   "prettier": "@powerhome/eslint-config/prettier",
   "peerDependencies": {
@@ -61,7 +62,7 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "eslint-webpack-plugin": "4.2.0",
     "npm": "^10.0.0",
-    "playbook-ui": "12.38.0-alpha.audiencesalpha1083",
+    "playbook-ui": "15.1.0-alpha.alphaforaudiences151011003",
     "prettier": "3.4.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
