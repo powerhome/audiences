@@ -29,7 +29,7 @@ services:
       - .:/app
       - dummy_web_bundle:/usr/local/bundle
   dummy-vite:
-    image: node:22.13.1-alpine
+    image: node:22.13.1-alpine@sha256:e2b39f7b64281324929257d0f8004fb6cb4bf0fdfb9aa8cedb235a766aec31da
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     command:
@@ -43,7 +43,7 @@ services:
     volumes:
       - .:/app
   mysql:
-    image: mysql:latest
+    image: mysql:latest@sha256:91447968e66961302339ec4dc4d385f5e1a957d98e63c7d52ecf8b1de0907346
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
