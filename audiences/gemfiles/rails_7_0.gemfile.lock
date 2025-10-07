@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    audiences (1.6.1)
+    audiences (1.6.2.pre.alpha)
       rails (>= 6.0)
 
 GEM
