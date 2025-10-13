@@ -1,7 +1,6 @@
 volumes:
   dummy_web_bundle:
   dummy_web_db:
-  scim_stub_db:
 services:
   dummy-web:
     image: ruby:3.4.5@sha256:8fc13ab79e1bf71da804040b587feca8cd9306c2f5def3a970e94f24f60cf97b
@@ -23,7 +22,6 @@ services:
       - "3000:3000"
     depends_on:
       - dummy-vite
-      - scim-stub
       - mysql
     volumes:
       - .:/app
