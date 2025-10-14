@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+return unless Rails.env.development?
+
+# Seed data for development environment
 
 territory = Audiences::Group.find_or_create_by!(
   resource_type: "Territories",
