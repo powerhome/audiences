@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 return unless Rails.env.development?
 
 # Seed data for development environment
