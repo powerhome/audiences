@@ -1,4 +1,5 @@
-# Create groups
+# frozen_string_literal: true
+
 territory = Audiences::Group.find_or_create_by!(
   resource_type: "Territories",
   external_id: "PHL"
@@ -60,11 +61,11 @@ users_data = [
       "displayName" => "Talinda Barnett",
       "userName" => "talinda.barnett",
       "photos" => [
-        {"type" => "photo", "value" => "", "primary" => true}
+        { "type" => "photo", "value" => "", "primary" => true },
       ],
-      "active" => true
+      "active" => true,
     },
-    groups: [territory, department, title]
+    groups: [territory, department, title],
   },
   {
     user_id: "168425",
@@ -77,11 +78,11 @@ users_data = [
       "displayName" => "Kseniia Khodyreva",
       "userName" => "u34158",
       "photos" => [
-        {"type" => "photo", "value" => "", "primary" => true}
+        { "type" => "photo", "value" => "", "primary" => true },
       ],
-      "active" => true
+      "active" => true,
     },
-    groups: [territory, department2, title2]
+    groups: [territory, department2, title2],
   },
   {
     user_id: "12345",
@@ -94,11 +95,11 @@ users_data = [
       "displayName" => "John Smith",
       "userName" => "john.smith",
       "photos" => [
-        {"type" => "photo", "value" => "", "primary" => true}
+        { "type" => "photo", "value" => "", "primary" => true },
       ],
-      "active" => true
+      "active" => true,
     },
-    groups: [territory2, department2, title2]
+    groups: [territory2, department2, title2],
   },
   {
     user_id: "67890",
@@ -111,12 +112,12 @@ users_data = [
       "displayName" => "Sarah Johnson",
       "userName" => "sarah.johnson",
       "photos" => [
-        {"type" => "photo", "value" => "", "primary" => true}
+        { "type" => "photo", "value" => "", "primary" => true },
       ],
-      "active" => true
+      "active" => true,
     },
-    groups: [territory2, department, title]
-  }
+    groups: [territory2, department, title],
+  },
 ]
 
 users_data.each do |user_data|
@@ -130,10 +131,9 @@ users_data.each do |user_data|
     u.data = user_data[:data]
   end
 
-  # Add group memberships - this will generate the role/department/territory automatically
   user_data[:groups].each do |group|
     Audiences::GroupMembership.find_or_create_by!(
-      external_user_id: user.id, 
+      external_user_id: user.id,
       group_id: group.id
     )
   end
