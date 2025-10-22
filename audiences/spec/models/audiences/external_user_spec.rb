@@ -169,7 +169,15 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
         data: { "displayName" => "value", "hiddenAttribute" => "Does Not Matter" }
       )
 
-      expect(user.as_json).to eq("displayName" => "value")
+      expect(user.as_json).to eq("displayName" => "value",
+                                 "groups" => [],
+                                 "title" => nil,
+                                 "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
+                                   "department" => nil,
+                                   "role" => nil,
+                                   "territory" => nil,
+                                   "territoryAbbr" => nil,
+                                 })
     end
   end
 

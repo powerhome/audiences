@@ -13,13 +13,14 @@ export function ActionBar({ isMobile = false }: { isMobile?: boolean }) {
   }
 
   return (
-    <Flex 
+    <Flex
       orientation={isMobile ? "column" : "row"}
       justify={isMobile ? "center" : "between"}
       align="center"
       marginTop="md"
       paddingX={isMobile ? "xs" : "md"}
-      paddingBottom={isMobile ? "" : "md"}>
+      paddingBottom={isMobile ? "" : "md"}
+    >
       <Button
         loading={saving}
         fullWidth={isMobile}
