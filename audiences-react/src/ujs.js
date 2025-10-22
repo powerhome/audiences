@@ -30,6 +30,7 @@ function mountAudiencesEditors() {
     .querySelectorAll("[data-react-class='AudiencesEditor']")
     .forEach((element) => {
       if (!element.dataset.reactMounted) {
+        // bearer:disable javascript_lang_dangerous_insert_html
         const uri = element.dataset.audiencesUri
         const context = element.dataset.audiencesContext
         const allowIndividuals = element.dataset.allowIndividuals != "false"
