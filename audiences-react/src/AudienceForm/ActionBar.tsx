@@ -13,7 +13,13 @@ export function ActionBar({ isMobile = false }: { isMobile?: boolean }) {
   }
 
   return (
-    <Flex justify="between" marginTop="md">
+    <Flex 
+      orientation={isMobile ? "column" : "row"}
+      justify={isMobile ? "center" : "between"}
+      align="center"
+      marginTop="md"
+      paddingX={isMobile ? "xs" : "md"}
+      paddingBottom={isMobile ? "" : "md"}>
       <Button
         loading={saving}
         fullWidth={isMobile}
@@ -27,6 +33,7 @@ export function ActionBar({ isMobile = false }: { isMobile?: boolean }) {
       {isDirty() && (
         <Button
           fullWidth={isMobile}
+          marginTop="xs"
           marginLeft="sm"
           text="Cancel"
           variant="link"
