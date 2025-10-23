@@ -52,6 +52,38 @@ title2 = Audiences::Group.find_or_create_by!(
   g.scim_id = "DEV"
 end
 
+role1 = Audiences::Group.find_or_create_by!(
+  resource_type: "Roles",
+  external_id: "CONF"
+) do |g|
+  g.display_name = "Confirmer"
+  g.scim_id = "CONF"
+end
+
+role2 = Audiences::Group.find_or_create_by!(
+  resource_type: "Roles",
+  external_id: "DEV"
+) do |g|
+  g.display_name = "Developer"
+  g.scim_id = "DEV"
+end
+
+role3 = Audiences::Group.find_or_create_by!(
+  resource_type: "Roles",
+  external_id: "SENIOR_DEV"
+) do |g|
+  g.display_name = "Senior Developer"
+  g.scim_id = "SENIOR_DEV"
+end
+
+role4 = Audiences::Group.find_or_create_by!(
+  resource_type: "Roles",
+  external_id: "AGENT"
+) do |g|
+  g.display_name = "Agent"
+  g.scim_id = "AGENT"
+end
+
 # Create users with minimal data - let the model handle SCIM formatting
 users_data = [
   {
@@ -69,7 +101,7 @@ users_data = [
       ],
       "active" => true,
     },
-    groups: [territory, department, title],
+    groups: [territory, department, title, role1],
   },
   {
     user_id: "168425",
@@ -86,7 +118,7 @@ users_data = [
       ],
       "active" => true,
     },
-    groups: [territory, department2, title2],
+    groups: [territory, department2, title2, role2],
   },
   {
     user_id: "12345",
@@ -103,7 +135,7 @@ users_data = [
       ],
       "active" => true,
     },
-    groups: [territory2, department2, title2],
+    groups: [territory2, department2, title2, role3],
   },
   {
     user_id: "67890",
@@ -120,7 +152,7 @@ users_data = [
       ],
       "active" => true,
     },
-    groups: [territory2, department, title],
+    groups: [territory2, department, title, role4],
   },
 ]
 
