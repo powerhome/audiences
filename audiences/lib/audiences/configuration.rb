@@ -16,6 +16,11 @@ module Audiences
     %w[Groups]
   end
 
+  # Group types that must be present in a user provisioning event
+  config_accessor :required_user_group_types do
+    []
+  end
+
   # Defines a default scope for users, so the users that are part of an audience can
   # be filtered (i.e.: only active, only users in a specific group, etc)
   #
