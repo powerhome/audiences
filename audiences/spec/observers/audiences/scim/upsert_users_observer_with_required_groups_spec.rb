@@ -45,6 +45,30 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
   end
 
+  it "creates an external user via ReplaceEvent having all required groups" do
+    params = {
+      "id" => "internal-id-123",
+      "displayName" => "My User",
+      "externalId" => "external-id-123",
+      "active" => true,
+      "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
+                   { "value" => "group-4" }],
+    }
+
+    expect do
+      TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+    end.to change { Audiences::ExternalUser.count }.by(1)
+
+    created_user = Audiences::ExternalUser.last
+
+    expect(created_user.scim_id).to eql "internal-id-123"
+    expect(created_user.user_id).to eql "external-id-123"
+    expect(created_user.display_name).to eql "My User"
+    expect(created_user.data).to eql params
+    expect(created_user.active).to eql true
+    expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
+  end
+
   it "updates an existing external user on a CreateEvent having all required groups" do
     user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                            display_name: "Old Name", data: {}, active: false)
