@@ -94,6 +94,24 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(user.active).to eql true
   end
 
+  it "creates an inactive user without required groups" do
+    params = {
+      "id" => "internal-id-123",
+      "displayName" => "My User",
+      "externalId" => "external-id-123",
+      "active" => false,
+      "groups" => [],
+    }
+
+    expect do
+      TwoPercent::CreateEvent.create(resource: "Users", params: params)
+    end.to change { Audiences::ExternalUser.count }.by(1)
+
+    created_user = Audiences::ExternalUser.last
+    expect(created_user.active).to be false
+    expect(created_user.groups).to be_empty
+  end
+
   it "fails to create an external user not having all required groups" do
     params = {
       "id" => "internal-id-123",
