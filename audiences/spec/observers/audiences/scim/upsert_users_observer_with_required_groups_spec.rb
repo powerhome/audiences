@@ -42,6 +42,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(created_user.display_name).to eql "My User"
     expect(created_user.data).to eql params
     expect(created_user.active).to eql true
+    expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
   end
 
   it "updates an existing external user on a CreateEvent having all required groups" do
@@ -67,6 +68,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(user.display_name).to eql "New Name"
     expect(user.data).to eql params
     expect(user.active).to eql true
+    expect(user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
   end
 
   it "updates an existing external user on a ReplaceEvent having all required groups" do
@@ -92,6 +94,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(user.display_name).to eql "New Name"
     expect(user.data).to eql params
     expect(user.active).to eql true
+    expect(user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
   end
 
   it "allows removing groups when deactivating user" do
