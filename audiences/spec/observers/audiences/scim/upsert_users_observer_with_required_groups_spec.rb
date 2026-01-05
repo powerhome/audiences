@@ -94,6 +94,29 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     expect(user.active).to eql true
   end
 
+  it "allows removing groups when deactivating user" do
+    groups = Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
+    user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                           display_name: "Active User", data: {}, active: true,
+                                           groups: groups)
+
+    params = {
+      "id" => "internal-id-123",
+      "displayName" => "Now Inactive",
+      "externalId" => "external-id-123",
+      "active" => false,
+      "groups" => [],
+    }
+
+    expect do
+      TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+    end.not_to(change { Audiences::ExternalUser.count })
+
+    user.reload
+    expect(user.active).to be false
+    expect(user.groups).to be_empty
+  end
+
   it "creates an inactive user without required groups" do
     params = {
       "id" => "internal-id-123",
