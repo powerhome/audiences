@@ -12,10 +12,6 @@ module Audiences
         external_user.update! updated_attributes
 
         Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
-      rescue ActiveRecord::RecordInvalid => e
-        Audiences.logger.error e
-        raise InvalidGroupsError, e.message if e.message.include?("Groups must include")
-        raise
       rescue => e
         Audiences.logger.error e
         raise

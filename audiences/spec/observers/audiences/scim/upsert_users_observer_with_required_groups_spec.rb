@@ -105,7 +105,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end.to raise_error(Audiences::Scim::InvalidGroupsError)
+    end.to raise_error(ActiveRecord::RecordInvalid)
   end
 
   it "fails to update an existing external user on a CreateEvent not having all required groups" do
@@ -121,7 +121,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end.to raise_error(Audiences::Scim::InvalidGroupsError)
+    end.to raise_error(ActiveRecord::RecordInvalid)
   end
 
   it "fails to update an existing external user on a ReplaceEvent not having all required groups" do
@@ -137,6 +137,6 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to raise_error(Audiences::Scim::InvalidGroupsError)
+    end.to raise_error(ActiveRecord::RecordInvalid)
   end
 end
