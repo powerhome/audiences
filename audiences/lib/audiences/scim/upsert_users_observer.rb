@@ -12,6 +12,8 @@ module Audiences
         Audiences.logger.info "#{upsert_action} group #{event_payload.params['displayName']} (#{scim_id})"
 
         external_user.update! updated_attributes
+
+        Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
       rescue => e
         Audiences.logger.error e
         raise
