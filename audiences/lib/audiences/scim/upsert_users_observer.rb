@@ -7,34 +7,21 @@ module Audiences
       subscribe_to "two_percent.scim.replace.Users"
 
       def process
-        validate_user_groups(event_payload.params)
-
-        Audiences.logger.info "#{upsert_action} group #{event_payload.params['displayName']} (#{scim_id})"
+        Audiences.logger.info "#{upsert_action} user #{event_payload.params['displayName']} (#{scim_id})"
 
         external_user.update! updated_attributes
 
         Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
+      rescue ActiveRecord::RecordInvalid => e
+        Audiences.logger.error e
+        raise InvalidGroupsError, e.message if e.message.include?("Groups must include")
+        raise
       rescue => e
         Audiences.logger.error e
         raise
       end
 
     private
-
-      def validate_user_groups(params)
-        active = params.fetch("active", false)
-        return unless active
-
-        group_ids = params.fetch("groups", []).pluck("value").compact
-        groups = Audiences::Group.where(scim_id: group_ids)
-
-        actual_types = groups.pluck(:resource_type)
-        expected_types = Audiences.config.required_user_group_types
-
-        return if (expected_types - actual_types).empty?
-
-        raise InvalidGroupsError, "User is missing the groups #{expected_types - actual_types}"
-      end
 
       def scim_id = event_payload.params["id"]
 

@@ -45,8 +45,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
   end
 
   it "updates an existing external user on a CreateEvent having all required groups" do
-    user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123",
-                                          display_name: "Old Name", data: {}, active: true)
+    user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                           display_name: "Old Name", data: {}, active: false)
     params = {
       "id" => "internal-id-123",
       "displayName" => "New Name",
@@ -70,8 +70,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
   end
 
   it "updates an existing external user on a ReplaceEvent having all required groups" do
-    user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123",
-                                          display_name: "Old Name", data: {}, active: true)
+    user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                           display_name: "Old Name", data: {}, active: false)
     params = {
       "id" => "internal-id-123",
       "displayName" => "New Name",
@@ -109,8 +109,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
   end
 
   it "fails to update an existing external user on a CreateEvent not having all required groups" do
-    Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123",
-                                   display_name: "Old Name", data: {}, active: true)
+    Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                    display_name: "Old Name", data: {}, active: false)
     params = {
       "id" => "internal-id-123",
       "displayName" => "New Name",
@@ -125,8 +125,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
   end
 
   it "fails to update an existing external user on a ReplaceEvent not having all required groups" do
-    Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123",
-                                   display_name: "Old Name", data: {}, active: true)
+    Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                    display_name: "Old Name", data: {}, active: false)
     params = {
       "id" => "internal-id-123",
       "displayName" => "New Name",
