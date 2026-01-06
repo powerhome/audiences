@@ -117,17 +117,29 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       create_group(scim_id: "group-4", resource_type: "Roles")
     end
 
+    let(:all_required_groups_param) do
+      [{ "value" => "group-1" }, { "value" => "group-2" },
+       { "value" => "group-3" }, { "value" => "group-4" }]
+    end
+
+    let(:all_required_groups) do
+      Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
+    end
+
+    def build_user_params(overrides = {})
+      {
+        "id" => "internal-id-123",
+        "displayName" => "My User",
+        "externalId" => "external-id-123",
+        "active" => true,
+        "groups" => all_required_groups_param,
+      }.merge(overrides)
+    end
+
     describe "with valid groups" do
       describe "creating users" do
         it "creates an external user having all required groups" do
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "My User",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                         { "value" => "group-4" }],
-          }
+          params = build_user_params
 
           expect do
             TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -144,14 +156,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         end
 
         it "creates an external user via ReplaceEvent having all required groups" do
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "My User",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                         { "value" => "group-4" }],
-          }
+          params = build_user_params
 
           expect do
             TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -172,14 +177,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         it "updates an existing external user on a CreateEvent having all required groups" do
           user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                  display_name: "Old Name", data: {}, active: false)
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "New Name",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                         { "value" => "group-4" }],
-          }
+          params = build_user_params("displayName" => "New Name")
 
           expect do
             TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -198,14 +196,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         it "updates an existing external user on a ReplaceEvent having all required groups" do
           user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                  display_name: "Old Name", data: {}, active: false)
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "New Name",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                         { "value" => "group-4" }],
-          }
+          params = build_user_params("displayName" => "New Name")
 
           expect do
             TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -222,18 +213,10 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         end
 
         it "allows updating non-group attributes on active user with valid groups" do
-          groups = Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
           user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                  display_name: "Original Name", data: {}, active: true,
-                                                 groups: groups)
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "Updated Name",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                         { "value" => "group-4" }],
-          }
+                                                 groups: all_required_groups)
+          params = build_user_params("displayName" => "Updated Name")
 
           expect do
             TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -250,13 +233,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     describe "with invalid groups" do
       describe "creating users" do
         it "fails to create active user with empty groups array" do
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "My User",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [],
-          }
+          params = build_user_params("groups" => [])
 
           expect do
             TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -264,12 +241,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         end
 
         it "fails to create active user with missing groups key" do
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "My User",
-            "externalId" => "external-id-123",
-            "active" => true,
-          }
+          params = build_user_params.except("groups")
 
           expect do
             TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -277,13 +249,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         end
 
         it "fails to create an external user not having all required groups" do
-          params = {
-            "id" => "internal-id-123",
-            "displayName" => "My User",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-2" }, { "value" => "group-3" }, { "value" => "group-4" }],
-          }
+          params = build_user_params(
+            "groups" => [{ "value" => "group-2" }, { "value" => "group-3" }, { "value" => "group-4" }]
+          )
 
           expect do
             TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -295,13 +263,10 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         it "fails to update an existing external user on a CreateEvent not having all required groups" do
           Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123",
                                          display_name: "Old Name", data: {}, active: true)
-          params = {
-            "id" => "internal-id-123",
+          params = build_user_params(
             "displayName" => "New Name",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-2" }, { "value" => "group-3" }, { "value" => "group-4" }],
-          }
+            "groups" => [{ "value" => "group-2" }, { "value" => "group-3" }, { "value" => "group-4" }]
+          )
 
           expect do
             TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -311,13 +276,10 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         it "fails to update an existing external user on a ReplaceEvent not having all required groups" do
           Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123",
                                          display_name: "Old Name", data: {}, active: true)
-          params = {
-            "id" => "internal-id-123",
+          params = build_user_params(
             "displayName" => "New Name",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-2" }, { "value" => "group-3" }, { "value" => "group-4" }],
-          }
+            "groups" => [{ "value" => "group-2" }, { "value" => "group-3" }, { "value" => "group-4" }]
+          )
 
           expect do
             TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -325,17 +287,13 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         end
 
         it "fails when active user removes a required group while staying active" do
-          groups = Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
           Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                           display_name: "Active User", data: {}, active: true,
-                                          groups: groups)
-          params = {
-            "id" => "internal-id-123",
+                                          groups: all_required_groups)
+          params = build_user_params(
             "displayName" => "Still Active",
-            "externalId" => "external-id-123",
-            "active" => true,
-            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" }],
-          }
+            "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" }]
+          )
 
           expect do
             TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -346,13 +304,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     describe "inactive users" do
       it "creates an inactive user without required groups" do
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "active" => false,
-          "groups" => [],
-        }
+        params = build_user_params("active" => false, "groups" => [])
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -364,18 +316,10 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       end
 
       it "allows removing groups when deactivating user" do
-        groups = Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                display_name: "Active User", data: {}, active: true,
-                                               groups: groups)
-
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "Now Inactive",
-          "externalId" => "external-id-123",
-          "active" => false,
-          "groups" => [],
-        }
+                                               groups: all_required_groups)
+        params = build_user_params("displayName" => "Now Inactive", "active" => false, "groups" => [])
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -391,13 +335,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       it "fails to activate an inactive user without groups" do
         Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                         display_name: "Inactive User", data: {}, active: false)
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "Now Active",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "groups" => [],
-        }
+        params = build_user_params("displayName" => "Now Active", "groups" => [])
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -407,14 +345,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       it "allows activating an inactive user when they have all required groups" do
         Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                         display_name: "Inactive User", data: {}, active: false)
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "Now Active",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                       { "value" => "group-4" }],
-        }
+        params = build_user_params("displayName" => "Now Active")
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -428,14 +359,10 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     describe "edge cases" do
       it "validates groups regardless of order" do
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "groups" => [{ "value" => "group-4" }, { "value" => "group-2" }, { "value" => "group-1" },
-                       { "value" => "group-3" }],
-        }
+        params = build_user_params(
+          "groups" => [{ "value" => "group-4" }, { "value" => "group-2" },
+                       { "value" => "group-1" }, { "value" => "group-3" }]
+        )
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -450,14 +377,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         create_group(scim_id: "group-5", resource_type: "Departments")
         create_group(scim_id: "group-6", resource_type: "OtherType")
 
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                       { "value" => "group-4" }, { "value" => "group-5" }, { "value" => "group-6" }],
-        }
+        params = build_user_params(
+          "groups" => all_required_groups_param + [{ "value" => "group-5" }, { "value" => "group-6" }]
+        )
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -469,14 +391,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       end
 
       it "ignores non-existent group scim_ids" do
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "groups" => [{ "value" => "group-1" }, { "value" => "group-2" }, { "value" => "group-3" },
-                       { "value" => "group-4" }, { "value" => "non-existent-group" }],
-        }
+        params = build_user_params(
+          "groups" => all_required_groups_param + [{ "value" => "non-existent-group" }]
+        )
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -489,13 +406,7 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
     describe "event publishing" do
       it "does not publish PersistedResourceEvent on validation failure" do
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "groups" => [],
-        }
+        params = build_user_params("groups" => [])
 
         expect(Audiences::PersistedResourceEvent).not_to receive(:create)
 
