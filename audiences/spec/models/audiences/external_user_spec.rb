@@ -8,6 +8,197 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
     it { is_expected.to have_many(:groups).through(:group_memberships).dependent(:destroy) }
   end
 
+  describe "#required_group_types validation" do
+    context "when required_user_group_types is configured" do
+      before(:all) do
+        @old_required_user_group_types = Audiences.config.required_user_group_types
+        Audiences.config.required_user_group_types = %w[Departments Titles Territories Roles]
+      end
+
+      after(:all) do
+        Audiences.config.required_user_group_types = @old_required_user_group_types
+      end
+
+      let!(:department_group) { create_group(resource_type: "Departments") }
+      let!(:title_group) { create_group(resource_type: "Titles") }
+      let!(:territory_group) { create_group(resource_type: "Territories") }
+      let!(:role_group) { create_group(resource_type: "Roles") }
+      let(:all_required_groups) { [department_group, title_group, territory_group, role_group] }
+
+      describe "active users" do
+        it "is valid when user has all required group types" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: all_required_groups
+          )
+
+          expect(user).to be_valid
+        end
+
+        it "is invalid when user is missing a required group type" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: [title_group, territory_group, role_group]
+          )
+
+          expect(user).not_to be_valid
+          expect(user.errors[:groups]).to include("must include groups of types: Departments")
+        end
+
+        it "is invalid with empty groups" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: []
+          )
+
+          expect(user).not_to be_valid
+          expect(user.errors[:groups].first).to include("must include groups of types:")
+        end
+
+        it "is invalid with no groups" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true
+          )
+
+          expect(user).not_to be_valid
+        end
+
+        it "validates groups regardless of order" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: [role_group, department_group, title_group, territory_group]
+          )
+
+          expect(user).to be_valid
+        end
+
+        it "allows user groups to exceed required groups" do
+          extra_group = create_group(resource_type: "OtherType")
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: all_required_groups + [extra_group]
+          )
+
+          expect(user).to be_valid
+        end
+
+        it "allows multiple groups of the same type" do
+          extra_department = create_group(resource_type: "Departments")
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: all_required_groups + [extra_department]
+          )
+
+          expect(user).to be_valid
+        end
+      end
+
+      describe "inactive users" do
+        it "is valid without any groups" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: false, groups: []
+          )
+
+          expect(user).to be_valid
+        end
+
+        it "is valid with partial groups" do
+          user = Audiences::ExternalUser.new(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: false, groups: [department_group]
+          )
+
+          expect(user).to be_valid
+        end
+      end
+
+      describe "state transitions" do
+        it "fails when activating user without required groups" do
+          user = Audiences::ExternalUser.create!(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: false, groups: []
+          )
+
+          user.active = true
+          expect(user).not_to be_valid
+        end
+
+        it "succeeds when activating user with all required groups" do
+          user = Audiences::ExternalUser.create!(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: false, groups: all_required_groups
+          )
+
+          user.active = true
+          expect(user).to be_valid
+        end
+
+        it "succeeds when deactivating user and removing groups" do
+          user = Audiences::ExternalUser.create!(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: all_required_groups
+          )
+
+          user.active = false
+          user.groups = []
+          expect(user).to be_valid
+        end
+
+        it "fails when active user removes a required group while staying active" do
+          user = Audiences::ExternalUser.create!(
+            scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+            active: true, groups: all_required_groups
+          )
+
+          user.groups = [department_group, title_group, territory_group]
+          expect(user).not_to be_valid
+        end
+      end
+    end
+
+    context "when required_user_group_types is empty" do
+      before(:all) do
+        @old_required_user_group_types = Audiences.config.required_user_group_types
+        Audiences.config.required_user_group_types = []
+      end
+
+      after(:all) do
+        Audiences.config.required_user_group_types = @old_required_user_group_types
+      end
+
+      it "allows active user with no groups" do
+        user = Audiences::ExternalUser.new(
+          scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+          active: true, groups: []
+        )
+
+        expect(user).to be_valid
+      end
+    end
+
+    context "when required_user_group_types is nil" do
+      before(:all) do
+        @old_required_user_group_types = Audiences.config.required_user_group_types
+        Audiences.config.required_user_group_types = nil
+      end
+
+      after(:all) do
+        Audiences.config.required_user_group_types = @old_required_user_group_types
+      end
+
+      it "allows active user with no groups" do
+        user = Audiences::ExternalUser.new(
+          scim_id: "test-id", user_id: "ext-id", display_name: "Test",
+          active: true, groups: []
+        )
+
+        expect(user).to be_valid
+      end
+    end
+  end
+
   describe "notifications" do
     it "publishes notifications for relevant contexts based on its gropus when active is changed" do
       group1, _group2 = create_groups(2)
