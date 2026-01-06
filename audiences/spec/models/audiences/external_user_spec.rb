@@ -212,5 +212,29 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
         }
       )
     end
+
+    it "uses custom territory abbreviations from config" do
+      allow(Audiences.config).to receive(:territory_abbreviations).and_return({ "Custom Territory" => "CUST" })
+
+      user = create_user(data: { "displayName" => "Test User" })
+      create_group(resource_type: "Territories", display_name: "Custom Territory", external_users: [user])
+
+      scim_data = user.as_scim
+      extension_data = scim_data["urn:ietf:params:scim:schemas:extension:authservice:2.0:User"]
+
+      expect(extension_data["territory"]).to eq("Custom Territory")
+      expect(extension_data["territoryAbbr"]).to eq("CUST")
+    end
+
+    it "returns nil for unknown territories" do
+      user = create_user(data: { "displayName" => "Test User" })
+      create_group(resource_type: "Territories", display_name: "Unknown Territory", external_users: [user])
+
+      scim_data = user.as_scim
+      extension_data = scim_data["urn:ietf:params:scim:schemas:extension:authservice:2.0:User"]
+
+      expect(extension_data["territory"]).to eq("Unknown Territory")
+      expect(extension_data["territoryAbbr"]).to be_nil
+    end
   end
 end

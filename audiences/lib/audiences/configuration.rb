@@ -21,6 +21,17 @@ module Audiences
     []
   end
 
+  DEFAULT_TERRITORY_ABBREVIATIONS = {
+    "Philadelphia" => "PHL", "New Jersey" => "NJ", "Maryland" => "MD", "Connecticut" => "CT",
+    "Long Island" => "LI", "Boston" => "BOS", "Atlanta" => "ATL", "Chicago" => "CHI",
+    "Detroit" => "DET", "Houston" => "HOU", "Dallas" => "DAL", "Denver" => "DEN", "Tampa" => "TPA",
+    "Austin" => "AUS", "Charlotte" => "CLT", "Nashville" => "NSH", "Phoenix" => "PHX",
+    "Pittsburgh" => "PIT", "San Antonio" => "SAO", "Fort Lauderdale" => "FLL", "Las Vegas" => "LVS",
+    "Orlando" => "ORL", "Cincinnati" => "CIN", "Columbus" => "CLB", "Jacksonville" => "JAX"
+  }.freeze
+
+  config_accessor(:territory_abbreviations) { DEFAULT_TERRITORY_ABBREVIATIONS }
+
   # Defines a default scope for users, so the users that are part of an audience can
   # be filtered (i.e.: only active, only users in a specific group, etc)
   #

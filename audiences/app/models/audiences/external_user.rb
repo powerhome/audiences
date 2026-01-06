@@ -81,40 +81,16 @@ module Audiences
         "title" => names["Titles"],
         "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
           "role" => names["Roles"], "department" => names["Departments"],
-          "territory" => names["Territories"], "territoryAbbr" => TERRITORY_ABBRS[names["Territories"]]
+          "territory" => names["Territories"], "territoryAbbr" => territory_abbr(names["Territories"])
         },
       }
     end
 
-    TERRITORY_ABBRS = {
-      "Philadelphia" => "PHL",
-      "New Jersey" => "NJ",
-      "Maryland" => "MD",
-      "Connecticut" => "CT",
-      "Long Island" => "LI",
-      "Boston" => "BOS",
-      "Atlanta" => "ATL",
-      "Chicago" => "CHI",
-      "Detroit" => "DET",
-      "Houston" => "HOU",
-      "Dallas" => "DAL",
-      "Denver" => "DEN",
-      "Tampa" => "TPA",
-      "Austin" => "AUS",
-      "Charlotte" => "CLT",
-      "Nashville" => "NSH",
-      "Phoenix" => "PHX",
-      "Pittsburgh" => "PIT",
-      "San Antonio" => "SAO",
-      "Fort Lauderdale" => "FLL",
-      "Las Vegas" => "LVS",
-      "Orlando" => "ORL",
-      "Cincinnati" => "CIN",
-      "Columbus" => "CLB",
-      "Jacksonville" => "JAX",
-    }.freeze
-
   private
+
+    def territory_abbr(territory)
+      Audiences.config.territory_abbreviations[territory]
+    end
 
     def required_group_types
       expected_types = Audiences.config.required_user_group_types
