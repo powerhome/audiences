@@ -8,7 +8,7 @@ module Audiences
     has_many :context_extra_users, class_name: "Audiences::ContextExtraUser", dependent: :destroy
     has_many :contexts, through: :context_extra_users, source: :context
 
-    validate :has_required_group_types, if: :active?
+    validate :required_group_types, if: :active?
 
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
@@ -58,8 +58,6 @@ module Audiences
         scope.or matching(criterion)
       end
     end
-
-
 
     def picture_urls = [picture_url]
 
@@ -118,16 +116,16 @@ module Audiences
 
   private
 
-  def has_required_group_types
-    expected_types = Audiences.config.required_user_group_types
-    return if expected_types.blank?
+    def required_group_types
+      expected_types = Audiences.config.required_user_group_types
+      return if expected_types.blank?
 
-    actual_types = groups.map(&:resource_type)
-    missing_types = expected_types - actual_types
+      actual_types = groups.map(&:resource_type)
+      missing_types = expected_types - actual_types
 
-    return if missing_types.empty?
+      return if missing_types.empty?
 
-    errors.add(:groups, "must include groups of types: #{missing_types.join(', ')}")
-  end
+      errors.add(:groups, "must include groups of types: #{missing_types.join(', ')}")
+    end
   end
 end

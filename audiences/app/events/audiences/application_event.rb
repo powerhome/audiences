@@ -5,4 +5,3 @@ module Audiences
     event_prefix "audiences"
   end
 end
-

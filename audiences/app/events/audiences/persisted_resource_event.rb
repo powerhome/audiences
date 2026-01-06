@@ -8,4 +8,3 @@ module Audiences
     attribute :resource_type
   end
 end
-
