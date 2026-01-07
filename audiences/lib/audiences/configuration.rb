@@ -114,7 +114,7 @@ module Audiences
       Audiences.logger.warn(<<~MESSAGE)
         Audiences authenticate is currently configured using a default and is blocking authenticaiton.
 
-        To make this wraning go away provide a configuration for `Audiences.config.authenticate`.
+        To make this warning go away provide a configuration for `Audiences.config.authenticate`.
 
         The value should:
           1. Be callable like a Proc.
