@@ -20,6 +20,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
           ],
         }
 
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
         end.to change { Audiences::ExternalUser.count }.by(1)
@@ -51,6 +53,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
           ],
         }
 
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
         end.to(change { Audiences::ExternalUser.count })
@@ -71,6 +75,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123",
                    "active" => false }
 
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
         end.to_not(change { Audiences::ExternalUser.count })
@@ -86,6 +92,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       it "updates an existing external user on an ReplaceEvent" do
         user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {})
         params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -140,6 +148,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       it "creates user with valid groups via CreateEvent" do
         params = build_user_params
 
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
         end.to change { Audiences::ExternalUser.count }.by(1)
@@ -152,6 +162,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       it "creates user with valid groups via ReplaceEvent" do
         params = build_user_params
 
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
         end.to change { Audiences::ExternalUser.count }.by(1)
@@ -162,6 +174,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
       it "propagates validation error when groups are invalid" do
         params = build_user_params("groups" => [])
+
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -174,6 +188,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                display_name: "Old Name", data: {}, active: false)
         params = build_user_params("displayName" => "New Name")
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -188,6 +204,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                display_name: "Old Name", data: {}, active: false)
         params = build_user_params("displayName" => "New Name")
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
@@ -204,9 +222,42 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
                                         groups: all_required_groups)
         params = build_user_params("groups" => [{ "value" => "group-1" }])
 
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
         end.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    describe "inactive users" do
+      it "creates inactive user without groups and publishes PersistedResourceEvent" do
+        params = build_user_params("active" => false, "groups" => [])
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
+
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.active).to be false
+        expect(created_user.groups).to be_empty
+      end
+
+      it "updates inactive user without groups and publishes PersistedResourceEvent" do
+        Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                        display_name: "Test", data: {}, active: true,
+                                        groups: all_required_groups)
+        params = build_user_params("active" => false, "groups" => [])
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+
+        user = Audiences::ExternalUser.last
+        expect(user.active).to be false
+        expect(user.groups).to be_empty
       end
     end
 
@@ -222,18 +273,6 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
         created_user = Audiences::ExternalUser.last
         expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
-      end
-    end
-
-    describe "event publishing" do
-      it "does not publish PersistedResourceEvent on validation failure" do
-        params = build_user_params("groups" => [])
-
-        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
-
-        expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
-        end.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
   end
