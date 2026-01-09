@@ -108,14 +108,14 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     end
   end
 
-  context "when required_user_group_types is configured" do
+  context "when required_group_types is configured" do
     before(:all) do
-      @old_required_user_group_types = Audiences.config.required_user_group_types
-      Audiences.config.required_user_group_types = %w[Departments Titles Territories Roles]
+      @old_required_group_types = Audiences.config.required_group_types
+      Audiences.config.required_group_types = %w[Departments Titles Territories Roles]
     end
 
     after(:all) do
-      Audiences.config.required_user_group_types = @old_required_user_group_types
+      Audiences.config.required_group_types = @old_required_group_types
     end
 
     before(:each) do

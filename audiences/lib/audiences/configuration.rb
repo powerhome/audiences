@@ -17,7 +17,7 @@ module Audiences
   end
 
   # Group types that must be present in a user provisioning event
-  config_accessor :required_user_group_types do
+  config_accessor :required_group_types do
     []
   end
 

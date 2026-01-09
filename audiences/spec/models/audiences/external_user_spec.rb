@@ -9,14 +9,14 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
   end
 
   describe "#required_group_types validation" do
-    context "when required_user_group_types is configured" do
+    context "when required_group_types is configured" do
       before(:all) do
-        @old_required_user_group_types = Audiences.config.required_user_group_types
-        Audiences.config.required_user_group_types = %w[Departments Titles Territories Roles]
+        @old_required_group_types = Audiences.config.required_group_types
+        Audiences.config.required_group_types = %w[Departments Titles Territories Roles]
       end
 
       after(:all) do
-        Audiences.config.required_user_group_types = @old_required_user_group_types
+        Audiences.config.required_group_types = @old_required_group_types
       end
 
       let!(:department_group) { create_group(resource_type: "Departments") }
@@ -158,14 +158,14 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
       end
     end
 
-    context "when required_user_group_types is empty" do
+    context "when required_group_types is empty" do
       before(:all) do
-        @old_required_user_group_types = Audiences.config.required_user_group_types
-        Audiences.config.required_user_group_types = []
+        @old_required_group_types = Audiences.config.required_group_types
+        Audiences.config.required_group_types = []
       end
 
       after(:all) do
-        Audiences.config.required_user_group_types = @old_required_user_group_types
+        Audiences.config.required_group_types = @old_required_group_types
       end
 
       it "allows active user with no groups" do
@@ -178,14 +178,14 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
       end
     end
 
-    context "when required_user_group_types is nil" do
+    context "when required_group_types is nil" do
       before(:all) do
-        @old_required_user_group_types = Audiences.config.required_user_group_types
-        Audiences.config.required_user_group_types = nil
+        @old_required_group_types = Audiences.config.required_group_types
+        Audiences.config.required_group_types = nil
       end
 
       after(:all) do
-        Audiences.config.required_user_group_types = @old_required_user_group_types
+        Audiences.config.required_group_types = @old_required_group_types
       end
 
       it "allows active user with no groups" do

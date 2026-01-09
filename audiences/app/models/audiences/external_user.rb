@@ -8,7 +8,7 @@ module Audiences
     has_many :context_extra_users, class_name: "Audiences::ContextExtraUser", dependent: :destroy
     has_many :contexts, through: :context_extra_users, source: :context
 
-    validate :required_group_types, if: :active?
+    validate :group_types, if: :active?
 
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
@@ -92,8 +92,8 @@ module Audiences
       Audiences.config.territory_abbreviations[territory]
     end
 
-    def required_group_types
-      expected_types = Audiences.config.required_user_group_types
+    def group_types
+      expected_types = Audiences.config.required_group_types
       return if expected_types.blank?
 
       actual_types = groups.map(&:resource_type)
