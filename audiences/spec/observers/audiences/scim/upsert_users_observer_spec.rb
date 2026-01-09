@@ -276,4 +276,58 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       end
     end
   end
+
+  describe "retry behavior" do
+    let(:params) do
+      { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123", "active" => true }
+    end
+
+    before do
+      allow_any_instance_of(described_class).to receive(:sleep)
+    end
+
+    it "retries and succeeds after transient RecordInvalid errors" do
+      call_count = 0
+      allow_any_instance_of(Audiences::ExternalUser).to receive(:update!).and_wrap_original do |method, *args|
+        call_count += 1
+        raise ActiveRecord::RecordInvalid, Audiences::ExternalUser.new if call_count < 2
+
+        method.call(*args)
+      end
+
+      expect(Audiences::PersistedResourceEvent).to receive(:create)
+
+      expect do
+        TwoPercent::CreateEvent.create(resource: "Users", params: params)
+      end.to change { Audiences::ExternalUser.count }.by(1)
+
+      expect(call_count).to eq(2)
+    end
+
+    it "raises after exhausting max retries" do
+      allow_any_instance_of(Audiences::ExternalUser).to receive(:update!)
+        .and_raise(ActiveRecord::RecordInvalid, Audiences::ExternalUser.new)
+
+      expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+
+      expect do
+        TwoPercent::CreateEvent.create(resource: "Users", params: params)
+      end.to raise_error(ActiveRecord::RecordInvalid)
+    end
+
+    it "logs a warning on each retry attempt" do
+      call_count = 0
+      allow_any_instance_of(Audiences::ExternalUser).to receive(:update!).and_wrap_original do |method, *args|
+        call_count += 1
+        raise ActiveRecord::RecordInvalid, Audiences::ExternalUser.new if call_count < 3
+
+        method.call(*args)
+      end
+
+      expect(Audiences.logger).to receive(:warn).with(%r{Retrying \(attempt 2/3\)}).ordered
+      expect(Audiences.logger).to receive(:warn).with(%r{Retrying \(attempt 3/3\)}).ordered
+
+      TwoPercent::CreateEvent.create(resource: "Users", params: params)
+    end
+  end
 end

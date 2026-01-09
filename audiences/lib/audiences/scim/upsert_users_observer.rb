@@ -8,13 +8,8 @@ module Audiences
 
       def process
         Audiences.logger.info "#{upsert_action} user #{event_payload.params['displayName']} (#{scim_id})"
-
-        external_user.update! updated_attributes
-
+        retry_with { external_user.update! updated_attributes }
         Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
-      rescue => e
-        Audiences.logger.error e
-        raise
       end
 
     private
@@ -26,6 +21,19 @@ module Audiences
       end
 
       def upsert_action = external_user.persisted? ? "Updating" : "Creating"
+
+      def retry_with(max_retries: 3, delay: 1, retries: 0)
+        yield
+      rescue ActiveRecord::RecordInvalid => e
+        raise if (retries += 1) >= max_retries
+
+        Audiences.logger.warn "Retrying (attempt #{retries + 1}/#{max_retries}): #{e.message}"
+        sleep delay
+        retry
+      rescue => e
+        Audiences.logger.error e
+        raise
+      end
 
       def updated_attributes
         {
