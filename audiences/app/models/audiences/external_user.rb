@@ -8,6 +8,8 @@ module Audiences
     has_many :context_extra_users, class_name: "Audiences::ContextExtraUser", dependent: :destroy
     has_many :contexts, through: :context_extra_users, source: :context
 
+    validate :group_types, if: :active?
+
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
                             primary_key: Audiences.config.identity_key,
@@ -79,37 +81,27 @@ module Audiences
         "title" => names["Titles"],
         "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
           "role" => names["Roles"], "department" => names["Departments"],
-          "territory" => names["Territories"], "territoryAbbr" => TERRITORY_ABBRS[names["Territories"]]
+          "territory" => names["Territories"], "territoryAbbr" => territory_abbr(names["Territories"])
         },
       }
     end
 
-    TERRITORY_ABBRS = {
-      "Philadelphia" => "PHL",
-      "New Jersey" => "NJ",
-      "Maryland" => "MD",
-      "Connecticut" => "CT",
-      "Long Island" => "LI",
-      "Boston" => "BOS",
-      "Atlanta" => "ATL",
-      "Chicago" => "CHI",
-      "Detroit" => "DET",
-      "Houston" => "HOU",
-      "Dallas" => "DAL",
-      "Denver" => "DEN",
-      "Tampa" => "TPA",
-      "Austin" => "AUS",
-      "Charlotte" => "CLT",
-      "Nashville" => "NSH",
-      "Phoenix" => "PHX",
-      "Pittsburgh" => "PIT",
-      "San Antonio" => "SAO",
-      "Fort Lauderdale" => "FLL",
-      "Las Vegas" => "LVS",
-      "Orlando" => "ORL",
-      "Cincinnati" => "CIN",
-      "Columbus" => "CLB",
-      "Jacksonville" => "JAX",
-    }.freeze
+  private
+
+    def territory_abbr(territory)
+      Audiences.config.territory_abbreviations[territory]
+    end
+
+    def group_types
+      expected_types = Audiences.config.required_group_types
+      return if expected_types.blank?
+
+      actual_types = groups.map(&:resource_type)
+      missing_types = expected_types - actual_types
+
+      return if missing_types.empty?
+
+      errors.add(:groups, "must include groups of types: #{missing_types.join(', ')}")
+    end
   end
 end
