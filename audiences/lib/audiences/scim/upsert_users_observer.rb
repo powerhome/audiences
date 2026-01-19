@@ -10,11 +10,7 @@ module Audiences
         Audiences.logger.info "#{upsert_action} user #{event_payload.params['displayName']} (#{scim_id})"
         external_user.update! updated_attributes
 
-        if external_user.missing_group_types.any?
-          missing_types = external_user.missing_group_types.join(', ')
-          Audiences.logger.warn "Provisioning event for user #{scim_id} with missing group types: #{missing_types}"
-          return
-        end
+        return unless valid_group_types?
 
         Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
       end
@@ -46,6 +42,14 @@ module Audiences
         event_payload.params.fetch("groups", []).filter_map do |group|
           Audiences::Group.find_by(scim_id: group["value"])
         end
+      end
+
+      def valid_group_types?
+        missing = external_user.missing_group_types
+        return true if missing.empty?
+
+        Audiences.logger.warn "Provisioning event for user #{scim_id} with missing group types: #{missing.join(', ')}"
+        false
       end
     end
   end

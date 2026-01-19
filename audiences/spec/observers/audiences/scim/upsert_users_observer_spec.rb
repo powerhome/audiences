@@ -222,8 +222,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
       it "updates user but does not publish event when update has invalid groups" do
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
-                                        display_name: "Old Name", data: {}, active: true,
-                                        groups: all_required_groups)
+                                               display_name: "Old Name", data: {}, active: true,
+                                               groups: all_required_groups)
         params = build_user_params("groups" => [{ "value" => "group-1" }])
 
         expect(Audiences::PersistedResourceEvent).not_to receive(:create)
@@ -283,5 +283,4 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
       end
     end
   end
-
 end
