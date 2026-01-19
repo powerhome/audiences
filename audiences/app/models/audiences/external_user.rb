@@ -84,8 +84,7 @@ module Audiences
       }
     end
 
-    def missing_group_types
-      expected_types = Audiences.config.required_group_types
+    def missing_group_types(expected_types = Audiences.config.required_group_types)
       return [] if expected_types.blank?
 
       actual_types = groups.map(&:resource_type)
