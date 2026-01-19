@@ -35,33 +35,34 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
           expect(user).to be_valid
         end
 
-        it "is invalid when user is missing a required group type" do
+        it "is valid even when user is missing a required group type" do
           user = Audiences::ExternalUser.new(
             scim_id: "test-id", user_id: "ext-id", display_name: "Test",
             active: true, groups: [title_group, territory_group, role_group]
           )
 
-          expect(user).not_to be_valid
-          expect(user.errors[:groups]).to include("must include groups of types: Departments")
+          expect(user).to be_valid
+          expect(user.missing_group_types).to eq(["Departments"])
         end
 
-        it "is invalid with empty groups" do
+        it "is valid with empty groups" do
           user = Audiences::ExternalUser.new(
             scim_id: "test-id", user_id: "ext-id", display_name: "Test",
             active: true, groups: []
           )
 
-          expect(user).not_to be_valid
-          expect(user.errors[:groups].first).to include("must include groups of types:")
+          expect(user).to be_valid
+          expect(user.missing_group_types).to match_array(%w[Departments Titles Territories Roles])
         end
 
-        it "is invalid with no groups" do
+        it "is valid with no groups" do
           user = Audiences::ExternalUser.new(
             scim_id: "test-id", user_id: "ext-id", display_name: "Test",
             active: true
           )
 
-          expect(user).not_to be_valid
+          expect(user).to be_valid
+          expect(user.missing_group_types).to match_array(%w[Departments Titles Territories Roles])
         end
 
         it "validates groups regardless of order" do
@@ -115,14 +116,15 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
       end
 
       describe "state transitions" do
-        it "fails when activating user without required groups" do
+        it "succeeds when activating user without required groups" do
           user = Audiences::ExternalUser.create!(
             scim_id: "test-id", user_id: "ext-id", display_name: "Test",
             active: false, groups: []
           )
 
           user.active = true
-          expect(user).not_to be_valid
+          expect(user).to be_valid
+          expect(user.missing_group_types).to match_array(%w[Departments Titles Territories Roles])
         end
 
         it "succeeds when activating user with all required groups" do
@@ -146,14 +148,15 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
           expect(user).to be_valid
         end
 
-        it "fails when active user removes a required group while staying active" do
+        it "succeeds when active user removes a required group while staying active" do
           user = Audiences::ExternalUser.create!(
             scim_id: "test-id", user_id: "ext-id", display_name: "Test",
             active: true, groups: all_required_groups
           )
 
           user.groups = [department_group, title_group, territory_group]
-          expect(user).not_to be_valid
+          expect(user).to be_valid
+          expect(user.missing_group_types).to eq(["Roles"])
         end
       end
     end

@@ -8,8 +8,6 @@ module Audiences
     has_many :context_extra_users, class_name: "Audiences::ContextExtraUser", dependent: :destroy
     has_many :contexts, through: :context_extra_users, source: :context
 
-    validate :group_types, if: :active?
-
     if Audiences.config.identity_class
       belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
                             primary_key: Audiences.config.identity_key,
@@ -86,22 +84,18 @@ module Audiences
       }
     end
 
+    def missing_group_types
+      expected_types = Audiences.config.required_group_types
+      return [] if expected_types.blank?
+
+      actual_types = groups.map(&:resource_type)
+      expected_types - actual_types
+    end
+
   private
 
     def territory_abbr(territory)
       Audiences.config.territory_abbreviations[territory]
-    end
-
-    def group_types
-      expected_types = Audiences.config.required_group_types
-      return if expected_types.blank?
-
-      actual_types = groups.map(&:resource_type)
-      missing_types = expected_types - actual_types
-
-      return if missing_types.empty?
-
-      errors.add(:groups, "must include groups of types: #{missing_types.join(', ')}")
     end
   end
 end

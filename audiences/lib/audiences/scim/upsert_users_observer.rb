@@ -8,7 +8,14 @@ module Audiences
 
       def process
         Audiences.logger.info "#{upsert_action} user #{event_payload.params['displayName']} (#{scim_id})"
-        retry_with { external_user.update! updated_attributes }
+        external_user.update! updated_attributes
+
+        if external_user.missing_group_types.any?
+          missing_types = external_user.missing_group_types.join(', ')
+          Audiences.logger.warn "Provisioning event for user #{scim_id} with missing group types: #{missing_types}"
+          return
+        end
+
         Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
       end
 
@@ -21,19 +28,6 @@ module Audiences
       end
 
       def upsert_action = external_user.persisted? ? "Updating" : "Creating"
-
-      def retry_with(max_retries: 3, delay: 1, retries: 0)
-        yield
-      rescue ActiveRecord::RecordInvalid => e
-        raise if (retries += 1) >= max_retries
-
-        Audiences.logger.warn "Retrying (attempt #{retries + 1}/#{max_retries}): #{e.message}"
-        sleep delay
-        retry
-      rescue => e
-        Audiences.logger.error e
-        raise
-      end
 
       def updated_attributes
         {

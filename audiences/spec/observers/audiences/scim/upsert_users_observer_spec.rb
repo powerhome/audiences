@@ -172,14 +172,18 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
       end
 
-      it "propagates validation error when groups are invalid" do
+      it "creates user but does not publish event when groups are invalid" do
         params = build_user_params("groups" => [])
 
         expect(Audiences::PersistedResourceEvent).not_to receive(:create)
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
-        end.to raise_error(ActiveRecord::RecordInvalid)
+        end.to change { Audiences::ExternalUser.count }.by(1)
+
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.scim_id).to eql "internal-id-123"
+        expect(created_user.groups).to be_empty
       end
     end
 
@@ -216,8 +220,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         expect(user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
       end
 
-      it "propagates validation error when update has invalid groups" do
-        Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+      it "updates user but does not publish event when update has invalid groups" do
+        user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                         display_name: "Old Name", data: {}, active: true,
                                         groups: all_required_groups)
         params = build_user_params("groups" => [{ "value" => "group-1" }])
@@ -226,15 +230,18 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-        end.to raise_error(ActiveRecord::RecordInvalid)
+        end.to_not(change { Audiences::ExternalUser.count })
+
+        user.reload
+        expect(user.groups.pluck(:scim_id)).to eq(["group-1"])
       end
     end
 
     describe "inactive users" do
-      it "creates inactive user without groups and publishes PersistedResourceEvent" do
+      it "creates inactive user without groups but does not publish PersistedResourceEvent" do
         params = build_user_params("active" => false, "groups" => [])
 
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -245,13 +252,13 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         expect(created_user.groups).to be_empty
       end
 
-      it "updates inactive user without groups and publishes PersistedResourceEvent" do
+      it "updates inactive user without groups but does not publish PersistedResourceEvent" do
         Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                         display_name: "Test", data: {}, active: true,
                                         groups: all_required_groups)
         params = build_user_params("active" => false, "groups" => [])
 
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
 
         TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
 
@@ -277,57 +284,4 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
     end
   end
 
-  describe "retry behavior" do
-    let(:params) do
-      { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123", "active" => true }
-    end
-
-    before do
-      allow_any_instance_of(described_class).to receive(:sleep)
-    end
-
-    it "retries and succeeds after transient RecordInvalid errors" do
-      call_count = 0
-      allow_any_instance_of(Audiences::ExternalUser).to receive(:update!).and_wrap_original do |method, *args|
-        call_count += 1
-        raise ActiveRecord::RecordInvalid, Audiences::ExternalUser.new if call_count < 2
-
-        method.call(*args)
-      end
-
-      expect(Audiences::PersistedResourceEvent).to receive(:create)
-
-      expect do
-        TwoPercent::CreateEvent.create(resource: "Users", params: params)
-      end.to change { Audiences::ExternalUser.count }.by(1)
-
-      expect(call_count).to eq(2)
-    end
-
-    it "raises after exhausting max retries" do
-      allow_any_instance_of(Audiences::ExternalUser).to receive(:update!)
-        .and_raise(ActiveRecord::RecordInvalid, Audiences::ExternalUser.new)
-
-      expect(Audiences::PersistedResourceEvent).not_to receive(:create)
-
-      expect do
-        TwoPercent::CreateEvent.create(resource: "Users", params: params)
-      end.to raise_error(ActiveRecord::RecordInvalid)
-    end
-
-    it "logs a warning on each retry attempt" do
-      call_count = 0
-      allow_any_instance_of(Audiences::ExternalUser).to receive(:update!).and_wrap_original do |method, *args|
-        call_count += 1
-        raise ActiveRecord::RecordInvalid, Audiences::ExternalUser.new if call_count < 3
-
-        method.call(*args)
-      end
-
-      expect(Audiences.logger).to receive(:warn).with(%r{Retrying \(attempt 2/3\)}).ordered
-      expect(Audiences.logger).to receive(:warn).with(%r{Retrying \(attempt 3/3\)}).ordered
-
-      TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end
-  end
 end
