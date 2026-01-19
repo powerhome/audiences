@@ -176,6 +176,9 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         params = build_user_params("groups" => [])
 
         expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+        msg = "Provisioning event for user internal-id-123 with missing group types: " \
+              "Departments, Titles, Territories, Roles"
+        expect(Audiences.logger).to receive(:warn).with(msg)
 
         expect do
           TwoPercent::CreateEvent.create(resource: "Users", params: params)
@@ -227,6 +230,8 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
         params = build_user_params("groups" => [{ "value" => "group-1" }])
 
         expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+        msg = "Provisioning event for user internal-id-123 with missing group types: Titles, Territories, Roles"
+        expect(Audiences.logger).to receive(:warn).with(msg)
 
         expect do
           TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
