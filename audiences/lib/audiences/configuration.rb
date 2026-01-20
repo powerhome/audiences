@@ -27,7 +27,8 @@ module Audiences
     "Detroit" => "DET", "Houston" => "HOU", "Dallas" => "DAL", "Denver" => "DEN", "Tampa" => "TPA",
     "Austin" => "AUS", "Charlotte" => "CLT", "Nashville" => "NSH", "Phoenix" => "PHX",
     "Pittsburgh" => "PIT", "San Antonio" => "SAO", "Fort Lauderdale" => "FLL", "Las Vegas" => "LVS",
-    "Orlando" => "ORL", "Cincinnati" => "CIN", "Columbus" => "CLB", "Jacksonville" => "JAX"
+    "Orlando" => "ORL", "Cincinnati" => "CIN", "Columbus" => "CLB", "Jacksonville" => "JAX",
+    "Oklahoma City" => "OKC", "Raleigh" => "RLD", "Cleveland" => "CLE"
   }.freeze
 
   config_accessor(:territory_abbreviations) { DEFAULT_TERRITORY_ABBREVIATIONS }
