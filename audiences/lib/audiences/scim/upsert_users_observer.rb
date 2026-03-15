@@ -7,15 +7,21 @@ module Audiences
       subscribe_to "two_percent.scim.replace.Users"
 
       def process
-        Audiences.logger.info "#{upsert_action} group #{event_payload.params['displayName']} (#{scim_id})"
-
+        log_upsert_action
         external_user.update! updated_attributes
+        return unless valid_group_types?
+
+        Audiences::PersistedResourceEvent.create(resource_type: "Users", params: event_payload.params)
       rescue => e
         Audiences.logger.error e
         raise
       end
 
     private
+
+      def log_upsert_action
+        Audiences.logger.info "#{upsert_action} user #{event_payload.params['displayName']} (#{scim_id})"
+      end
 
       def scim_id = event_payload.params["id"]
 
@@ -42,6 +48,14 @@ module Audiences
         event_payload.params.fetch("groups", []).filter_map do |group|
           Audiences::Group.find_by(scim_id: group["value"])
         end
+      end
+
+      def valid_group_types?
+        missing = external_user.missing_group_types
+        return true if missing.empty?
+
+        Audiences.logger.warn "Provisioning event for user #{scim_id} with missing group types: #{missing.join(', ')}"
+        false
       end
     end
   end

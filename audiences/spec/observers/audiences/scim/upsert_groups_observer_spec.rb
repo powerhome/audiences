@@ -9,6 +9,9 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
   it "creates a group that is configured in Audiences.config.group_types" do
     params = { "id" => "internal-id-123", "displayName" => "My Group", "externalId" => "external-id-123",
                "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => true } }
+
+    expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Groups", params: params)
+
     expect do
       TwoPercent::CreateEvent.create(resource: "Groups", params: params)
     end.to change { Audiences::Group.count }.by(1)
@@ -27,6 +30,8 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
     params = { "id" => group.scim_id, "displayName" => "My Group", "externalId" => "external-id-123",
                "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => false } }
 
+    expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Groups", params: params)
+
     expect do
       TwoPercent::CreateEvent.create(resource: "Groups", params: params)
     end.to_not(change { Audiences::Group.count })
@@ -44,6 +49,8 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
     group = create_group
     params = { "id" => group.scim_id, "displayName" => "My Group", "externalId" => "external-id-123",
                "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => false } }
+
+    expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Groups", params: params)
 
     expect do
       TwoPercent::ReplaceEvent.create(resource: "Groups", params: params)
