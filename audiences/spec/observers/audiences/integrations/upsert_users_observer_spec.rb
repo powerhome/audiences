@@ -2,9 +2,9 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::Scim::UpsertUsersObserver do
-  before(:all) { Audiences::Scim::UpsertUsersObserver.start }
-  after(:all) { Audiences::Scim::UpsertUsersObserver.stop }
+RSpec.describe Audiences::Integrations::UpsertUsersObserver do
+  before(:all) { Audiences::Integrations::UpsertUsersObserver.start }
+  after(:all) { Audiences::Integrations::UpsertUsersObserver.stop }
 
   it "creates an external user" do
     params = {

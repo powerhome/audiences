@@ -36,8 +36,12 @@ module Audiences
     end
 
     scope :from_scim, ->(*scim_json) do
-      where(scim_id: scim_json.pluck("id").compact)
-        .or(where(user_id: scim_json.pluck("externalId").compact))
+      # Flatten in case array is passed
+      json_array = scim_json.flatten
+      ids = json_array.map { |h| h.is_a?(Hash) ? (h["id"] || h[:id]) : nil }.compact
+      external_ids = json_array.map { |h| h.is_a?(Hash) ? (h["externalId"] || h[:externalId]) : nil }.compact
+      
+      where(scim_id: ids).or(where(user_id: external_ids))
     end
 
     scope :matching, ->(criterion) do
