@@ -8,13 +8,37 @@ module Audiences
       end
 
       def remove(object, path, val)
-        current = object.send to(path)
-        _set object, path, current - value(path, val)
+        return unless @map.key?(path)
+
+        case @map[path]
+        in { to: to, find: find }
+          # Association mapping - use delete operator to avoid loading all records
+          collection = object.send(to)
+          items_to_remove = [val].flatten.pluck("value").filter_map(&find)
+          collection.delete(*items_to_remove)
+        else
+          # Simple attribute - use existing logic
+          current = object.send to(path)
+          _set object, path, current - value(path, val)
+        end
       end
 
       def add(object, path, val)
-        current = object.send to(path)
-        _set object, path, current + value(path, val)
+        return unless @map.key?(path)
+
+        case @map[path]
+        in { to: to, find: find }
+          # Association mapping - use << operator to avoid loading all records
+          collection = object.send(to)
+          new_items = [val].flatten.pluck("value").filter_map(&find)
+          new_items.each do |item|
+            collection << item unless collection.include?(item)
+          end
+        else
+          # Simple attribute - use existing logic
+          current = object.send to(path)
+          _set object, path, current + value(path, val)
+        end
       end
 
       def replace(object, path, val)
