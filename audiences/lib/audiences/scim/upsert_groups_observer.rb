@@ -12,6 +12,7 @@ module Audiences
         Audiences.logger.info "#{upsert_action} group #{new_display_name} (#{new_external_id})"
 
         group.update! external_id: new_external_id, display_name: new_display_name, active: new_active
+        Audiences::PersistedResourceEvent.create(resource_type: "Groups", params: event_payload.params)
       rescue => e
         Audiences.logger.error e
         raise
