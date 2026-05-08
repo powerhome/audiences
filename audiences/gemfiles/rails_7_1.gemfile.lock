@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    audiences (2.0.0)
+    audiences (2.0.1)
       aether_observatory (~> 1.0)
       rails (>= 6.0)
 
