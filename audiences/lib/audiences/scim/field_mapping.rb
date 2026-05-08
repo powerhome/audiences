@@ -8,13 +8,27 @@ module Audiences
       end
 
       def remove(object, path, val)
-        current = object.send to(path)
-        _set object, path, current - value(path, val)
+        return unless @map.key?(path)
+
+        case @map[path]
+        in { to: to, find: find }
+          remove_from_association(object, to, find, val)
+        else
+          current = object.send to(path)
+          _set object, path, current - value(path, val)
+        end
       end
 
       def add(object, path, val)
-        current = object.send to(path)
-        _set object, path, current + value(path, val)
+        return unless @map.key?(path)
+
+        case @map[path]
+        in { to: to, find: find }
+          add_to_association(object, to, find, val)
+        else
+          current = object.send to(path)
+          _set object, path, current + value(path, val)
+        end
       end
 
       def replace(object, path, val)
@@ -43,6 +57,20 @@ module Audiences
         in { find: find } then [val].flatten.pluck("value").map(&find)
         else val
         end
+      end
+
+      def add_to_association(object, to, find, val)
+        # Use << operator to avoid loading all records
+        collection = object.send(to)
+        new_items = [val].flatten.pluck("value").filter_map(&find)
+        new_items.each { |item| collection << item unless collection.include?(item) }
+      end
+
+      def remove_from_association(object, to, find, val)
+        # Use delete operator to avoid loading all records
+        collection = object.send(to)
+        items_to_remove = [val].flatten.pluck("value").filter_map(&find)
+        collection.delete(*items_to_remove)
       end
     end
   end

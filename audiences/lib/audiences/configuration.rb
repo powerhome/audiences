@@ -16,6 +16,23 @@ module Audiences
     %w[Groups]
   end
 
+  # Group types that must be present in a user provisioning event
+  config_accessor :required_group_types do
+    []
+  end
+
+  DEFAULT_TERRITORY_ABBREVIATIONS = {
+    "Philadelphia" => "PHL", "New Jersey" => "NJ", "Maryland" => "MD", "Connecticut" => "CT",
+    "Long Island" => "LI", "Boston" => "BOS", "Atlanta" => "ATL", "Chicago" => "CHI",
+    "Detroit" => "DET", "Houston" => "HOU", "Dallas" => "DAL", "Denver" => "DEN", "Tampa" => "TPA",
+    "Austin" => "AUS", "Charlotte" => "CLT", "Nashville" => "NSH", "Phoenix" => "PHX",
+    "Pittsburgh" => "PIT", "San Antonio" => "SAO", "Fort Lauderdale" => "FLL", "Las Vegas" => "LVS",
+    "Orlando" => "ORL", "Cincinnati" => "CIN", "Columbus" => "CLB", "Jacksonville" => "JAX",
+    "Oklahoma City" => "OKC", "Raleigh" => "RLD", "Cleveland" => "CLE"
+  }.freeze
+
+  config_accessor(:territory_abbreviations) { DEFAULT_TERRITORY_ABBREVIATIONS }
+
   # Defines a default scope for users, so the users that are part of an audience can
   # be filtered (i.e.: only active, only users in a specific group, etc)
   #
@@ -98,7 +115,7 @@ module Audiences
       Audiences.logger.warn(<<~MESSAGE)
         Audiences authenticate is currently configured using a default and is blocking authenticaiton.
 
-        To make this wraning go away provide a configuration for `Audiences.config.authenticate`.
+        To make this warning go away provide a configuration for `Audiences.config.authenticate`.
 
         The value should:
           1. Be callable like a Proc.

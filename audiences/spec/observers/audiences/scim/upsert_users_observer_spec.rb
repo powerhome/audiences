@@ -6,91 +6,286 @@ RSpec.describe Audiences::Scim::UpsertUsersObserver do
   before(:all) { Audiences::Scim::UpsertUsersObserver.start }
   after(:all) { Audiences::Scim::UpsertUsersObserver.stop }
 
-  it "creates an external user" do
-    params = {
-      "id" => "internal-id-123",
-      "displayName" => "My User",
-      "externalId" => "external-id-123",
-      "active" => true,
-      "photos" => [
-        { "value" => "http://example.com/photo/1" },
-        { "value" => "http://example.com/photo/2" },
-      ],
-    }
+  describe "#process" do
+    describe "creating users" do
+      it "creates an external user" do
+        params = {
+          "id" => "internal-id-123",
+          "displayName" => "My User",
+          "externalId" => "external-id-123",
+          "active" => true,
+          "photos" => [
+            { "value" => "http://example.com/photo/1" },
+            { "value" => "http://example.com/photo/2" },
+          ],
+        }
 
-    expect do
-      TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end.to change { Audiences::ExternalUser.count }.by(1)
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
 
-    created_user = Audiences::ExternalUser.last
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
 
-    expect(created_user.scim_id).to eql "internal-id-123"
-    expect(created_user.user_id).to eql "external-id-123"
-    expect(created_user.display_name).to eql "My User"
-    expect(created_user.picture_url).to eql "http://example.com/photo/1"
-    expect(created_user.data).to eql params
-    expect(created_user.active).to eql true
+        created_user = Audiences::ExternalUser.last
+
+        expect(created_user.scim_id).to eql "internal-id-123"
+        expect(created_user.user_id).to eql "external-id-123"
+        expect(created_user.display_name).to eql "My User"
+        expect(created_user.picture_url).to eql "http://example.com/photo/1"
+        expect(created_user.data).to eql params
+        expect(created_user.active).to eql true
+      end
+
+      it "creates user with group memberships" do
+        new_groups = [
+          create_group(scim_id: "group-123"),
+          create_group(scim_id: "group-456"),
+          create_group(scim_id: "group-789"),
+        ]
+        params = {
+          "id" => "internal-id-123",
+          "displayName" => "My User",
+          "externalId" => "external-id-123",
+          "groups" => [
+            { "value" => "group-123" },
+            { "value" => "group-456" },
+            { "value" => "group-789" },
+          ],
+        }
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+        end.to(change { Audiences::ExternalUser.count })
+
+        user = Audiences::ExternalUser.last
+
+        expect(user.scim_id).to eql "internal-id-123"
+        expect(user.user_id).to eql "external-id-123"
+        expect(user.groups).to match_array new_groups
+        expect(user.data).to eql params
+      end
+    end
+
+    describe "updating users" do
+      it "updates an existing external user on a CreateEvent" do
+        user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {},
+                                              active: true)
+        params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123",
+                   "active" => false }
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to_not(change { Audiences::ExternalUser.count })
+
+        user.reload
+
+        expect(user.scim_id).to eql "internal-id-123"
+        expect(user.user_id).to eql "external-id-123"
+        expect(user.data).to eql params
+        expect(user.active).to eql false
+      end
+
+      it "updates an existing external user on an ReplaceEvent" do
+        user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {})
+        params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+        end.to_not(change { Audiences::ExternalUser.count })
+
+        user.reload
+
+        expect(user.scim_id).to eql "internal-id-123"
+        expect(user.user_id).to eql "external-id-123"
+        expect(user.data).to eql params
+      end
+    end
   end
 
-  it "updates an existing external user on a CreateEvent" do
-    user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {},
-                                          active: true)
-    params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123",
-               "active" => false }
+  context "when required_group_types is configured" do
+    before(:all) do
+      @old_required_group_types = Audiences.config.required_group_types
+      Audiences.config.required_group_types = %w[Departments Titles Territories Roles]
+    end
 
-    expect do
-      TwoPercent::CreateEvent.create(resource: "Users", params: params)
-    end.to_not(change { Audiences::ExternalUser.count })
+    after(:all) do
+      Audiences.config.required_group_types = @old_required_group_types
+    end
 
-    user.reload
+    before(:each) do
+      create_group(scim_id: "group-1", resource_type: "Departments")
+      create_group(scim_id: "group-2", resource_type: "Titles")
+      create_group(scim_id: "group-3", resource_type: "Territories")
+      create_group(scim_id: "group-4", resource_type: "Roles")
+    end
 
-    expect(user.scim_id).to eql "internal-id-123"
-    expect(user.user_id).to eql "external-id-123"
-    expect(user.data).to eql params
-    expect(user.active).to eql false
-  end
+    let(:all_required_groups_param) do
+      [{ "value" => "group-1" }, { "value" => "group-2" },
+       { "value" => "group-3" }, { "value" => "group-4" }]
+    end
 
-  it "updates an existing external user on an ReplaceEvent" do
-    user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {})
-    params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
+    let(:all_required_groups) do
+      Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
+    end
 
-    expect do
-      TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to_not(change { Audiences::ExternalUser.count })
+    def build_user_params(overrides = {})
+      {
+        "id" => "internal-id-123",
+        "displayName" => "My User",
+        "externalId" => "external-id-123",
+        "active" => true,
+        "groups" => all_required_groups_param,
+      }.merge(overrides)
+    end
 
-    user.reload
+    describe "creating users via events" do
+      it "creates user with valid groups via CreateEvent" do
+        params = build_user_params
 
-    expect(user.scim_id).to eql "internal-id-123"
-    expect(user.user_id).to eql "external-id-123"
-    expect(user.data).to eql params
-  end
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
 
-  it "creates user with group memberships" do
-    new_groups = [
-      create_group(scim_id: "group-123"),
-      create_group(scim_id: "group-456"),
-      create_group(scim_id: "group-789"),
-    ]
-    params = {
-      "id" => "internal-id-123",
-      "displayName" => "My User",
-      "externalId" => "external-id-123",
-      "groups" => [
-        { "value" => "group-123" },
-        { "value" => "group-456" },
-        { "value" => "group-789" },
-      ],
-    }
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
 
-    expect do
-      TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
-    end.to(change { Audiences::ExternalUser.count })
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.scim_id).to eql "internal-id-123"
+        expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
+      end
 
-    user = Audiences::ExternalUser.last
+      it "creates user with valid groups via ReplaceEvent" do
+        params = build_user_params
 
-    expect(user.scim_id).to eql "internal-id-123"
-    expect(user.user_id).to eql "external-id-123"
-    expect(user.groups).to match_array new_groups
-    expect(user.data).to eql params
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
+
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
+      end
+
+      it "creates user but does not publish event when groups are invalid" do
+        params = build_user_params("groups" => [])
+
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+        msg = "Provisioning event for user internal-id-123 with missing group types: " \
+              "Departments, Titles, Territories, Roles"
+        expect(Audiences.logger).to receive(:warn).with(msg)
+
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
+
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.scim_id).to eql "internal-id-123"
+        expect(created_user.groups).to be_empty
+      end
+    end
+
+    describe "updating users via events" do
+      it "updates user with valid groups via CreateEvent" do
+        user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                               display_name: "Old Name", data: {}, active: false)
+        params = build_user_params("displayName" => "New Name")
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to_not(change { Audiences::ExternalUser.count })
+
+        user.reload
+        expect(user.display_name).to eql "New Name"
+        expect(user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
+      end
+
+      it "updates user with valid groups via ReplaceEvent" do
+        user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                               display_name: "Old Name", data: {}, active: false)
+        params = build_user_params("displayName" => "New Name")
+
+        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+
+        expect do
+          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+        end.to_not(change { Audiences::ExternalUser.count })
+
+        user.reload
+        expect(user.display_name).to eql "New Name"
+        expect(user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
+      end
+
+      it "updates user but does not publish event when update has invalid groups" do
+        user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                               display_name: "Old Name", data: {}, active: true,
+                                               groups: all_required_groups)
+        params = build_user_params("groups" => [{ "value" => "group-1" }])
+
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+        msg = "Provisioning event for user internal-id-123 with missing group types: Titles, Territories, Roles"
+        expect(Audiences.logger).to receive(:warn).with(msg)
+
+        expect do
+          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+        end.to_not(change { Audiences::ExternalUser.count })
+
+        user.reload
+        expect(user.groups.pluck(:scim_id)).to eq(["group-1"])
+      end
+    end
+
+    describe "inactive users" do
+      it "creates inactive user without groups but does not publish PersistedResourceEvent" do
+        params = build_user_params("active" => false, "groups" => [])
+
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
+
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.active).to be false
+        expect(created_user.groups).to be_empty
+      end
+
+      it "updates inactive user without groups but does not publish PersistedResourceEvent" do
+        Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
+                                        display_name: "Test", data: {}, active: true,
+                                        groups: all_required_groups)
+        params = build_user_params("active" => false, "groups" => [])
+
+        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+
+        TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+
+        user = Audiences::ExternalUser.last
+        expect(user.active).to be false
+        expect(user.groups).to be_empty
+      end
+    end
+
+    describe "group lookup behavior" do
+      it "ignores non-existent group scim_ids in params" do
+        params = build_user_params(
+          "groups" => all_required_groups_param + [{ "value" => "non-existent-group" }]
+        )
+
+        expect do
+          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+        end.to change { Audiences::ExternalUser.count }.by(1)
+
+        created_user = Audiences::ExternalUser.last
+        expect(created_user.groups.pluck(:scim_id)).to match_array(%w[group-1 group-2 group-3 group-4])
+      end
+    end
   end
 end
