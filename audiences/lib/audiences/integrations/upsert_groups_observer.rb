@@ -19,6 +19,9 @@ module Audiences
           active: group_attrs.fetch(:active, true)
         )
 
+        # Sync members if included in the event (from TwoPercent domain events)
+        sync_members if group_attrs[:members].present?
+
         log_sync_operation("complete")
       rescue => e
         Audiences.logger.error e
@@ -52,6 +55,12 @@ module Audiences
           resource_type: resource_type,
           scim_id: scim_id
         ).first_or_initialize
+      end
+
+      def sync_members
+        member_scim_ids = group_attrs[:members].map { |m| m[:scim_id] || m['scim_id'] }.compact
+        users = Audiences::ExternalUser.where(scim_id: member_scim_ids).to_a
+        group.external_users = users
       end
 
       def log_sync_operation(stage)

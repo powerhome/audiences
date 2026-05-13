@@ -65,7 +65,7 @@ module Audiences
         groups_data = user_attrs[:groups]
         return [] unless groups_data.is_a?(Array)
 
-        group_scim_ids = groups_data.map { |g| g["value"] || g[:value] }.compact
+        group_scim_ids = groups_data.map { |g| g[:scim_id] || g['scim_id'] }.compact
         Audiences::Group.where(scim_id: group_scim_ids).to_a
       end
 
