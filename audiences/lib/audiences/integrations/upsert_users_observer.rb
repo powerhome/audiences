@@ -14,6 +14,8 @@ module Audiences
         Audiences.logger.info "#{upsert_action} user #{user_attrs[:display_name]} (#{user_attrs[:scim_id]})"
 
         external_user.update!(updated_attributes)
+        external_user.groups = find_associated_groups
+        external_user.save!
 
         log_sync_operation("complete")
       rescue => e
@@ -49,7 +51,6 @@ module Audiences
           display_name: user_attrs[:display_name],
           picture_urls: extract_picture_urls,
           data: build_data_hash,
-          groups: find_associated_groups,
           active: user_attrs.fetch(:active, false)
         }
       end
