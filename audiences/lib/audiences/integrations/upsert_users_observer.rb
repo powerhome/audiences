@@ -15,7 +15,6 @@ module Audiences
 
         external_user.update!(updated_attributes)
         external_user.groups = find_associated_groups
-        external_user.save!
 
         log_sync_operation("complete")
       rescue => e

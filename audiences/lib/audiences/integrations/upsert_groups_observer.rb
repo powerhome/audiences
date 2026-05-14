@@ -61,7 +61,6 @@ module Audiences
         member_scim_ids = group_attrs[:members].map { |m| m[:scim_id] || m['scim_id'] }.compact
         users = Audiences::ExternalUser.where(scim_id: member_scim_ids).to_a
         group.external_users = users
-        group.save!
       end
 
       def log_sync_operation(stage)
