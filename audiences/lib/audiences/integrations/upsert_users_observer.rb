@@ -12,9 +12,18 @@ module Audiences
         log_sync_operation("start")
 
         Audiences.logger.info "#{upsert_action} user #{user_attrs[:display_name]} (#{user_attrs[:scim_id]})"
+        Audiences.logger.debug "[DEBUG] user_attrs[:groups] = #{user_attrs[:groups].inspect}"
 
         external_user.update!(updated_attributes)
-        external_user.groups = find_associated_groups
+        
+        found_groups = find_associated_groups
+        Audiences.logger.debug "[DEBUG] Found #{found_groups.count} groups: #{found_groups.map(&:scim_id)}"
+        Audiences.logger.debug "[DEBUG] GroupMembership count before assignment: #{Audiences::GroupMembership.where(external_user: external_user).count}"
+        
+        external_user.groups = found_groups
+        
+        Audiences.logger.debug "[DEBUG] GroupMembership count after assignment: #{Audiences::GroupMembership.where(external_user: external_user).count}"
+        Audiences.logger.debug "[DEBUG] external_user.groups.reload.count: #{external_user.groups.reload.count}"
 
         log_sync_operation("complete")
       rescue => e
