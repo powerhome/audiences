@@ -64,6 +64,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install non-ruby dependencies
         run: sudo apt-get install libpq-dev
+      - name: Enable npm.powerapp.cloud auth
+        shell: bash
+        env:
+          NPM_REGISTRY_PASSWORD: ${{ secrets.POWERHOME_NPM_REGISTRY_PASSWORD }}
+        run: |
+          auth="$(printf 'gh-actions:%s' "$NPM_REGISTRY_PASSWORD" | base64 | tr -d '\n')"
+          echo "::add-mask::$auth"
+          {
+            echo "registry=https://npm.powerapp.cloud"
+            echo "//npm.powerapp.cloud/:_auth=${auth}"
+            echo "//npm.powerapp.cloud/:always-auth=true"
+          } >> "${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
       - name: 'mysql2 adapter'
         uses: powerhome/github-actions-workflows/build-ruby-gem@main
         env:
