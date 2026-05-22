@@ -122,6 +122,50 @@ module Audiences
   config_accessor(:identity_key) { :id }
 
   #
+  # Configurable Adapter Pattern - allows Audiences to work with any data source
+  # by configuring transformation and scope procs
+  #
+
+  # The model class that provides user data (e.g., TwoPercent::ScimUser)
+  config_accessor :user_model_class
+
+  # The model class that provides group data (e.g., TwoPercent::ScimGroup)
+  config_accessor :group_model_class
+
+  # Proc that transforms a user record to the hash format Audiences expects
+  # Required keys: scim_id, external_id, display_name, active, groups (array)
+  #
+  # Example:
+  #   config.to_audiences_hash_proc = ->(user) {
+  #     {
+  #       scim_id: user.scim_id,
+  #       external_id: user.external_id,
+  #       display_name: user.display_name,
+  #       active: user.active,
+  #       groups: user.scim_groups.map { |g| { scim_id: g.scim_id, ... } }
+  #     }
+  #   }
+  config_accessor :to_audiences_hash_proc
+
+  # Proc that returns active users eligible for audiences
+  # Receives the model class relation and returns a scoped relation
+  #
+  # Example:
+  #   config.active_users_scope_proc = ->(relation) {
+  #     relation.where(active: true).joins(:allowed_groups).distinct
+  #   }
+  config_accessor :active_users_scope_proc
+
+  # Proc that filters users by group membership
+  # Receives the model class relation and group IDs, returns a scoped relation
+  #
+  # Example:
+  #   config.members_of_scope_proc = ->(relation, groups) {
+  #     relation.joins(:memberships).where(memberships: { group_id: groups }).distinct
+  #   }
+  config_accessor :members_of_scope_proc
+
+  #
   # Notifications configurations.
   # Within this block, you should be able to easily register job classes to execute as
   # audiences are changed. Notice: this block is executed every time your app initializes

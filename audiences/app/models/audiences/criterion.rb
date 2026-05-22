@@ -45,8 +45,19 @@ module Audiences
     end
 
     def users
-      Audiences::ExternalUser.matching(self)
-                             .instance_exec(&Audiences.default_users_scope)
+      adapter_class = Audiences::ConfigurableAdapter
+      matching_users = matching_users(adapter_class)
+      scoped_users = adapter_class.active_audiences_users.merge(matching_users)
+      scoped_users.map { |record| adapter_class.new(record) }
+    end
+
+    def matching_users(adapter_class)
+      return adapter_class.none if groups.empty?
+      
+      # AND logic: user must be member of at least one group from EACH resource type
+      groups.group_by(&:resource_type).values.reduce(adapter_class.all) do |scope, resource_groups|
+        adapter_class.audiences_members_of(resource_groups).merge(scope)
+      end
     end
 
     delegate :count, to: :users

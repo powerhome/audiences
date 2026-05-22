@@ -10,6 +10,7 @@ module Audiences
   autoload :Model, "audiences/model"
   autoload :Notifications, "audiences/notifications"
   autoload :Integrations, "audiences/integrations"
+  autoload :ConfigurableAdapter, "audiences/configurable_adapter"
   autoload :VERSION, "audiences/version"
 
 module_function

@@ -30,7 +30,14 @@ module Audiences
     after_commit :notify_subscriptions, on: :update
 
     def users
-      matching_external_users.instance_exec(&Audiences.default_users_scope)
+      adapter_class = Audiences::ConfigurableAdapter
+      matching_users = calculate_matching_users(adapter_class)
+      
+      # Apply active users scope using configured proc
+      scoped_users = adapter_class.active_audiences_users.merge(matching_users)
+      
+      # Wrap in adapters to provide ExternalUser-like interface
+      scoped_users.map { |record| adapter_class.new(record) }
     end
 
     delegate :count, to: :users
@@ -50,6 +57,28 @@ module Audiences
       Notifications.publish(self)
     end
 
+    def calculate_matching_users(adapter_class)
+      return adapter_class.all if match_all
+      return adapter_class.none if criteria.empty? && extra_user_scim_ids.empty?
+      
+      # Match criteria (OR logic between criteria, AND within each criterion)
+      criteria_matches = criteria.map { |criterion| criterion.matching_users(adapter_class) }
+                                 .reduce(adapter_class.none) { |scope, criterion_scope| scope.or(criterion_scope) }
+      
+      # Match extra users
+      extra_matches = extra_user_scim_ids.any? ?
+        adapter_class.audiences_find_by_scim_ids(extra_user_scim_ids) :
+        adapter_class.none
+      
+      criteria_matches.or(extra_matches)
+    end
+    
+    def extra_user_scim_ids
+      # Get SCIM IDs from extra_users association (still using old ExternalUser for now)
+      extra_users.pluck(:scim_id)
+    end
+
+    # Legacy methods - keeping for now during transition
     def matching_external_users
       match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
     end
