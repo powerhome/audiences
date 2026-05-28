@@ -133,16 +133,16 @@ module Audiences
   config_accessor :group_model_class
 
   # Proc that transforms a user record to the hash format Audiences expects
-  # Required keys: scim_id, external_id, display_name, active, groups (array)
+  # Required keys: id, external_id, display_name, active, groups (array with id)
   #
   # Example:
   #   config.to_audiences_hash_proc = ->(user) {
   #     {
-  #       scim_id: user.scim_id,
+  #       id: user.scim_id,  # Maps provider-specific field to generic 'id'
   #       external_id: user.external_id,
   #       display_name: user.display_name,
   #       active: user.active,
-  #       groups: user.scim_groups.map { |g| { scim_id: g.scim_id, ... } }
+  #       groups: user.scim_groups.map { |g| { id: g.scim_id, ... } }
   #     }
   #   }
   config_accessor :to_audiences_hash_proc
@@ -164,6 +164,15 @@ module Audiences
   #     relation.joins(:memberships).where(memberships: { group_id: groups }).distinct
   #   }
   config_accessor :members_of_scope_proc
+
+  # Proc that finds users by their IDs from the source system
+  # Receives the model class relation and array of IDs, returns a scoped relation
+  #
+  # Example:
+  #   config.find_by_ids_proc = ->(relation, ids) {
+  #     relation.where(scim_id: ids)
+  #   }
+  config_accessor :find_by_ids_proc
 
   #
   # Notifications configurations.

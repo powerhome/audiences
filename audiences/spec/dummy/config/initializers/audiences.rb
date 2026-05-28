@@ -8,6 +8,40 @@ Audiences.configure do |config|
 
   config.authenticate = ->(*) { true }
 
+  # Configure adapter to use existing ExternalUser/Group models for testing
+  # Using string class names to avoid load order issues
+  config.user_model_class = "Audiences::ExternalUser"
+  config.group_model_class = "Audiences::Group"
+
+  config.to_audiences_hash_proc = ->(user) {
+    {
+      id: user.scim_id,
+      external_id: user.user_id,           # ExternalUser has user_id, not external_id
+      display_name: user.display_name,
+      active: user.active,
+      data: user.data || {},
+      groups: user.groups.map { |g|
+        {
+          id: g.scim_id,
+          display_name: g.display_name,
+          resource_type: g.resource_type
+        }
+      }
+    }
+  }
+
+  config.active_users_scope_proc = ->(relation) {
+    relation.where(active: true)
+  }
+
+  config.members_of_scope_proc = ->(relation, groups) {
+    relation.members_of(groups)
+  }
+
+  config.find_by_ids_proc = ->(relation, ids) {
+    relation.where(scim_id: ids)
+  }
+
   config.notifications do
     subscribe ExampleOwner, job: UpdateMembershipsJob
   end

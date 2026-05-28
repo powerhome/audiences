@@ -47,8 +47,8 @@ module Audiences
     def users
       adapter_class = Audiences::ConfigurableAdapter
       matching_users = matching_users(adapter_class)
-      scoped_users = adapter_class.active_audiences_users.merge(matching_users)
-      scoped_users.map { |record| adapter_class.new(record) }
+      # Return relation, not array, so downstream code can continue querying
+      adapter_class.active_audiences_users.merge(matching_users)
     end
 
     def matching_users(adapter_class)

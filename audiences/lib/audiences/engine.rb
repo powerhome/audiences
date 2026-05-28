@@ -34,8 +34,6 @@ module Audiences
     initializer "audiences.observers" do
       if Audiences.config.observe_scim
         # Domain event observers (provider-agnostic)
-        Audiences::Integrations::UpsertUsersObserver.start
-        Audiences::Integrations::UpsertGroupsObserver.start
         Audiences::Integrations::DeleteUsersObserver.start
         Audiences::Integrations::DeleteGroupsObserver.start
       end

@@ -5,8 +5,8 @@ module Audiences
   # Audiences to work with any data source by configuring transformation
   # and scope procs in the initializer.
   #
-  # This eliminates the need to modify source models (like TwoPercent::ScimUser)
-  # and keeps all integration logic in the consuming application's configuration.
+  # This eliminates the need to modify source models and keeps all
+  # integration logic in the consuming application's configuration.
   class ConfigurableAdapter
     def initialize(record)
       @record = record
@@ -20,8 +20,8 @@ module Audiences
     end
 
     # Provide convenient access to hash attributes
-    def scim_id
-      to_audiences_hash[:scim_id]
+    def id
+      to_audiences_hash[:id]
     end
 
     def external_id
@@ -48,10 +48,28 @@ module Audiences
       to_audiences_hash[:groups] || []
     end
 
+    # Enable comparison based on underlying record ID
+    def ==(other)
+      if other.is_a?(ConfigurableAdapter)
+        id == other.id
+      else
+        # Compare with underlying record type (for tests)
+        @record == other
+      end
+    end
+
+    alias_method :eql?, :==
+
+    def hash
+      id.hash
+    end
+
     class << self
-      # Returns the configured model class (e.g., TwoPercent::ScimUser)
+      # Returns the configured model class
+      # Supports both Class objects and String class names (constantized lazily)
       def model_class
-        Audiences.config.user_model_class
+        klass = Audiences.config.user_model_class
+        klass.is_a?(String) ? klass.constantize : klass
       end
 
       # Returns relation with active users eligible for audiences
@@ -66,9 +84,13 @@ module Audiences
         apply_scope(Audiences.config.members_of_scope_proc, groups)
       end
 
-      # Find records by SCIM IDs
-      def audiences_find_by_scim_ids(scim_ids)
-        model_class.where(scim_id: scim_ids)
+      # Find users by their IDs from the source system
+      # Uses configured find_by_ids_proc to avoid hardcoding column names
+      # @param ids [Array<String>] Array of user IDs from source system
+      # @return [ActiveRecord::Relation] Users matching the given IDs
+      def audiences_find_by_ids(ids)
+        return none if ids.blank?
+        apply_scope(Audiences.config.find_by_ids_proc, ids)
       end
 
       # Support ActiveRecord query methods by delegating to model_class

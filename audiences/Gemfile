@@ -9,6 +9,7 @@ gemspec
 gem "appraisal", "~> 2.5.0"
 gem "brakeman", "7.1.0"
 gem "debug", ">= 1.0.0"
+gem "drb" # Required for Ruby 3.4+
 gem "foreman", "~> 0.88.0"
 gem "license_finder", ">= 7.0"
 gem "rails", "~> 6.1.7.0"

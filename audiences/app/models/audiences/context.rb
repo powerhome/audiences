@@ -32,12 +32,10 @@ module Audiences
     def users
       adapter_class = Audiences::ConfigurableAdapter
       matching_users = calculate_matching_users(adapter_class)
-      
+
       # Apply active users scope using configured proc
-      scoped_users = adapter_class.active_audiences_users.merge(matching_users)
-      
-      # Wrap in adapters to provide ExternalUser-like interface
-      scoped_users.map { |record| adapter_class.new(record) }
+      # Return relation, not array, so downstream code can continue querying
+      adapter_class.active_audiences_users.merge(matching_users)
     end
 
     delegate :count, to: :users
@@ -59,36 +57,24 @@ module Audiences
 
     def calculate_matching_users(adapter_class)
       return adapter_class.all if match_all
-      return adapter_class.none if criteria.empty? && extra_user_scim_ids.empty?
-      
+      return adapter_class.none if criteria.empty? && extra_user_ids.empty?
+
       # Match criteria (OR logic between criteria, AND within each criterion)
       criteria_matches = criteria.map { |criterion| criterion.matching_users(adapter_class) }
                                  .reduce(adapter_class.none) { |scope, criterion_scope| scope.or(criterion_scope) }
-      
+
       # Match extra users
-      extra_matches = extra_user_scim_ids.any? ?
-        adapter_class.audiences_find_by_scim_ids(extra_user_scim_ids) :
+      extra_matches = extra_user_ids.any? ?
+        adapter_class.audiences_find_by_ids(extra_user_ids) :
         adapter_class.none
-      
+
       criteria_matches.or(extra_matches)
     end
-    
-    def extra_user_scim_ids
-      # Get SCIM IDs from extra_users association (still using old ExternalUser for now)
-      extra_users.pluck(:scim_id)
-    end
 
-    # Legacy methods - keeping for now during transition
-    def matching_external_users
-      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
-    end
-
-    def matching_extra_users
-      ExternalUser.where(id: extra_users.select(:id))
-    end
-
-    def matching_criteria
-      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+    def extra_user_ids
+      # Get IDs from extra_users using adapter's generic id method
+      # Provider-agnostic: works with any configured identity model
+      extra_users.map { |user| Audiences::ConfigurableAdapter.new(user).id }
     end
   end
 end
