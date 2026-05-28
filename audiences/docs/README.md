@@ -1,6 +1,6 @@
 # Audiences
 
-"Audiences" is a SCIM-integrated notifier for real-time Rails actions based on group changes.
+A provider-agnostic audience management gem for Rails applications. Calculate and react to dynamic user groups based on identity provider data.
 
 ## Installation
 
@@ -42,20 +42,85 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 ### Configuring Audiences
 
-### Adding Audiences to a Model
+#### Configuring Identity Models (Required)
 
-A model object can contain multiple audience contexts using the `has_audience` module helper, which is added to ActiveRecord automatically when configured:
+**BREAKING CHANGE (v2.0):** Audiences no longer owns identity models. You must configure your application's user and group models.
+
+Audiences uses an adapter pattern to work with your application's identity models (users, groups, memberships). This allows Audiences to work with any identity provider (SCIM, LDAP, OAuth, etc.) without being tightly coupled to a specific implementation.
+
+##### Required Model Interface
+
+Your user and group models must provide:
+
+**User Model Requirements:**
+- Attributes: `id` (unique identifier), `external_id`, `display_name`, `active` (boolean)
+- Scopes:
+  - `.active` - returns only active users
+  - `.members_of(groups)` - filters users who are members of given groups
+- Associations: `has_many :groups` (association to your group model)
+
+**Group Model Requirements:**
+- Attributes: `id` (unique identifier), `display_name`, `resource_type`
+
+##### Configuration Example
+
+Configure Audiences in an initializer (`config/initializers/audiences.rb`):
 
 ```ruby
 Audiences.configure do |config|
-  config.identity_class = "User"
-  config.identity_key = "login"
+  # 1. Specify your user and group model classes
+  # Use string class names to avoid load order issues
+  config.user_model_class = "MyApp::User"
+  config.group_model_class = "MyApp::Group"
+
+  # 2. Define how to transform a user record to Audiences format
+  config.to_audiences_hash_proc = ->(user) {
+    {
+      id: user.id,                         # Unique identifier from your identity provider
+      external_id: user.external_id,       # External identifier (e.g., employee ID)
+      display_name: user.display_name,     # Display name
+      active: user.active,                 # Boolean active status
+      groups: user.groups.map { |g|        # Array of group hashes
+        {
+          id: g.id,
+          display_name: g.display_name,
+          resource_type: g.resource_type
+        }
+      }
+    }
+  }
+
+  # 3. Define scope for active users eligible for audiences
+  config.active_users_scope_proc = ->(relation) {
+    relation.where(active: true)
+  }
+
+  # 4. Define scope to filter users by group membership
+  config.members_of_scope_proc = ->(relation, groups) {
+    relation
+      .joins(:group_memberships)
+      .where(group_memberships: { group_id: groups })
+      .distinct
+  }
+
+  # 5. Define how to find users by IDs
+  config.find_by_ids_proc = ->(relation, ids) {
+    relation.where(id: ids)
+  }
 end
 ```
 
-The `identity_class` represents the SCIM user within the app domain, and the `identity_key` maps directly to the SCIM User's `externalId`.
+**Provider-Agnostic Design:** The adapter uses generic field names (`id`, `groups`, etc.) that work with any identity provider. To switch providers, just update your configuration procs - no changes to Audiences internals needed.
 
-Once configured, add audience contexts to a model:
+**Real-World Examples:**
+- SCIM Provider: Maps `scim_id` (or whatever your IdP id is called) → `id`
+- Test Configuration: [See dummy app](../spec/dummy/config/initializers/audiences.rb)
+- LDAP Provider: Map `dn` → `id`, `memberOf` → `groups`
+- OAuth Provider: Map `sub` → `id`, `roles` → `groups`
+
+### Adding Audiences to a Model
+
+A model object can contain multiple audience contexts using the `has_audience` module helper:
 
 ```ruby
 class Survey < ApplicationRecord
@@ -96,17 +161,6 @@ See a working example in our dummy app:
 - [Initializer](../spec/dummy/config/initializers/audiences.rb)
 - [Job class](../spec/dummy/app/jobs/update_memberships_job.rb)
 - [Example owning model](../spec/dummy/app/models/example_owner.rb)
-
-### SCIM Resource Attributes
-
-Configure which attributes are requested from the SCIM backend for each resource type. `Audiences` includes `id`, `externalId`, and `displayName` by default in every resource type. It also requests `photos.type` and `photos.value` for users by default. To request additional attributes:
-
-```ruby
-Audiences.configure do |config|
-  config.resource :Users, attributes: ["name" => %w[givenName familyName formatted]]
-  config.resource :Groups, attributes: %w[mfaRequired]
-end
-```
 
 ## Contributing
 
