@@ -2,5 +2,5 @@
 
 class ConfiguredUserGroup < ApplicationRecord
   belongs_to :configured_user
-  belongs_to :group, class_name: "Audiences::Group"
+  belongs_to :group, class_name: "ConfiguredGroup", foreign_key: :group_id
 end

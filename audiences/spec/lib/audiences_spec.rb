@@ -7,6 +7,16 @@ RSpec.describe Audiences do
     let(:baseball_club) { ExampleOwner.create(name: "Baseball Club") }
     let(:token) { Audiences::Context.for(baseball_club).signed_key }
 
+    before do
+      Audiences.config.user_model_class = "ConfiguredUser"
+      Audiences.config.use_configured_models = true
+    end
+
+    after do
+      Audiences.config.user_model_class = nil
+      Audiences.config.use_configured_models = false
+    end
+
     it "updates an audience context from a given key and params" do
       updated_context = Audiences.update(token, match_all: true)
 
@@ -16,7 +26,7 @@ RSpec.describe Audiences do
     it "updates extra users fetching latest information" do
       user1, user2 = create_users(2)
 
-      updated_context = Audiences.update(token, extra_users: [{ "id" => user1.scim_id }, { "id" => user2.scim_id }])
+      updated_context = Audiences.update(token, extra_users: [{ "id" => user1.id }, { "id" => user2.id }])
       expect(updated_context.extra_users).to match_array([user1, user2])
     end
 
@@ -31,7 +41,7 @@ RSpec.describe Audiences do
       updated_context = Audiences.update(
         token,
         criteria: [
-          { "groups" => { "Departments" => [{ "id" => department1.scim_id }, { "id" => department2.scim_id }] } },
+          { "groups" => { "Departments" => [{ "id" => department1.id }, { "id" => department2.id }] } },
         ]
       )
 
@@ -41,9 +51,9 @@ RSpec.describe Audiences do
       updated_context = Audiences.update(
         token,
         criteria: [
-          { "groups" => { "Departments" => [{ "id" => department1.scim_id }, { "id" => department2.scim_id }],
-                          "Territories" => [{ "id" => territory1.scim_id }, { "id" => territory2.scim_id }] } },
-          { "groups" => { "Titles" => [{ "id" => title1.scim_id }, { "id" => title2.scim_id }] } },
+          { "groups" => { "Departments" => [{ "id" => department1.id }, { "id" => department2.id }],
+                          "Territories" => [{ "id" => territory1.id }, { "id" => territory2.id }] } },
+          { "groups" => { "Titles" => [{ "id" => title1.id }, { "id" => title2.id }] } },
         ]
       )
 

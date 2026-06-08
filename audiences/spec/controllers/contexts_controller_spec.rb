@@ -9,6 +9,16 @@ RSpec.describe Audiences::ContextsController do
   let(:example_owner) { ExampleOwner.create!(name: "Example Owner") }
   let(:example_context) { Audiences::Context.for(example_owner, relation: :members) }
 
+  before do
+    Audiences.config.user_model_class = "ConfiguredUser"
+    Audiences.config.use_configured_models = true
+  end
+
+  after do
+    Audiences.config.user_model_class = nil
+    Audiences.config.use_configured_models = false
+  end
+
   describe "GET /audiences/:context_key" do
     it_behaves_like "authenticated endpoint" do
       subject { get :show, params: { key: example_context.signed_key } }
@@ -42,12 +52,12 @@ RSpec.describe Audiences::ContextsController do
       expect(example_context.users.count).to eq(5)
     end
 
-    it "updates the context extra users scim id" do
+    it "updates the context extra users by id" do
       user = create_user
 
       put :update, params: {
         key: example_context.signed_key,
-        extra_users: [user.data.slice("id")],
+        extra_users: [{ "id" => user.id }],
       }
 
       example_context.reload
@@ -62,7 +72,7 @@ RSpec.describe Audiences::ContextsController do
 
       put :update, params: {
         key: example_context.signed_key,
-        extra_users: [user.data.slice("externalId")],
+        extra_users: [{ "externalId" => user.user_id }],
       }
 
       example_context.reload
@@ -88,8 +98,8 @@ RSpec.describe Audiences::ContextsController do
           key: example_context.signed_key,
           match_all: false,
           criteria: [
-            { groups: { Departments: [{ id: department.scim_id }],
-                        Territories: [{ id: territory.scim_id }] } },
+            { groups: { Departments: [{ id: department.id }],
+                        Territories: [{ id: territory.id }] } },
           ],
         }
 

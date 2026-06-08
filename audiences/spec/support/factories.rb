@@ -8,9 +8,20 @@ module Audiences
         @next_scim_id += 1
       end
 
-      def create_group(scim_id: next_scim_id, resource_type: "Groups", **attrs)
-        Audiences::Group.create!(scim_id: scim_id, display_name: "#{resource_type} #{scim_id}",
-                                 external_id: scim_id, resource_type: resource_type, **attrs)
+      def create_group(external_id: next_scim_id, resource_type: "Groups", external_users: [], **attrs)
+        group = ConfiguredGroup.create!(
+          external_id: external_id,
+          display_name: "#{resource_type} #{external_id}",
+          resource_type: resource_type,
+          **attrs
+        )
+        
+        # Create join records for user associations
+        external_users.each do |user|
+          ConfiguredUserGroup.create!(configured_user: user, group: group)
+        end
+        
+        group
       end
 
       def create_user(user_id: next_scim_id, groups: [], **attrs)
