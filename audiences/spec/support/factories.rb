@@ -13,10 +13,37 @@ module Audiences
                                  external_id: scim_id, resource_type: resource_type, **attrs)
       end
 
-      def create_user(scim_id: next_scim_id, user_id: scim_id, **attrs)
-        data = { "id" => scim_id, "externalId" => user_id, "displayName" => "User #{scim_id}" }
-        Audiences::ExternalUser.create!(scim_id: scim_id, display_name: data["displayName"],
-                                        user_id: user_id, data: data, **attrs)
+      def create_user(user_id: next_scim_id, groups: [], **attrs)
+        user = ConfiguredUser.create!(
+          user_id: user_id,
+          display_name: "User #{user_id}",
+          **attrs
+        )
+        
+        groups.each do |group|
+          ConfiguredUserGroup.create!(configured_user: user, group: group)
+        end
+        
+        user
+      end
+      
+      # Creates both ExternalUser and ConfiguredUser with matching user_id
+      # Used for testing dual-write behavior
+      def create_user_with_configured(user_id: next_scim_id, **attrs)
+        # Create ConfiguredUser (primary model)
+        configured_user = create_user(user_id: user_id, **attrs)
+        
+        # Create matching ExternalUser for dual-write testing
+        data = { "id" => user_id, "externalId" => user_id, "displayName" => "User #{user_id}" }
+        Audiences::ExternalUser.create!(
+          scim_id: user_id,
+          display_name: configured_user.display_name,
+          user_id: user_id,
+          data: data,
+          active: configured_user.active
+        )
+        
+        configured_user
       end
 
       def create_example_owner

@@ -5,6 +5,17 @@ require "rails_helper"
 RSpec.describe Audiences::Context do
   let(:owner) { ExampleOwner.create(name: "Example") }
 
+  # Configure adapter to use ConfiguredUser for testing the new pattern
+  before do
+    Audiences.config.user_model_class = "ConfiguredUser"
+    Audiences.config.use_configured_models = true
+  end
+
+  after do
+    Audiences.config.user_model_class = nil
+    Audiences.config.use_configured_models = false
+  end
+
   describe "context notification" do
     it "publishes a notification about the context updates" do
       expect do |blk|
@@ -107,6 +118,134 @@ RSpec.describe Audiences::Context do
       context = create_context(extra_users: [active_user, inactive_user])
 
       expect(context.as_json["extra_users"]).to eql([active_user.as_json])
+    end
+  end
+
+  describe "Feature Toggle: extra_users routing" do
+    let(:context) { create_context }
+    # Create both ExternalUser and ConfiguredUser with matching user_id
+    let(:user1) { create_user_with_configured }
+    let(:user2) { create_user_with_configured }
+    let(:configured1) { ConfiguredUser.find_by(user_id: user1.user_id) }
+    let(:configured2) { ConfiguredUser.find_by(user_id: user2.user_id) }
+
+    before do
+      # Configure for adapter pattern testing
+      Audiences.config.use_configured_models = false
+      Audiences.config.dual_write_extra_users = true
+      Audiences.config.user_model_class = "ConfiguredUser"
+    end
+    
+    after do
+      # Reset config after tests
+      Audiences.config.user_model_class = nil
+    end
+
+    describe "association definitions" do
+      it "has extra_users_legacy association" do
+        expect(context).to respond_to(:extra_users_legacy)
+      end
+
+      it "has extra_users_configured association" do
+        expect(context).to respond_to(:extra_users_configured)
+      end
+
+      it "extra_users_legacy returns ExternalUser records" do
+        external_user = Audiences::ExternalUser.create!(user_id: "test-1", display_name: "Test")
+        context.context_extra_users.create!(external_user: external_user)
+        
+        expect(context.extra_users_legacy.first).to be_a(Audiences::ExternalUser)
+        expect(context.extra_users_legacy.first.id).to eq(external_user.id)
+      end
+
+      it "extra_users_configured uses the configured model class" do
+        skip "external_user_class not configured" unless Audiences.config.external_user_class
+        
+        expect(context.extra_users_configured.klass.name).to eq(Audiences.config.external_user_class)
+      end
+    end
+
+    describe "when use_configured_models is false (legacy mode)" do
+      it "routes extra_users to extra_users_legacy association" do
+        Audiences.config.use_configured_models = false
+        
+        # This will fail until we implement routing method
+        expect(context).to respond_to(:extra_users_legacy)
+        expect(context).to respond_to(:extra_users_configured)
+        expect(context.extra_users).to eq(context.extra_users_legacy)
+      end
+
+      it "returns ExternalUser instances from extra_users" do
+        Audiences.config.use_configured_models = false
+        context.update!(extra_users: [configured1, configured2])
+        
+        # When routed to legacy, should return ExternalUser
+        expect(context.extra_users.first).to be_a(Audiences::ExternalUser)
+      end
+    end
+
+    describe "when use_configured_models is true (configured mode)" do
+      it "routes extra_users to extra_users_configured association" do
+        Audiences.config.use_configured_models = true
+        
+        # This will fail until we implement routing method
+        expect(context).to respond_to(:extra_users_legacy)
+        expect(context).to respond_to(:extra_users_configured)
+        expect(context.extra_users).to eq(context.extra_users_configured)
+      end
+
+      it "returns configured model instances from extra_users" do
+        Audiences.config.use_configured_models = true
+        context.update!(extra_users: [configured1, configured2])
+        
+        # When routed to configured, should return ConfiguredUser
+        expect(context.extra_users.first).to be_a(ConfiguredUser)
+      end
+    end
+
+    describe "dual-write behavior" do
+      it "writes to both associations when dual_write_extra_users is true" do
+        Audiences.config.dual_write_extra_users = true
+        Audiences.config.use_configured_models = false
+        
+        context.update!(extra_users: [configured1, configured2])
+        
+        # Both foreign keys should be populated
+        expect(context.extra_users_legacy.count).to eq(2)
+        expect(context.extra_users_configured.count).to eq(2)
+      end
+
+      it "keeps both associations in sync during dual-write" do
+        Audiences.config.dual_write_extra_users = true
+        context.update!(extra_users: [configured1])
+        
+        # Both associations should have matching records
+        expect(context.extra_users_legacy.count).to eq(1)
+        expect(context.extra_users_configured.count).to eq(1)
+        expect(context.extra_users_legacy.first.user_id).to eq(context.extra_users_configured.first.user_id)
+      end
+
+      it "only writes to selected association when dual_write is false" do
+        Audiences.config.dual_write_extra_users = false
+        Audiences.config.use_configured_models = true
+        
+        context.update!(extra_users: [configured1])
+        
+        # Only configured side should be populated
+        expect(context.extra_users_configured.count).to eq(1)
+        expect(context.extra_users_legacy.count).to eq(0)
+      end
+    end
+
+    describe "data consistency" do
+      it "maintains consistent counts between associations during dual-write" do
+        Audiences.config.dual_write_extra_users = true
+        
+        context.update!(extra_users: [configured1, configured2])
+        
+        # Both associations should have same count
+        expect(context.extra_users_legacy.count).to eq(context.extra_users_configured.count)
+      end
     end
   end
 end

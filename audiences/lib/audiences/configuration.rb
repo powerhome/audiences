@@ -175,6 +175,28 @@ module Audiences
   config_accessor :find_by_ids_proc
 
   #
+  # Feature Toggle: Gradual Migration from ExternalUser to Configured Models
+  #
+
+  # Toggle to control which model is used for extra_users reads
+  # When false (default): Use legacy ExternalUser model
+  # When true: Use configured user_model_class
+  # Can be enabled via environment variable for safe, gradual rollout
+  #
+  # Example:
+  #   config.use_configured_models = ENV.fetch("USE_CONFIGURED_MODELS", "false") == "true"
+  config_accessor(:use_configured_models) { false }
+
+  # Toggle to enable dual-write during migration
+  # When true (default during transition): Write to BOTH ExternalUser and configured model
+  # When false: Only write to the model selected by use_configured_models
+  # Ensures data consistency during gradual rollout, can be disabled after migration proven stable
+  #
+  # Example:
+  #   config.dual_write_extra_users = ENV.fetch("DUAL_WRITE_EXTRA_USERS", "true") == "true"
+  config_accessor(:dual_write_extra_users) { true }
+
+  #
   # Notifications configurations.
   # Within this block, you should be able to easily register job classes to execute as
   # audiences are changed. Notice: this block is executed every time your app initializes

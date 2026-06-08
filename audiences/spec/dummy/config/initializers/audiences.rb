@@ -8,25 +8,25 @@ Audiences.configure do |config|
 
   config.authenticate = ->(*) { true }
 
-  # Configure adapter to use existing ExternalUser/Group models for testing
-  # Using string class names to avoid load order issues
-  config.user_model_class = "Audiences::ExternalUser"
+  # Configure adapter for testing
+  # Leave user_model_class nil by default - individual tests set it as needed
+  config.user_model_class = nil
   config.group_model_class = "Audiences::Group"
 
   config.to_audiences_hash_proc = ->(user) {
     {
-      id: user.scim_id,
-      external_id: user.user_id,           # ExternalUser has user_id, not external_id
+      id: user.id,
+      external_id: user.user_id,
       display_name: user.display_name,
       active: user.active,
-      data: user.data || {},
-      groups: user.groups.map { |g|
+      data: user.respond_to?(:data) ? user.data : {},
+      groups: user.respond_to?(:groups) ? user.groups.map { |g|
         {
-          id: g.scim_id,
+          id: g.id,
           display_name: g.display_name,
-          resource_type: g.resource_type
+          resource_type: g.respond_to?(:resource_type) ? g.resource_type : "Group"
         }
-      }
+      } : []
     }
   }
 
@@ -39,7 +39,7 @@ Audiences.configure do |config|
   }
 
   config.find_by_ids_proc = ->(relation, ids) {
-    relation.where(scim_id: ids)
+    relation.where(id: ids)
   }
 
   config.notifications do

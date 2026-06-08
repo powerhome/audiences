@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_07_01_173946) do
+ActiveRecord::Schema.define(version: 2026_06_08_193500) do
 
   create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id"
     t.bigint "context_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "configured_user_id"
+    t.index ["configured_user_id"], name: "index_audiences_context_extra_users_on_configured_user_id"
     t.index ["context_id"], name: "index_audiences_context_extra_users_on_context_id"
     t.index ["external_user_id"], name: "index_audiences_context_extra_users_on_external_user_id"
   end
@@ -94,6 +96,25 @@ ActiveRecord::Schema.define(version: 2025_07_01_173946) do
     t.index ["group_type", "group_id"], name: "index_audiences_memberships_on_group_type_and_group_id"
   end
 
+  create_table "configured_user_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "configured_user_id", null: false
+    t.bigint "group_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["configured_user_id", "group_id"], name: "index_configured_user_groups_on_user_and_group", unique: true
+    t.index ["configured_user_id"], name: "index_configured_user_groups_on_configured_user_id"
+    t.index ["group_id"], name: "index_configured_user_groups_on_group_id"
+  end
+
+  create_table "configured_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "user_id"
+    t.string "display_name"
+    t.boolean "active", default: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_configured_users_on_user_id"
+  end
+
   create_table "example_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "owner_id"
     t.integer "user_id"
@@ -116,4 +137,5 @@ ActiveRecord::Schema.define(version: 2025_07_01_173946) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "configured_user_groups", "configured_users"
 end
