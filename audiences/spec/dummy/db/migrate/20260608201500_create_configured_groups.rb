@@ -6,6 +6,7 @@ class CreateConfiguredGroups < ActiveRecord::Migration[6.1]
       t.string :external_id
       t.string :display_name
       t.string :resource_type
+      t.boolean :active, default: true, null: false
 
       t.timestamps
     end

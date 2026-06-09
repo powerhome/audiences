@@ -178,7 +178,7 @@ RSpec.describe Audiences::ContextsController do
       user = create_user
       group = create_group(external_users: [user])
 
-      criterion = example_context.criteria.create(groups: [group])
+      criterion = example_context.criteria.create(groups_configured: [group])
 
       get :users, params: { key: example_context.signed_key, criterion_id: criterion.id }
 

@@ -9,9 +9,13 @@ Audiences.configure do |config|
   config.authenticate = ->(*) { true }
 
   # Configure adapter for testing
-  # Leave user_model_class nil by default - individual tests set it as needed
-  config.user_model_class = nil
-  config.group_model_class = "Audiences::Group"
+  config.user_model_class = "ConfiguredUser"
+  config.group_model_class = "ConfiguredGroup"
+
+  # Feature toggles - default to legacy mode for backward compatibility
+  # Individual tests can enable configured models as needed
+  config.use_configured_models = false
+  config.dual_write_extra_users = true
 
   config.to_audiences_hash_proc = ->(user) {
     {
@@ -20,13 +24,17 @@ Audiences.configure do |config|
       display_name: user.display_name,
       active: user.active,
       data: user.respond_to?(:data) ? user.data : {},
-      groups: user.respond_to?(:groups) ? user.groups.map { |g|
-        {
-          id: g.id,
-          display_name: g.display_name,
-          resource_type: g.respond_to?(:resource_type) ? g.resource_type : "Group"
-        }
-      } : []
+      groups: if user.respond_to?(:groups)
+                user.groups.map do |g|
+                  {
+                    id: g.id,
+                    display_name: g.display_name,
+                    resource_type: g.respond_to?(:resource_type) ? g.resource_type : "Group",
+                  }
+                end
+              else
+                []
+              end,
     }
   }
 
@@ -38,8 +46,22 @@ Audiences.configure do |config|
     relation.members_of(groups)
   }
 
+  # rubocop:disable Rails/DynamicFindBy - false positive, this is a config attribute not a finder
   config.find_by_ids_proc = ->(relation, ids) {
     relation.where(id: ids)
+  }
+  # rubocop:enable Rails/DynamicFindBy
+
+  config.find_groups_proc = ->(resource_type, group_data) {
+    ids = group_data.filter_map { |h| h["id"] }
+    external_ids = group_data.filter_map { |h| h["externalId"] }
+
+    query = ConfiguredGroup.where(resource_type: resource_type)
+    return query.none if ids.empty? && external_ids.empty?
+
+    # Use [nil] for empty arrays to avoid ActiveRecord returning all records
+    query.where(id: ids.presence || [nil])
+         .or(query.where(external_id: external_ids.presence || [nil]))
   }
 
   config.notifications do

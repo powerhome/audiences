@@ -174,6 +174,18 @@ module Audiences
   #   }
   config_accessor :find_by_ids_proc
 
+  # Proc that finds groups from criterion data
+  # Receives resource_type and array of group hashes (with "id" or "externalId" keys)
+  # Returns groups from configured model
+  #
+  # Example:
+  #   config.find_groups_proc = ->(resource_type, group_data) {
+  #     ids = group_data.map { |h| h["id"] }.compact
+  #     external_ids = group_data.map { |h| h["externalId"] }.compact
+  #     ConfiguredGroup.where(id: ids).or(ConfiguredGroup.where(external_id: external_ids))
+  #   }
+  config_accessor :find_groups_proc
+
   #
   # Feature Toggle: Gradual Migration from ExternalUser to Configured Models
   #
@@ -218,4 +230,69 @@ module Audiences
       Notifications.class_eval(&block)
     end
   end
+
+  # Validates required configuration when using the adapter pattern
+  # Called automatically after initialization to fail fast if configs are missing
+  def config.validate_adapter_configuration!
+    return unless use_configured_models || dual_write_extra_users
+
+    errors = []
+    errors.concat(validate_dual_write_requirements)
+    errors.concat(validate_model_classes)
+    errors.concat(validate_adapter_procs)
+
+    raise_configuration_error(errors) if errors.any?
+  end
+
+  class << config
+    private
+
+    def validate_dual_write_requirements
+      return [] unless dual_write_extra_users
+
+      errors = []
+      errors << dual_write_user_model_error if user_model_class.blank?
+      errors << dual_write_group_model_error if group_model_class.blank?
+      errors
+    end
+
+    def dual_write_user_model_error
+      "user_model_class must be set when dual_write_extra_users is enabled " \
+        "(can't dual-write without a configured model)"
+    end
+
+    def dual_write_group_model_error
+      "group_model_class must be set when dual_write_extra_users is enabled " \
+        "(can't dual-write without a configured model)"
+    end
+
+    def validate_model_classes
+      errors = []
+      errors << "user_model_class must be set" if user_model_class.blank?
+      errors << "group_model_class must be set" if group_model_class.blank?
+      errors
+    end
+
+    def validate_adapter_procs
+      errors = []
+      errors << "to_audiences_hash_proc must be set" if to_audiences_hash_proc.blank?
+      errors << "active_users_scope_proc must be set" if active_users_scope_proc.blank?
+      errors << "members_of_scope_proc must be set" if members_of_scope_proc.blank?
+      errors << "find_by_ids_proc must be set" if find_by_ids_proc.blank?
+      errors << "find_groups_proc must be set" if find_groups_proc.blank?
+      errors
+    end
+
+    def raise_configuration_error(errors)
+      raise ConfigurationError, <<~MESSAGE
+        Audiences adapter configuration is incomplete:
+
+        #{errors.map { |e| "  - #{e}" }.join("\n")}
+
+        Please configure these settings in your Audiences initializer.
+      MESSAGE
+    end
+  end
+
+  class ConfigurationError < StandardError; end
 end

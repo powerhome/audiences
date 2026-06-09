@@ -7,6 +7,7 @@ module Audiences
   #
   # This eliminates the need to modify source models and keeps all
   # integration logic in the consuming application's configuration.
+  # rubocop:disable Metrics/ClassLength - central adapter handles all routing logic
   class ConfigurableAdapter
     def initialize(record)
       @record = record
@@ -16,7 +17,7 @@ module Audiences
     # Transform record to hash format expected by Audiences
     # Uses configured transformation proc
     def to_audiences_hash
-      @hash ||= Audiences.config.to_audiences_hash_proc.call(@record)
+      @to_audiences_hash ||= Audiences.config.to_audiences_hash_proc.call(@record)
     end
 
     # Provide convenient access to hash attributes
@@ -58,11 +59,9 @@ module Audiences
       end
     end
 
-    alias_method :eql?, :==
+    alias eql? ==
 
-    def hash
-      id.hash
-    end
+    delegate :hash, to: :id
 
     class << self
       # Returns the configured model class
@@ -72,35 +71,173 @@ module Audiences
         klass.is_a?(String) ? klass.constantize : klass
       end
 
+      # Returns the base user model class based on mode
+      # Legacy mode: ExternalUser, Configured mode: configured user model
+      def user_model_for_queries
+        if Audiences.config.use_configured_models
+          model_class
+        else
+          Audiences::ExternalUser
+        end
+      end
+
       # Returns relation with active users eligible for audiences
-      # Applies configured active users scope
+      # Routes to appropriate model based on mode
       def active_audiences_users
-        apply_scope(Audiences.config.active_users_scope_proc)
+        if Audiences.config.use_configured_models
+          apply_scope(Audiences.config.active_users_scope_proc)
+        else
+          # Legacy mode: use ExternalUser.active
+          Audiences::ExternalUser.active
+        end
       end
 
       # Returns relation filtered by group membership
-      # Applies configured members_of scope
+      # Routes to appropriate model and scope based on mode
       def audiences_members_of(groups)
-        apply_scope(Audiences.config.members_of_scope_proc, groups)
+        if Audiences.config.use_configured_models
+          apply_scope(Audiences.config.members_of_scope_proc, groups)
+        else
+          # Legacy mode: use ExternalUser.members_of
+          Audiences::ExternalUser.members_of(groups)
+        end
       end
 
       # Find users by their IDs from the source system
-      # Uses configured find_by_ids_proc to avoid hardcoding column names
+      # Routes to appropriate model based on mode
       # @param ids [Array<String>] Array of user IDs from source system
       # @return [ActiveRecord::Relation] Users matching the given IDs
       def audiences_find_by_ids(ids)
-        return none if ids.blank?
-        apply_scope(Audiences.config.find_by_ids_proc, ids)
+        return user_model_for_queries.none if ids.blank?
+
+        if Audiences.config.use_configured_models
+          apply_scope(Audiences.config.find_by_ids_proc, ids)
+        else
+          # Legacy mode: use ExternalUser with adapter's ID extraction
+          Audiences::ExternalUser.where(id: ids)
+        end
       end
 
-      # Support ActiveRecord query methods by delegating to model_class
+      # Find groups from criterion data
+      # Routes to configured model or legacy groups based on use_configured_models setting
+      # @param resource_type [String] The resource type (e.g., "Departments", "Territories")
+      # @param group_data [Array<Hash>] Array of group hashes with "id" or "externalId" keys
+      # @return [Array] Array of group records (configured model or Audiences::Group)
+      def find_groups(resource_type, group_data)
+        if Audiences.config.use_configured_models && Audiences.config.find_groups_proc
+          # Configured mode: use find_groups_proc to query configured model
+          Audiences.config.find_groups_proc.call(resource_type, group_data).to_a
+        else
+          # Legacy mode: use built-in SCIM groups
+          Audiences::Group.from_scim(resource_type, *group_data).to_a
+        end
+      end
+
+      # Assign users to a context's extra_users
+      # Handles routing to appropriate associations based on mode and user type
+      # @param context [Audiences::Context] The context to assign users to
+      # @param users [Array] Array of user records (ExternalUser or configured model)
+      def assign_users_to_context(context, users)
+        if users.blank?
+          clear_extra_users(context)
+          return
+        end
+
+        ensure_context_persisted(context)
+        write_users_by_mode(context, users)
+      end
+
+      # Get users from a context's extra_users
+      # Routes to appropriate association based on mode
+      # @param context [Audiences::Context] The context to get users from
+      # @return [ActiveRecord::Relation] User records from appropriate association
+      def get_users_from_context(context)
+        if Audiences.config.use_configured_models
+          context.extra_users_configured
+        else
+          context.extra_users_legacy
+        end
+      end
+
+      # Support ActiveRecord query methods by delegating to appropriate model
       %i[where joins includes merge all none].each do |method|
         define_method(method) do |*args, &block|
-          model_class.public_send(method, *args, &block)
+          user_model_for_queries.public_send(method, *args, &block)
         end
       end
 
       private
+
+      def clear_extra_users(context)
+        context.context_extra_users.destroy_all if context.persisted?
+      end
+
+      def ensure_context_persisted(context)
+        context.save! unless context.persisted?
+      end
+
+      def write_users_by_mode(context, users)
+        is_external_user = users.first.is_a?(Audiences::ExternalUser)
+
+        if Audiences.config.dual_write_extra_users
+          write_users_with_dual_write(context, users, is_external_user)
+        elsif Audiences.config.use_configured_models
+          context.extra_users_configured = users
+        else
+          context.extra_users_legacy = users
+        end
+      end
+
+      def write_users_with_dual_write(context, users, is_external_user)
+        if is_external_user
+          write_legacy_users_with_dual_write(context, users)
+        else
+          write_configured_users_with_dual_write(context, users)
+        end
+      end
+
+      # Dual-write helper: write configured users to both associations
+      def write_configured_users_with_dual_write(context, users)
+        user_ids = users.map(&:user_id)
+        legacy_map = Audiences::ExternalUser.where(user_id: user_ids).index_by(&:user_id)
+
+        context.context_extra_users.destroy_all
+
+        users.each do |configured_user|
+          legacy_user = legacy_map[configured_user.user_id]
+          context.context_extra_users.create!(
+            external_user_id: legacy_user&.id,
+            configured_user_id: configured_user.id
+          )
+        end
+      end
+
+      # Dual-write helper: write legacy users to both associations
+      def write_legacy_users_with_dual_write(context, users)
+        user_ids = users.map(&:user_id)
+        configured_map = find_configured_users_map(user_ids)
+
+        context.context_extra_users.destroy_all
+
+        users.each do |external_user|
+          create_dual_write_record(context, external_user, configured_map)
+        end
+      end
+
+      def find_configured_users_map(user_ids)
+        return {} unless Audiences.config.user_model_class
+
+        configured_model = Audiences.config.user_model_class.constantize
+        configured_model.where(user_id: user_ids).index_by(&:user_id)
+      end
+
+      def create_dual_write_record(context, external_user, configured_map)
+        configured_user = configured_map[external_user.user_id]
+        context.context_extra_users.create!(
+          external_user_id: external_user.id,
+          configured_user_id: configured_user&.id
+        )
+      end
 
       def apply_scope(scope_proc, *args)
         scope_proc.call(model_class, *args)
@@ -108,9 +245,9 @@ module Audiences
     end
 
     # Delegate attribute access to wrapped record
-    def method_missing(method, *args, &block)
+    def method_missing(method, ...)
       if @record.respond_to?(method)
-        @record.public_send(method, *args, &block)
+        @record.public_send(method, ...)
       else
         super
       end
@@ -120,4 +257,5 @@ module Audiences
       @record.respond_to?(method, include_private) || super
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

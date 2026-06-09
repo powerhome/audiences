@@ -65,7 +65,7 @@ RSpec.describe Audiences::Context do
 
       expect(context.users).to match_array [active_extra_user]
 
-      context.criteria.create!(groups: [group2])
+      context.criteria.create!(groups_configured: [group2])
 
       expect(context.users).to match_array [active_extra_user, active_group_user]
     end
@@ -135,7 +135,7 @@ RSpec.describe Audiences::Context do
       Audiences.config.dual_write_extra_users = true
       Audiences.config.user_model_class = "ConfiguredUser"
     end
-    
+
     after do
       # Reset config after tests
       Audiences.config.user_model_class = nil
@@ -153,14 +153,14 @@ RSpec.describe Audiences::Context do
       it "extra_users_legacy returns ExternalUser records" do
         external_user = Audiences::ExternalUser.create!(user_id: "test-1", display_name: "Test")
         context.context_extra_users.create!(external_user: external_user)
-        
+
         expect(context.extra_users_legacy.first).to be_a(Audiences::ExternalUser)
         expect(context.extra_users_legacy.first.id).to eq(external_user.id)
       end
 
       it "extra_users_configured uses the configured model class" do
         skip "external_user_class not configured" unless Audiences.config.external_user_class
-        
+
         expect(context.extra_users_configured.klass.name).to eq(Audiences.config.external_user_class)
       end
     end
@@ -168,7 +168,7 @@ RSpec.describe Audiences::Context do
     describe "when use_configured_models is false (legacy mode)" do
       it "routes extra_users to extra_users_legacy association" do
         Audiences.config.use_configured_models = false
-        
+
         # This will fail until we implement routing method
         expect(context).to respond_to(:extra_users_legacy)
         expect(context).to respond_to(:extra_users_configured)
@@ -178,7 +178,7 @@ RSpec.describe Audiences::Context do
       it "returns ExternalUser instances from extra_users" do
         Audiences.config.use_configured_models = false
         context.update!(extra_users: [configured1, configured2])
-        
+
         # When routed to legacy, should return ExternalUser
         expect(context.extra_users.first).to be_a(Audiences::ExternalUser)
       end
@@ -187,7 +187,7 @@ RSpec.describe Audiences::Context do
     describe "when use_configured_models is true (configured mode)" do
       it "routes extra_users to extra_users_configured association" do
         Audiences.config.use_configured_models = true
-        
+
         # This will fail until we implement routing method
         expect(context).to respond_to(:extra_users_legacy)
         expect(context).to respond_to(:extra_users_configured)
@@ -197,7 +197,7 @@ RSpec.describe Audiences::Context do
       it "returns configured model instances from extra_users" do
         Audiences.config.use_configured_models = true
         context.update!(extra_users: [configured1, configured2])
-        
+
         # When routed to configured, should return ConfiguredUser
         expect(context.extra_users.first).to be_a(ConfiguredUser)
       end
@@ -207,9 +207,9 @@ RSpec.describe Audiences::Context do
       it "writes to both associations when dual_write_extra_users is true" do
         Audiences.config.dual_write_extra_users = true
         Audiences.config.use_configured_models = false
-        
+
         context.update!(extra_users: [configured1, configured2])
-        
+
         # Both foreign keys should be populated
         expect(context.extra_users_legacy.count).to eq(2)
         expect(context.extra_users_configured.count).to eq(2)
@@ -218,7 +218,7 @@ RSpec.describe Audiences::Context do
       it "keeps both associations in sync during dual-write" do
         Audiences.config.dual_write_extra_users = true
         context.update!(extra_users: [configured1])
-        
+
         # Both associations should have matching records
         expect(context.extra_users_legacy.count).to eq(1)
         expect(context.extra_users_configured.count).to eq(1)
@@ -228,9 +228,9 @@ RSpec.describe Audiences::Context do
       it "only writes to selected association when dual_write is false" do
         Audiences.config.dual_write_extra_users = false
         Audiences.config.use_configured_models = true
-        
+
         context.update!(extra_users: [configured1])
-        
+
         # Only configured side should be populated
         expect(context.extra_users_configured.count).to eq(1)
         expect(context.extra_users_legacy.count).to eq(0)
@@ -240,9 +240,9 @@ RSpec.describe Audiences::Context do
     describe "data consistency" do
       it "maintains consistent counts between associations during dual-write" do
         Audiences.config.dual_write_extra_users = true
-        
+
         context.update!(extra_users: [configured1, configured2])
-        
+
         # Both associations should have same count
         expect(context.extra_users_legacy.count).to eq(context.extra_users_configured.count)
       end

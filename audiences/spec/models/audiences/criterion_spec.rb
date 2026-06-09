@@ -9,9 +9,9 @@ RSpec.describe Audiences::Criterion do
 
   describe "validations" do
     it "does not allow criterion groups with empty groups" do
-      criterion = Audiences::Criterion.new(groups: [])
+      criterion = Audiences::Criterion.new(groups_configured: [])
       expect(criterion).not_to be_valid
-      expect(criterion.errors[:groups]).to include("can't be blank")
+      expect(criterion.errors[:base]).to include("must have at least one group")
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe Audiences::Criterion do
     end
 
     it "allows setting creating groups not matching the default group scope" do
-      department = create_group(resource_type: "Departments", scim_id: "123", active: false)
+      department = create_group(resource_type: "Departments", active: false)
 
       criteria = Audiences::Criterion.map(
         [

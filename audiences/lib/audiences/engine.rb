@@ -38,5 +38,11 @@ module Audiences
         Audiences::Integrations::DeleteGroupsObserver.start
       end
     end
+
+    initializer "audiences.validate_configuration", after: :load_config_initializers do
+      config.after_initialize do
+        Audiences.config.validate_adapter_configuration!
+      end
+    end
   end
 end

@@ -28,22 +28,8 @@ module_function
   #
   def update(key, criteria: [], extra_users: [], match_all: false)
     Audiences::Context.load(key) do |context|
-      # Extract ids and external_ids from the extra_users hashes
-      ids = extra_users.map { |h| h.with_indifferent_access[:id] }.compact
-      external_ids = extra_users.map { |h| h.with_indifferent_access[:externalId] }.compact
-      
-      # Find users from configured model (supports both id and externalId lookups)
-      model_class = ConfigurableAdapter.model_class
-      users = if ids.any? && external_ids.any?
-        model_class.where(id: ids).or(model_class.where(user_id: external_ids))
-      elsif ids.any?
-        model_class.where(id: ids)
-      elsif external_ids.any?
-        model_class.where(user_id: external_ids)
-      else
-        model_class.none
-      end
-      
+      users = find_extra_users(extra_users)
+
       context.update!(
         match_all: match_all,
         extra_users: users,
@@ -51,6 +37,34 @@ module_function
       )
     end
   end
+
+  def find_extra_users(extra_users_hashes)
+    ids, external_ids = extract_user_identifiers(extra_users_hashes)
+    query_users_by_identifiers(ids: ids, external_ids: external_ids)
+  end
+  module_function :find_extra_users
+
+  def extract_user_identifiers(extra_users_hashes)
+    ids = extra_users_hashes.filter_map { |h| h.with_indifferent_access[:id] }
+    external_ids = extra_users_hashes.filter_map { |h| h.with_indifferent_access[:externalId] }
+    [ids, external_ids]
+  end
+  module_function :extract_user_identifiers
+
+  def query_users_by_identifiers(ids:, external_ids:)
+    model_class = ConfigurableAdapter.model_class
+
+    if ids.any? && external_ids.any?
+      model_class.where(id: ids).or(model_class.where(user_id: external_ids))
+    elsif ids.any?
+      model_class.where(id: ids)
+    elsif external_ids.any?
+      model_class.where(user_id: external_ids)
+    else
+      model_class.none
+    end
+  end
+  module_function :query_users_by_identifiers
 end
 
 require "audiences/configuration"

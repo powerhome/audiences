@@ -9,19 +9,7 @@ module Audiences
 
       def process
         log_sync_operation("start")
-
-        Audiences.logger.info "Deleting group #{scim_id} (#{resource_type})"
-
-        # Find and destroy the group (cascade deletes group memberships)
-        group = Audiences::Group.find_by(resource_type: resource_type, scim_id: scim_id)
-
-        if group
-          group.destroy!
-          Audiences.logger.info "Group #{scim_id} deleted from Audiences cache"
-        else
-          Audiences.logger.warn "Group #{scim_id} not found in Audiences cache"
-        end
-
+        delete_group
         log_sync_operation("complete")
       rescue => e
         Audiences.logger.error e
@@ -29,6 +17,30 @@ module Audiences
       end
 
     private
+
+      def delete_group
+        Audiences.logger.info "Deleting group #{scim_id} (#{resource_type})"
+
+        group = find_group
+        if group
+          destroy_group(group)
+        else
+          log_group_not_found
+        end
+      end
+
+      def find_group
+        Audiences::Group.find_by(resource_type: resource_type, scim_id: scim_id)
+      end
+
+      def destroy_group(group)
+        group.destroy!
+        Audiences.logger.info "Group #{scim_id} deleted from Audiences cache"
+      end
+
+      def log_group_not_found
+        Audiences.logger.warn "Group #{scim_id} not found in Audiences cache"
+      end
 
       def correlation_id
         event_payload.correlation_id
@@ -49,7 +61,7 @@ module Audiences
           action: "delete",
           resource_type: resource_type,
           stage: stage,
-          service: "audiences"
+          service: "audiences",
         }
 
         Audiences.logger.info(log_data.to_json)

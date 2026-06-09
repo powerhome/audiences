@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_06_08_201500) do
+ActiveRecord::Schema.define(version: 2026_06_09_121300) do
 
   create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id"
@@ -39,6 +39,8 @@ ActiveRecord::Schema.define(version: 2026_06_08_201500) do
     t.bigint "group_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "configured_group_id"
+    t.index ["configured_group_id"], name: "index_audiences_criterion_groups_on_configured_group_id"
     t.index ["criterion_id"], name: "index_audiences_criterion_groups_on_criterion_id"
     t.index ["group_id"], name: "index_audiences_criterion_groups_on_group_id"
   end
@@ -100,6 +102,7 @@ ActiveRecord::Schema.define(version: 2026_06_08_201500) do
     t.string "external_id"
     t.string "display_name"
     t.string "resource_type"
+    t.boolean "active", default: true, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["external_id"], name: "index_configured_groups_on_external_id"
