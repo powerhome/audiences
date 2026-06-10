@@ -183,17 +183,23 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
 
   describe "#as_scim" do
     it "includes the updated groups from the relational data" do
-      user = create_user(
+      user = create_legacy_user(
         scim_id: "scim-id",
         user_id: "user-id",
         display_name: "Display Name",
         active: true,
         data: { "displayName" => "Display Name", "groups" => [] }
       )
-      title = create_group(resource_type: "Titles", display_name: "Engineer", external_users: [user])
-      role = create_group(resource_type: "Roles", display_name: "Admin", external_users: [user])
-      department = create_group(resource_type: "Departments", display_name: "Engineering", external_users: [user])
-      territory = create_group(resource_type: "Territories", display_name: "Long Island", external_users: [user])
+      title = create_legacy_group(resource_type: "Titles", display_name: "Engineer")
+      role = create_legacy_group(resource_type: "Roles", display_name: "Admin")
+      department = create_legacy_group(resource_type: "Departments", display_name: "Engineering")
+      territory = create_legacy_group(resource_type: "Territories", display_name: "Long Island")
+
+      # Create group memberships for ExternalUser
+      Audiences::GroupMembership.create!(external_user: user, group: title)
+      Audiences::GroupMembership.create!(external_user: user, group: role)
+      Audiences::GroupMembership.create!(external_user: user, group: department)
+      Audiences::GroupMembership.create!(external_user: user, group: territory)
 
       expect(user.as_scim).to eq(
         "displayName" => "Display Name",

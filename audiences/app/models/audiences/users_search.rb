@@ -27,7 +27,39 @@ module Audiences
   private
 
     def result
-      @result ||= @scope.where("#{data_attribute_query} LIKE ?", "%#{@query}%")
+      @result ||= if data_column?
+                    # Legacy ExternalUser: search JSON data field
+                    @scope.where("#{data_attribute_query} LIKE ?", "%#{@query}%")
+                  else
+                    # Configured models: search display_name and group names
+                    search_configured_users
+                  end
+    end
+
+    def data_column?
+      model_class.column_names.include?("data")
+    end
+
+    def search_configured_users
+      # Search user's display_name and associated group display_names
+      # Equivalent to searching JSON blob that contains group info
+      @scope.left_joins(:groups)
+            .where("#{user_table_name}.display_name LIKE ? OR #{group_table_name}.display_name LIKE ?",
+                   "%#{@query}%", "%#{@query}%")
+            .distinct
+    end
+
+    def model_class
+      @scope.respond_to?(:klass) ? @scope.klass : @scope
+    end
+
+    def user_table_name
+      model_class.table_name
+    end
+
+    def group_table_name
+      # Get the associated group model's table name
+      model_class.reflect_on_association(:groups).klass.table_name
     end
 
     def data_attribute_query
