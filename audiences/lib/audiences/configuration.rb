@@ -245,7 +245,7 @@ module Audiences
   end
 
   class << config
-    private
+  private
 
     def validate_dual_write_requirements
       return [] unless dual_write_extra_users

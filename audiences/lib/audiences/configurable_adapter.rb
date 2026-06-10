@@ -166,7 +166,7 @@ module Audiences
         end
       end
 
-      private
+    private
 
       def clear_extra_users(context)
         context.context_extra_users.destroy_all if context.persisted?
