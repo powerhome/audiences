@@ -74,18 +74,16 @@ module Audiences
     end
 
     def users
-      adapter_class = Audiences::ConfigurableAdapter
-      matching_users = matching_users(adapter_class)
       # Return relation, not array, so downstream code can continue querying
-      adapter_class.active_audiences_users.merge(matching_users)
+      Audiences::ConfigurableAdapter.active_audiences_users.merge(matching_users)
     end
 
-    def matching_users(adapter_class)
-      return adapter_class.none if groups.empty?
+    def matching_users
+      return Audiences::ConfigurableAdapter.none if groups.empty?
 
       # AND logic: user must be member of at least one group from EACH resource type
-      groups.group_by(&:resource_type).values.reduce(adapter_class.all) do |scope, resource_groups|
-        adapter_class.audiences_members_of(resource_groups).merge(scope)
+      groups.group_by(&:resource_type).values.reduce(Audiences::ConfigurableAdapter.all) do |scope, resource_groups|
+        Audiences::ConfigurableAdapter.audiences_members_of(resource_groups).merge(scope)
       end
     end
 

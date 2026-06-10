@@ -4,10 +4,8 @@ module Audiences
   class ContextExtraUser < ApplicationRecord
     belongs_to :context
     belongs_to :external_user, optional: true
-    # rubocop:disable Rails/ReflectionClassName - intentionally dynamic for adapter pattern
     belongs_to :configured_user,
-               class_name: Audiences.config.user_model_class,
+               class_name: Audiences.config.user_model_class.to_s,
                optional: true
-    # rubocop:enable Rails/ReflectionClassName
   end
 end

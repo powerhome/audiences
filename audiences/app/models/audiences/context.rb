@@ -49,12 +49,11 @@ module Audiences
     after_commit :notify_subscriptions, on: :update
 
     def users
-      adapter_class = Audiences::ConfigurableAdapter
-      matching_users = calculate_matching_users(adapter_class)
+      matching_users = calculate_matching_users
 
       # Apply active users scope using configured proc
       # Return relation, not array, so downstream code can continue querying
-      adapter_class.active_audiences_users.merge(matching_users)
+      Audiences::ConfigurableAdapter.active_audiences_users.merge(matching_users)
     end
 
     delegate :count, to: :users
@@ -74,26 +73,23 @@ module Audiences
       Notifications.publish(self)
     end
 
-    def calculate_matching_users(adapter_class)
-      return adapter_class.all if match_all
-      return adapter_class.none if criteria.empty? && extra_user_ids.empty?
-
-      criteria_matches = match_criteria_users(adapter_class)
-      extra_matches = match_extra_users(adapter_class)
+    def calculate_matching_users
+      return Audiences::ConfigurableAdapter.all if match_all
+      return Audiences::ConfigurableAdapter.none if criteria.empty? && extra_user_ids.empty?
 
       criteria_matches.or(extra_matches)
     end
 
-    def match_criteria_users(adapter_class)
+    def criteria_matches
       # OR logic between criteria, AND within each criterion
-      criteria.map { |criterion| criterion.matching_users(adapter_class) }
-              .reduce(adapter_class.none) { |scope, criterion_scope| scope.or(criterion_scope) }
+      criteria.map(&:matching_users)
+              .reduce(Audiences::ConfigurableAdapter.none) { |scope, criterion_scope| scope.or(criterion_scope) }
     end
 
-    def match_extra_users(adapter_class)
-      return adapter_class.none if extra_user_ids.empty?
+    def extra_matches
+      return Audiences::ConfigurableAdapter.none if extra_user_ids.empty?
 
-      adapter_class.audiences_find_by_ids(extra_user_ids)
+      Audiences::ConfigurableAdapter.audiences_find_by_ids(extra_user_ids)
     end
 
     def extra_user_ids
