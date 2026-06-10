@@ -40,7 +40,7 @@ module_function
 
   def find_extra_users(extra_users_hashes)
     ids, external_ids = extract_user_identifiers(extra_users_hashes)
-    query_users_by_identifiers(ids: ids, external_ids: external_ids)
+    ConfigurableAdapter.find_by_identifiers(ids: ids, external_ids: external_ids)
   end
   module_function :find_extra_users
 
@@ -50,11 +50,6 @@ module_function
     [ids, external_ids]
   end
   module_function :extract_user_identifiers
-
-  def query_users_by_identifiers(ids:, external_ids:)
-    ConfigurableAdapter.find_by_identifiers(ids: ids, external_ids: external_ids)
-  end
-  module_function :query_users_by_identifiers
 end
 
 require "audiences/configuration"
