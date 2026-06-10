@@ -30,7 +30,7 @@ module Audiences
       end
 
       def find_group
-        Audiences::Group.find_by(resource_type: resource_type, scim_id: scim_id)
+        Audiences::ConfigurableAdapter.find_groups(resource_type, [{ "id" => scim_id }]).first
       end
 
       def destroy_group(group)

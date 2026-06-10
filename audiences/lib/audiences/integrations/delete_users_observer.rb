@@ -30,7 +30,7 @@ module Audiences
       end
 
       def find_user
-        Audiences::ExternalUser.find_by(scim_id: scim_id)
+        Audiences::ConfigurableAdapter.audiences_find_by_ids([scim_id]).first
       end
 
       def destroy_user(user)
