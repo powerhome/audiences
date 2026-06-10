@@ -9,7 +9,7 @@ module Audiences
     has_many :contexts, through: :context_extra_users, source: :context
 
     if Audiences.config.identity_class
-      belongs_to :identity, class_name: Audiences.config.identity_class, # rubocop:disable Rails/ReflectionClassName
+      belongs_to :identity, class_name: Audiences.config.identity_class.to_s,
                             primary_key: Audiences.config.identity_key,
                             foreign_key: :user_id,
                             optional: true,
@@ -36,12 +36,8 @@ module Audiences
     end
 
     scope :from_scim, ->(*scim_json) do
-      # Flatten in case array is passed
-      json_array = scim_json.flatten
-      ids = json_array.filter_map { |h| h.is_a?(Hash) ? (h["id"] || h[:id]) : nil }
-      external_ids = json_array.filter_map { |h| h.is_a?(Hash) ? (h["externalId"] || h[:externalId]) : nil }
-
-      where(scim_id: ids).or(where(user_id: external_ids))
+      where(scim_id: scim_json.pluck("id").compact)
+        .or(where(user_id: scim_json.pluck("externalId").compact))
     end
 
     scope :matching, ->(criterion) do
