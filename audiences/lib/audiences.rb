@@ -52,17 +52,7 @@ module_function
   module_function :extract_user_identifiers
 
   def query_users_by_identifiers(ids:, external_ids:)
-    model_class = ConfigurableAdapter.model_class
-
-    if ids.any? && external_ids.any?
-      model_class.where(id: ids).or(model_class.where(user_id: external_ids))
-    elsif ids.any?
-      model_class.where(id: ids)
-    elsif external_ids.any?
-      model_class.where(user_id: external_ids)
-    else
-      model_class.none
-    end
+    ConfigurableAdapter.find_by_identifiers(ids: ids, external_ids: external_ids)
   end
   module_function :query_users_by_identifiers
 end

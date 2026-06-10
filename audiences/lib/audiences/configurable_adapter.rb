@@ -118,6 +118,20 @@ module Audiences
         end
       end
 
+      # Find users by their IDs or external IDs
+      # Routes to appropriate model based on mode
+      # @param ids [Array<String>] Array of primary IDs
+      # @param external_ids [Array<String>] Array of external IDs
+      # @return [ActiveRecord::Relation] Users matching the given IDs
+      def find_by_identifiers(ids:, external_ids:)
+        if Audiences.config.use_configured_models
+          find_configured_users_by_identifiers(ids: ids, external_ids: external_ids)
+        else
+          # Legacy mode: hardcoded for ExternalUser schema
+          find_legacy_users_by_identifiers(ids: ids, external_ids: external_ids)
+        end
+      end
+
       # Find groups from criterion data
       # Routes to configured model or legacy groups based on use_configured_models setting
       # @param resource_type [String] The resource type (e.g., "Departments", "Territories")
@@ -237,6 +251,34 @@ module Audiences
           external_user_id: external_user.id,
           configured_user_id: configured_user&.id
         )
+      end
+
+      def find_configured_users_by_identifiers(ids:, external_ids:)
+        # Use configured model's schema (assumes id and user_id columns)
+        # This matches the schema expectations of configured models
+        if ids.any? && external_ids.any?
+          model_class.where(id: ids).or(model_class.where(user_id: external_ids))
+        elsif ids.any?
+          model_class.where(id: ids)
+        elsif external_ids.any?
+          model_class.where(user_id: external_ids)
+        else
+          model_class.none
+        end
+      end
+
+      def find_legacy_users_by_identifiers(ids:, external_ids:)
+        model = Audiences::ExternalUser
+
+        if ids.any? && external_ids.any?
+          model.where(id: ids).or(model.where(user_id: external_ids))
+        elsif ids.any?
+          model.where(id: ids)
+        elsif external_ids.any?
+          model.where(user_id: external_ids)
+        else
+          model.none
+        end
       end
 
       def apply_scope(scope_proc, *args)
