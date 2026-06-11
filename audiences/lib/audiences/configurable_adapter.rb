@@ -64,6 +64,16 @@ module Audiences
     delegate :hash, to: :id
 
     class << self
+      # Returns the strategy instance
+      # Strategy handles routing between legacy and configured models
+      def strategy
+        if Audiences.config.use_configured_models
+          ConfiguredStrategy.new(Audiences.config)
+        else
+          LegacyStrategy.new
+        end
+      end
+
       # Returns the configured model class
       # Supports both Class objects and String class names (constantized lazily)
       def model_class
@@ -82,70 +92,37 @@ module Audiences
       end
 
       # Returns relation with active users eligible for audiences
-      # Routes to appropriate model based on mode
       def active_audiences_users
-        if Audiences.config.use_configured_models
-          apply_scope(Audiences.config.active_users_scope_proc)
-        else
-          # Legacy mode: use ExternalUser.active
-          Audiences::ExternalUser.active
-        end
+        strategy.active_users
       end
 
       # Returns relation filtered by group membership
-      # Routes to appropriate model and scope based on mode
       def audiences_members_of(groups)
-        if Audiences.config.use_configured_models
-          apply_scope(Audiences.config.members_of_scope_proc, groups)
-        else
-          # Legacy mode: use ExternalUser.members_of
-          Audiences::ExternalUser.members_of(groups)
-        end
+        strategy.members_of(groups)
       end
 
       # Find users by their IDs from the source system
-      # Routes to appropriate model based on mode
       # @param ids [Array<String>] Array of user IDs from source system
       # @return [ActiveRecord::Relation] Users matching the given IDs
       def audiences_find_by_ids(ids)
-        return user_model_for_queries.none if ids.blank?
+        return strategy.none if ids.blank?
 
-        if Audiences.config.use_configured_models
-          apply_scope(Audiences.config.find_by_ids_proc, ids)
-        else
-          # Legacy mode: use ExternalUser with adapter's ID extraction
-          Audiences::ExternalUser.where(id: ids)
-        end
+        strategy.find_by_ids(ids) # rubocop:disable Rails/DynamicFindBy - Strategy method, not AR dynamic finder
       end
 
       # Find users by their IDs or external IDs
-      # Routes to appropriate model based on mode
       # @param ids [Array<String>] Array of primary IDs
       # @param external_ids [Array<String>] Array of external IDs
       # @return [ActiveRecord::Relation] Users matching the given IDs
       def find_by_identifiers(ids:, external_ids:)
-        if Audiences.config.use_configured_models
-          find_configured_users_by_identifiers(ids: ids, external_ids: external_ids)
-        else
-          # Legacy mode: hardcoded for ExternalUser schema
-          find_legacy_users_by_identifiers(ids: ids, external_ids: external_ids)
-        end
+        strategy.find_by_identifiers(ids: ids, external_ids: external_ids)
       end
 
       # Find groups from criterion data
-      # Routes to configured model or legacy groups based on use_configured_models setting
       # @param resource_type [String] The resource type (e.g., "Departments", "Territories")
       # @param group_data [Array<Hash>] Array of group hashes with "id" or "externalId" keys
       # @return [Array] Array of group records (configured model or Audiences::Group)
-      def find_groups(resource_type, group_data)
-        if Audiences.config.use_configured_models && Audiences.config.find_groups_proc
-          # Configured mode: use find_groups_proc to query configured model
-          Audiences.config.find_groups_proc.call(resource_type, group_data).to_a
-        else
-          # Legacy mode: use built-in SCIM groups
-          Audiences::Group.from_scim(resource_type, *group_data).to_a
-        end
-      end
+      delegate :find_groups, to: :strategy
 
       # Assign users to a context's extra_users
       # Handles routing to appropriate associations based on mode and user type
@@ -162,16 +139,9 @@ module Audiences
       end
 
       # Get users from a context's extra_users
-      # Routes to appropriate association based on mode
       # @param context [Audiences::Context] The context to get users from
       # @return [ActiveRecord::Relation] User records from appropriate association
-      def get_users_from_context(context)
-        if Audiences.config.use_configured_models
-          context.extra_users_configured
-        else
-          context.extra_users_legacy
-        end
-      end
+      delegate :get_users_from_context, to: :strategy
 
       # Support ActiveRecord query methods by delegating to appropriate model
       %i[where joins includes merge all none].each do |method|
@@ -251,38 +221,6 @@ module Audiences
           external_user_id: external_user.id,
           configured_user_id: configured_user&.id
         )
-      end
-
-      def find_configured_users_by_identifiers(ids:, external_ids:)
-        # Use configured model's schema (assumes id and user_id columns)
-        # This matches the schema expectations of configured models
-        if ids.any? && external_ids.any?
-          model_class.where(id: ids).or(model_class.where(user_id: external_ids))
-        elsif ids.any?
-          model_class.where(id: ids)
-        elsif external_ids.any?
-          model_class.where(user_id: external_ids)
-        else
-          model_class.none
-        end
-      end
-
-      def find_legacy_users_by_identifiers(ids:, external_ids:)
-        model = Audiences::ExternalUser
-
-        if ids.any? && external_ids.any?
-          model.where(id: ids).or(model.where(user_id: external_ids))
-        elsif ids.any?
-          model.where(id: ids)
-        elsif external_ids.any?
-          model.where(user_id: external_ids)
-        else
-          model.none
-        end
-      end
-
-      def apply_scope(scope_proc, *args)
-        scope_proc.call(model_class, *args)
       end
     end
 

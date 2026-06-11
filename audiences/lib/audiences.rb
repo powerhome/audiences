@@ -11,6 +11,8 @@ module Audiences
   autoload :Notifications, "audiences/notifications"
   autoload :Integrations, "audiences/integrations"
   autoload :ConfigurableAdapter, "audiences/configurable_adapter"
+  autoload :LegacyStrategy, "audiences/legacy_strategy"
+  autoload :ConfiguredStrategy, "audiences/configured_strategy"
   autoload :VERSION, "audiences/version"
 
 module_function
