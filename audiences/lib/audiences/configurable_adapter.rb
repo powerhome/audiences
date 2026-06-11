@@ -143,6 +143,13 @@ module Audiences
       # @return [ActiveRecord::Relation] User records from appropriate association
       delegate :get_users_from_context, to: :strategy
 
+      # Find users matching criterion groups (AND logic across resource types)
+      # @param groups [Array] Array of group records
+      # @return [ActiveRecord::Relation] Users matching the groups
+      def matching(groups)
+        strategy.matching(groups)
+      end
+
       # Support ActiveRecord query methods by delegating to appropriate model
       %i[where joins includes merge all none].each do |method|
         define_method(method) do |*args, &block|

@@ -39,5 +39,14 @@ module Audiences
     def none
       ExternalUser.none
     end
+
+    def matching(groups)
+      return ExternalUser.none if groups.empty?
+
+      # AND logic: user must be member of at least one group from EACH resource type
+      groups.group_by(&:resource_type).values.reduce(ExternalUser.all) do |scope, resource_groups|
+        ExternalUser.members_of(resource_groups).merge(scope)
+      end
+    end
   end
 end

@@ -44,6 +44,15 @@ module Audiences
 
     delegate :none, to: :user_model
 
+    def matching(groups)
+      return user_model.none if groups.empty?
+
+      # AND logic: user must be member of at least one group from EACH resource type
+      groups.group_by(&:resource_type).values.reduce(user_model.all) do |scope, resource_groups|
+        config.members_of_scope_proc.call(user_model, resource_groups).merge(scope)
+      end
+    end
+
   private
 
     def user_model

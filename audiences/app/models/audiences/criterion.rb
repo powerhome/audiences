@@ -79,12 +79,7 @@ module Audiences
     end
 
     def matching_users
-      return Audiences::ConfigurableAdapter.none if groups.empty?
-
-      # AND logic: user must be member of at least one group from EACH resource type
-      groups.group_by(&:resource_type).values.reduce(Audiences::ConfigurableAdapter.all) do |scope, resource_groups|
-        Audiences::ConfigurableAdapter.audiences_members_of(resource_groups).merge(scope)
-      end
+      Audiences::ConfigurableAdapter.matching(groups)
     end
 
     delegate :count, to: :users
