@@ -1,5 +1,9 @@
 # Unreleased
 
+# Version 2.0.2 (2026-06-11)
+
+- Update territory name from "Raleigh" to "Raleigh-Durham"
+
 # Version 2.0.1 (2026-05-08)
 
 - Fixes a performance issue where we load all users when updating memberships [#557](https://github.com/powerhome/audiences/pull/557)
