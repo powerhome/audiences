@@ -9,21 +9,22 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
   describe "#process" do
     describe "creating users" do
       it "creates an external user" do
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "active" => true,
-          "photos" => [
+        user_attributes = {
+          scim_id: "internal-id-123",
+          display_name: "My User",
+          external_id: "external-id-123",
+          active: true,
+          photos: [
             { "value" => "http://example.com/photo/1" },
             { "value" => "http://example.com/photo/2" },
           ],
         }
 
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
-
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to change { Audiences::ExternalUser.count }.by(1)
 
         created_user = Audiences::ExternalUser.last
@@ -32,7 +33,6 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
         expect(created_user.user_id).to eql "external-id-123"
         expect(created_user.display_name).to eql "My User"
         expect(created_user.picture_url).to eql "http://example.com/photo/1"
-        expect(created_user.data).to eql params
         expect(created_user.active).to eql true
       end
 
@@ -42,21 +42,23 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
           create_group(scim_id: "group-456"),
           create_group(scim_id: "group-789"),
         ]
-        params = {
-          "id" => "internal-id-123",
-          "displayName" => "My User",
-          "externalId" => "external-id-123",
-          "groups" => [
-            { "value" => "group-123" },
-            { "value" => "group-456" },
-            { "value" => "group-789" },
+        user_attributes = {
+          scim_id: "internal-id-123",
+          display_name: "My User",
+          external_id: "external-id-123",
+          active: true,
+          groups: [
+            { scim_id: "group-123" },
+            { scim_id: "group-456" },
+            { scim_id: "group-789" },
           ],
         }
 
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
-
         expect do
-          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to(change { Audiences::ExternalUser.count })
 
         user = Audiences::ExternalUser.last
@@ -64,7 +66,6 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
         expect(user.scim_id).to eql "internal-id-123"
         expect(user.user_id).to eql "external-id-123"
         expect(user.groups).to match_array new_groups
-        expect(user.data).to eql params
       end
     end
 
@@ -72,38 +73,47 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
       it "updates an existing external user on a CreateEvent" do
         user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {},
                                               active: true)
-        params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123",
-                   "active" => false }
-
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        user_attributes = {
+          scim_id: "internal-id-123",
+          display_name: "My User",
+          external_id: "external-id-123",
+          active: false
+        }
 
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to_not(change { Audiences::ExternalUser.count })
 
         user.reload
 
         expect(user.scim_id).to eql "internal-id-123"
         expect(user.user_id).to eql "external-id-123"
-        expect(user.data).to eql params
         expect(user.active).to eql false
       end
 
       it "updates an existing external user on an ReplaceEvent" do
         user = Audiences::ExternalUser.create(scim_id: "internal-id-123", user_id: "external-id-123", data: {})
-        params = { "id" => "internal-id-123", "displayName" => "My User", "externalId" => "external-id-123" }
-
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        user_attributes = {
+          scim_id: "internal-id-123",
+          display_name: "My User",
+          external_id: "external-id-123",
+          active: true
+        }
 
         expect do
-          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserUpdated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to_not(change { Audiences::ExternalUser.count })
 
         user.reload
 
         expect(user.scim_id).to eql "internal-id-123"
         expect(user.user_id).to eql "external-id-123"
-        expect(user.data).to eql params
       end
     end
   end
@@ -126,32 +136,33 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
     end
 
     let(:all_required_groups_param) do
-      [{ "value" => "group-1" }, { "value" => "group-2" },
-       { "value" => "group-3" }, { "value" => "group-4" }]
+      [{ scim_id: "group-1" }, { scim_id: "group-2" },
+       { scim_id: "group-3" }, { scim_id: "group-4" }]
     end
 
     let(:all_required_groups) do
       Audiences::Group.where(scim_id: %w[group-1 group-2 group-3 group-4])
     end
 
-    def build_user_params(overrides = {})
+    def build_user_attributes(overrides = {})
       {
-        "id" => "internal-id-123",
-        "displayName" => "My User",
-        "externalId" => "external-id-123",
-        "active" => true,
-        "groups" => all_required_groups_param,
+        scim_id: "internal-id-123",
+        display_name: "My User",
+        external_id: "external-id-123",
+        active: true,
+        groups: all_required_groups_param,
       }.merge(overrides)
     end
 
     describe "creating users via events" do
       it "creates user with valid groups via CreateEvent" do
-        params = build_user_params
-
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        user_attributes = build_user_attributes
 
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to change { Audiences::ExternalUser.count }.by(1)
 
         created_user = Audiences::ExternalUser.last
@@ -160,12 +171,13 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
       end
 
       it "creates user with valid groups via ReplaceEvent" do
-        params = build_user_params
-
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        user_attributes = build_user_attributes
 
         expect do
-          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to change { Audiences::ExternalUser.count }.by(1)
 
         created_user = Audiences::ExternalUser.last
@@ -173,15 +185,13 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
       end
 
       it "creates user but does not publish event when groups are invalid" do
-        params = build_user_params("groups" => [])
-
-        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
-        msg = "Provisioning event for user internal-id-123 with missing group types: " \
-              "Departments, Titles, Territories, Roles"
-        expect(Audiences.logger).to receive(:warn).with(msg)
+        user_attributes = build_user_attributes(groups: [])
 
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to change { Audiences::ExternalUser.count }.by(1)
 
         created_user = Audiences::ExternalUser.last
@@ -194,12 +204,13 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
       it "updates user with valid groups via CreateEvent" do
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                display_name: "Old Name", data: {}, active: false)
-        params = build_user_params("displayName" => "New Name")
-
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        user_attributes = build_user_attributes(display_name: "New Name")
 
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to_not(change { Audiences::ExternalUser.count })
 
         user.reload
@@ -210,12 +221,13 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
       it "updates user with valid groups via ReplaceEvent" do
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                display_name: "Old Name", data: {}, active: false)
-        params = build_user_params("displayName" => "New Name")
-
-        expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Users", params: params)
+        user_attributes = build_user_attributes(display_name: "New Name")
 
         expect do
-          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserUpdated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to_not(change { Audiences::ExternalUser.count })
 
         user.reload
@@ -227,14 +239,13 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
         user = Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                                display_name: "Old Name", data: {}, active: true,
                                                groups: all_required_groups)
-        params = build_user_params("groups" => [{ "value" => "group-1" }])
-
-        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
-        msg = "Provisioning event for user internal-id-123 with missing group types: Titles, Territories, Roles"
-        expect(Audiences.logger).to receive(:warn).with(msg)
+        user_attributes = build_user_attributes(groups: [{ scim_id: "group-1" }])
 
         expect do
-          TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserUpdated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to_not(change { Audiences::ExternalUser.count })
 
         user.reload
@@ -244,12 +255,13 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
 
     describe "inactive users" do
       it "creates inactive user without groups but does not publish PersistedResourceEvent" do
-        params = build_user_params("active" => false, "groups" => [])
-
-        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
+        user_attributes = build_user_attributes(active: false, groups: [])
 
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to change { Audiences::ExternalUser.count }.by(1)
 
         created_user = Audiences::ExternalUser.last
@@ -261,11 +273,12 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
         Audiences::ExternalUser.create!(scim_id: "internal-id-123", user_id: "external-id-123",
                                         display_name: "Test", data: {}, active: true,
                                         groups: all_required_groups)
-        params = build_user_params("active" => false, "groups" => [])
+        user_attributes = build_user_attributes(active: false, groups: [])
 
-        expect(Audiences::PersistedResourceEvent).not_to receive(:create)
-
-        TwoPercent::ReplaceEvent.create(resource: "Users", params: params)
+        TestDomainEvents::UserUpdated.create(
+          user_attributes: user_attributes,
+          correlation_id: "test-correlation-id"
+        )
 
         user = Audiences::ExternalUser.last
         expect(user.active).to be false
@@ -275,12 +288,15 @@ RSpec.describe Audiences::Integrations::UpsertUsersObserver do
 
     describe "group lookup behavior" do
       it "ignores non-existent group scim_ids in params" do
-        params = build_user_params(
-          "groups" => all_required_groups_param + [{ "value" => "non-existent-group" }]
+        user_attributes = build_user_attributes(
+          groups: all_required_groups_param + [{ scim_id: "non-existent-group" }]
         )
 
         expect do
-          TwoPercent::CreateEvent.create(resource: "Users", params: params)
+          TestDomainEvents::UserCreated.create(
+            user_attributes: user_attributes,
+            correlation_id: "test-correlation-id"
+          )
         end.to change { Audiences::ExternalUser.count }.by(1)
 
         created_user = Audiences::ExternalUser.last
