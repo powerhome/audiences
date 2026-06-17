@@ -10,28 +10,8 @@ module Audiences
 
       def process
         log_sync_operation("start")
-
-        Audiences.logger.info "#{upsert_action} group #{group_attrs[:display_name]} (#{group_attrs[:external_id]})"
-        Audiences.logger.debug "[DEBUG] group_attrs[:members] = #{group_attrs[:members].inspect}"
-        Audiences.logger.debug "[DEBUG] group_attrs[:members].present? = #{group_attrs[:members].present?}"
-
-        group.update!(
-          external_id: group_attrs[:external_id],
-          display_name: group_attrs[:display_name],
-          active: group_attrs.fetch(:active, true)
-        )
-
-        Audiences.logger.debug "[DEBUG] GroupMembership count before sync_members: #{Audiences::GroupMembership.where(group: group).count}"
-        
-        # Sync members if included in the event (from TwoPercent domain events)
-        if group_attrs[:members].present?
-          Audiences.logger.debug "[DEBUG] Calling sync_members with #{group_attrs[:members].count} members"
-          sync_members
-          Audiences.logger.debug "[DEBUG] GroupMembership count after sync_members: #{Audiences::GroupMembership.where(group: group).count}"
-        else
-          Audiences.logger.debug "[DEBUG] Skipping sync_members - no members in event"
-        end
-
+        upsert_group
+        sync_members_if_present
         log_sync_operation("complete")
       rescue => e
         Audiences.logger.error e
@@ -67,16 +47,24 @@ module Audiences
         ).first_or_initialize
       end
 
+      def upsert_group
+        Audiences.logger.info "#{upsert_action} group #{group_attrs[:display_name]} (#{scim_id})"
+
+        group.update!(
+          external_id: group_attrs[:external_id],
+          display_name: group_attrs[:display_name],
+          active: group_attrs.fetch(:active, true)
+        )
+      end
+
+      def sync_members_if_present
+        sync_members if group_attrs[:members].present?
+      end
+
       def sync_members
-        member_scim_ids = group_attrs[:members].map { |m| m[:scim_id] || m['scim_id'] }.compact
-        Audiences.logger.debug "[DEBUG] sync_members: Looking for users with scim_ids: #{member_scim_ids}"
-        
+        member_scim_ids = group_attrs[:members].filter_map { |m| m[:scim_id] || m["scim_id"] }
         users = Audiences::ExternalUser.where(scim_id: member_scim_ids).to_a
-        Audiences.logger.debug "[DEBUG] sync_members: Found #{users.count} users: #{users.map(&:scim_id)}"
-        
         group.external_users = users
-        
-        Audiences.logger.debug "[DEBUG] sync_members: After assignment, group.external_users.reload.count = #{group.external_users.reload.count}"
       end
 
       def log_sync_operation(stage)
@@ -86,7 +74,7 @@ module Audiences
           action: upsert_action.downcase,
           resource_type: resource_type,
           stage: stage,
-          service: "audiences"
+          service: "audiences",
         }
 
         Audiences.logger.info(log_data.to_json)

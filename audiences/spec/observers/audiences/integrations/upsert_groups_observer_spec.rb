@@ -11,7 +11,7 @@ RSpec.describe Audiences::Integrations::UpsertGroupsObserver do
       scim_id: "internal-id-123",
       display_name: "My Group",
       external_id: "external-id-123",
-      active: true
+      active: true,
     }
 
     expect do
@@ -37,7 +37,7 @@ RSpec.describe Audiences::Integrations::UpsertGroupsObserver do
       scim_id: group.scim_id,
       display_name: "My Group",
       external_id: "external-id-123",
-      active: false
+      active: false,
     }
 
     expect do
@@ -63,7 +63,7 @@ RSpec.describe Audiences::Integrations::UpsertGroupsObserver do
       scim_id: group.scim_id,
       display_name: "My Group",
       external_id: "external-id-123",
-      active: false
+      active: false,
     }
 
     expect do

@@ -9,19 +9,7 @@ module Audiences
 
       def process
         log_sync_operation("start")
-
-        Audiences.logger.info "Deleting user #{scim_id}"
-
-        # Find and destroy the external user (cascade deletes group memberships)
-        user = Audiences::ExternalUser.find_by(scim_id: scim_id)
-
-        if user
-          user.destroy!
-          Audiences.logger.info "User #{scim_id} deleted from Audiences cache"
-        else
-          Audiences.logger.warn "User #{scim_id} not found in Audiences cache"
-        end
-
+        delete_user
         log_sync_operation("complete")
       rescue => e
         Audiences.logger.error e
@@ -38,6 +26,19 @@ module Audiences
         event_payload.user_id
       end
 
+      def delete_user
+        Audiences.logger.info "Deleting user #{scim_id}"
+
+        user = Audiences::ExternalUser.find_by(scim_id: scim_id)
+
+        if user
+          user.destroy!
+          Audiences.logger.info "User #{scim_id} deleted from Audiences cache"
+        else
+          Audiences.logger.warn "User #{scim_id} not found in Audiences cache"
+        end
+      end
+
       def log_sync_operation(stage)
         log_data = {
           correlation_id: correlation_id,
@@ -45,7 +46,7 @@ module Audiences
           action: "delete",
           resource_type: "Users",
           stage: stage,
-          service: "audiences"
+          service: "audiences",
         }
 
         Audiences.logger.info(log_data.to_json)

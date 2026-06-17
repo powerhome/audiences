@@ -38,8 +38,8 @@ module Audiences
     scope :from_scim, ->(*scim_json) do
       # Flatten in case array is passed
       json_array = scim_json.flatten
-      ids = json_array.map { |h| h.is_a?(Hash) ? (h["id"] || h[:id]) : nil }.compact
-      external_ids = json_array.map { |h| h.is_a?(Hash) ? (h["externalId"] || h[:externalId]) : nil }.compact
+      ids = json_array.filter_map { |h| h.is_a?(Hash) ? (h["id"] || h[:id]) : nil }
+      external_ids = json_array.filter_map { |h| h.is_a?(Hash) ? (h["externalId"] || h[:externalId]) : nil }
 
       where(scim_id: ids).or(where(user_id: external_ids))
     end

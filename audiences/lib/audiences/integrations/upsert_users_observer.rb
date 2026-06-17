@@ -10,21 +10,8 @@ module Audiences
 
       def process
         log_sync_operation("start")
-
-        Audiences.logger.info "#{upsert_action} user #{user_attrs[:display_name]} (#{user_attrs[:scim_id]})"
-        Audiences.logger.debug "[DEBUG] user_attrs[:groups] = #{user_attrs[:groups].inspect}"
-
-        external_user.update!(updated_attributes)
-        
-        found_groups = find_associated_groups
-        Audiences.logger.debug "[DEBUG] Found #{found_groups.count} groups: #{found_groups.map(&:scim_id)}"
-        Audiences.logger.debug "[DEBUG] GroupMembership count before assignment: #{Audiences::GroupMembership.where(external_user: external_user).count}"
-        
-        external_user.groups = found_groups
-        
-        Audiences.logger.debug "[DEBUG] GroupMembership count after assignment: #{Audiences::GroupMembership.where(external_user: external_user).count}"
-        Audiences.logger.debug "[DEBUG] external_user.groups.reload.count: #{external_user.groups.reload.count}"
-
+        upsert_user
+        sync_groups
         log_sync_operation("complete")
       rescue => e
         Audiences.logger.error e
@@ -59,7 +46,7 @@ module Audiences
           display_name: user_attrs[:display_name],
           picture_urls: extract_picture_urls,
           data: build_data_hash,
-          active: user_attrs.fetch(:active, false)
+          active: user_attrs.fetch(:active, false),
         }
       end
 
@@ -67,15 +54,25 @@ module Audiences
         photos = user_attrs[:photos]
         return [] unless photos.is_a?(Array)
 
-        photos.map { |photo| photo["value"] || photo[:value] }.compact
+        photos.filter_map { |photo| photo["value"] || photo[:value] }
       end
 
       def find_associated_groups
         groups_data = user_attrs[:groups]
         return [] unless groups_data.is_a?(Array)
 
-        group_scim_ids = groups_data.map { |g| g[:scim_id] || g['scim_id'] }.compact
+        group_scim_ids = groups_data.filter_map { |g| g[:scim_id] || g["scim_id"] }
         Audiences::Group.where(scim_id: group_scim_ids).to_a
+      end
+
+      def upsert_user
+        Audiences.logger.info "#{upsert_action} user #{user_attrs[:display_name]} (#{scim_id})"
+        external_user.update!(updated_attributes)
+      end
+
+      def sync_groups
+        found_groups = find_associated_groups
+        external_user.groups = found_groups
       end
 
       # Build minimal data hash for Audiences API responses
@@ -88,7 +85,7 @@ module Audiences
           "displayName" => user_attrs[:display_name],
           "userName" => user_attrs[:user_name],
           "photos" => user_attrs[:photos],
-          "active" => user_attrs[:active]
+          "active" => user_attrs[:active],
         }.compact
       end
 
@@ -99,7 +96,7 @@ module Audiences
           action: upsert_action.downcase,
           resource_type: "Users",
           stage: stage,
-          service: "audiences"
+          service: "audiences",
         }
 
         Audiences.logger.info(log_data.to_json)
