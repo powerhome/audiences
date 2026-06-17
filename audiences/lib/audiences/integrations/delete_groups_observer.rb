@@ -8,20 +8,15 @@ module Audiences
       subscribe_to "two_percent.domain.group.deleted"
 
       def process
-        log_sync_operation("start")
-        delete_group
+        log_sync_operation(action: "delete", resource_type: resource_type, scim_id: scim_id) do
+          delete_group
+        end
       rescue => e
         Audiences.logger.error e
         raise
-      ensure
-        log_sync_operation("complete")
       end
 
     private
-
-      def correlation_id
-        event_payload.correlation_id
-      end
 
       def scim_id
         event_payload.group_id
@@ -42,19 +37,6 @@ module Audiences
         else
           Audiences.logger.warn "Group #{scim_id} not found in Audiences cache"
         end
-      end
-
-      def log_sync_operation(stage)
-        log_data = {
-          correlation_id: correlation_id,
-          scim_id: scim_id,
-          action: "delete",
-          resource_type: resource_type,
-          stage: stage,
-          service: "audiences",
-        }
-
-        Audiences.logger.info(log_data.to_json)
       end
     end
   end

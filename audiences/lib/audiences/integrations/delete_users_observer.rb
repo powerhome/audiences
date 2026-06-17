@@ -8,19 +8,15 @@ module Audiences
       subscribe_to "two_percent.domain.user.deleted"
 
       def process
-        log_sync_operation("start")
-        delete_user
-        log_sync_operation("complete")
+        log_sync_operation(action: "delete", resource_type: "Users", scim_id: scim_id) do
+          delete_user
+        end
       rescue => e
         Audiences.logger.error e
         raise
       end
 
     private
-
-      def correlation_id
-        event_payload.correlation_id
-      end
 
       def scim_id
         event_payload.user_id
@@ -37,19 +33,6 @@ module Audiences
         else
           Audiences.logger.warn "User #{scim_id} not found in Audiences cache"
         end
-      end
-
-      def log_sync_operation(stage)
-        log_data = {
-          correlation_id: correlation_id,
-          scim_id: scim_id,
-          action: "delete",
-          resource_type: "Users",
-          stage: stage,
-          service: "audiences",
-        }
-
-        Audiences.logger.info(log_data.to_json)
       end
     end
   end

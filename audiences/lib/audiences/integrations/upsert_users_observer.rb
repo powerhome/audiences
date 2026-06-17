@@ -9,10 +9,10 @@ module Audiences
       subscribe_to "two_percent.domain.user.updated"
 
       def process
-        log_sync_operation("start")
-        upsert_user
-        sync_groups
-        log_sync_operation("complete")
+        log_sync_operation(action: upsert_action.downcase, resource_type: "Users", scim_id: scim_id) do
+          upsert_user
+          sync_groups
+        end
       rescue => e
         Audiences.logger.error e
         raise
@@ -87,19 +87,6 @@ module Audiences
           "photos" => user_attrs[:photos],
           "active" => user_attrs[:active],
         }.compact
-      end
-
-      def log_sync_operation(stage)
-        log_data = {
-          correlation_id: correlation_id,
-          scim_id: scim_id,
-          action: upsert_action.downcase,
-          resource_type: "Users",
-          stage: stage,
-          service: "audiences",
-        }
-
-        Audiences.logger.info(log_data.to_json)
       end
     end
   end
