@@ -10,10 +10,11 @@ module Audiences
       def process
         log_sync_operation("start")
         delete_group
-        log_sync_operation("complete")
       rescue => e
         Audiences.logger.error e
         raise
+      ensure
+        log_sync_operation("complete")
       end
 
     private
