@@ -12,18 +12,24 @@ module Audiences
       # @param correlation_id [String] The correlation ID from the event (defaults to event_payload.correlation_id)
       # @yield The block containing the sync operation
       def log_sync_operation(action:, resource_type:, scim_id:, correlation_id: event_payload.correlation_id)
-        log_data = {
+        log_data = build_log_data(action: action, resource_type: resource_type, scim_id: scim_id,
+                                  correlation_id: correlation_id)
+        Audiences.logger.info({ **log_data, stage: "start" }.to_json)
+        yield
+      ensure
+        Audiences.logger.info({ **log_data, stage: "complete" }.to_json)
+      end
+
+    private
+
+      def build_log_data(action:, resource_type:, scim_id:, correlation_id:)
+        {
           correlation_id: correlation_id,
           scim_id: scim_id,
           action: action,
           resource_type: resource_type,
           service: "audiences",
         }
-
-        Audiences.logger.info({ **log_data, stage: "start" }.to_json)
-        yield
-      ensure
-        Audiences.logger.info({ **log_data, stage: "complete" }.to_json)
       end
     end
   end
