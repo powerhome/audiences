@@ -2,18 +2,24 @@
 
 require "rails_helper"
 
-RSpec.describe Audiences::Scim::UpsertGroupsObserver do
-  before(:all) { Audiences::Scim::UpsertGroupsObserver.start }
-  after(:all) { Audiences::Scim::UpsertGroupsObserver.stop }
+RSpec.describe Audiences::Integrations::UpsertGroupsObserver do
+  before(:all) { Audiences::Integrations::UpsertGroupsObserver.start }
+  after(:all) { Audiences::Integrations::UpsertGroupsObserver.stop }
 
   it "creates a group that is configured in Audiences.config.group_types" do
-    params = { "id" => "internal-id-123", "displayName" => "My Group", "externalId" => "external-id-123",
-               "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => true } }
-
-    expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Groups", params: params)
+    group_attributes = {
+      scim_id: "internal-id-123",
+      display_name: "My Group",
+      external_id: "external-id-123",
+      active: true,
+    }
 
     expect do
-      TwoPercent::CreateEvent.create(resource: "Groups", params: params)
+      TestDomainEvents::GroupCreated.create(
+        group_attributes: group_attributes,
+        resource_type: "Groups",
+        correlation_id: "test-correlation-id"
+      )
     end.to change { Audiences::Group.count }.by(1)
 
     created_group = Audiences::Group.last
@@ -27,13 +33,19 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
 
   it "updates a group that is configured in Audiences.config.group_types even with CreateEvent" do
     group = create_group
-    params = { "id" => group.scim_id, "displayName" => "My Group", "externalId" => "external-id-123",
-               "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => false } }
-
-    expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Groups", params: params)
+    group_attributes = {
+      scim_id: group.scim_id,
+      display_name: "My Group",
+      external_id: "external-id-123",
+      active: false,
+    }
 
     expect do
-      TwoPercent::CreateEvent.create(resource: "Groups", params: params)
+      TestDomainEvents::GroupCreated.create(
+        group_attributes: group_attributes,
+        resource_type: "Groups",
+        correlation_id: "test-correlation-id"
+      )
     end.to_not(change { Audiences::Group.count })
 
     group.reload
@@ -47,13 +59,19 @@ RSpec.describe Audiences::Scim::UpsertGroupsObserver do
 
   it "updates a group that is configured in Audiences.config.group_types" do
     group = create_group
-    params = { "id" => group.scim_id, "displayName" => "My Group", "externalId" => "external-id-123",
-               "urn:ietf:params:scim:schemas:extension:authservice:2.0:Group" => { "active" => false } }
-
-    expect(Audiences::PersistedResourceEvent).to receive(:create).with(resource_type: "Groups", params: params)
+    group_attributes = {
+      scim_id: group.scim_id,
+      display_name: "My Group",
+      external_id: "external-id-123",
+      active: false,
+    }
 
     expect do
-      TwoPercent::ReplaceEvent.create(resource: "Groups", params: params)
+      TestDomainEvents::GroupUpdated.create(
+        group_attributes: group_attributes,
+        resource_type: "Groups",
+        correlation_id: "test-correlation-id"
+      )
     end.to_not(change { Audiences::Group.count })
 
     group.reload

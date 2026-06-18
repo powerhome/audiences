@@ -3,13 +3,13 @@
 require "aether_observatory"
 
 # Audiences system
-# Audiences pushes notifications to your rails app when a
-# SCIM backend updates a user, notifying matching audiences.
+# Audiences pushes notifications to your rails app when an
+# identity provider updates a user, notifying matching audiences.
 #
 module Audiences
   autoload :Model, "audiences/model"
   autoload :Notifications, "audiences/notifications"
-  autoload :Scim, "audiences/scim"
+  autoload :Integrations, "audiences/integrations"
   autoload :VERSION, "audiences/version"
 
 module_function

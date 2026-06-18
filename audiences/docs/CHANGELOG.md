@@ -1,5 +1,19 @@
 # Unreleased
 
+# Version 3.0.0 (2026-06-18)
+
+**Breaking Changes:**
+- Removed TwoPercent gem dependency from Gemfile - tests now use internal TestDomainEvents module
+
+**Improvements:**
+- Refactored all integration observers (UpsertUsers, DeleteUsers, UpsertGroups, DeleteGroups) to use shared block-based log_sync_operation method in ObserverBase for cleaner, more maintainable code
+- Added Ruby 3.4 compatibility via drb gem dependency
+- Fixed Rubocop violations in all observers by extracting helper methods
+
+**Code Cleanup:**
+- Removed PersistedResourceEvent and ApplicationEvent classes (dead code from old SCIM architecture)
+- Removed lib/audiences/scim/ directory containing deprecated SCIM observers (replaced by Integrations observers in v2.0)
+
 # Version 2.0.2 (2026-06-11)
 
 - Update territory name from "Raleigh" to "Raleigh-Durham"
