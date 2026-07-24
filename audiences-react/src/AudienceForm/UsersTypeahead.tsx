@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash"
-import { Typeahead, User, IconButton, Flex, FlexItem } from "playbook-ui"
+import { Typeahead, User, Button, Flex, FlexItem } from "playbook-ui"
 import { useContext, useEffect, useRef } from "react"
 import { components, SingleValueProps, OptionProps } from "react-select"
 import Audiences from "../audiences"
@@ -148,12 +148,11 @@ export function UsersTypeahead({
                 />
               </FlexItem>
               <FlexItem>
-                <IconButton
+                <Button
                   onClick={handleRemoveUser}
                   icon="xmark"
                   size="sm"
-                  color="default"
-                ></IconButton>
+                />
               </FlexItem>
             </Flex>
           )
