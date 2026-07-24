@@ -148,11 +148,7 @@ export function UsersTypeahead({
                 />
               </FlexItem>
               <FlexItem>
-                <Button
-                  onClick={handleRemoveUser}
-                  icon="xmark"
-                  size="sm"
-                />
+                <Button onClick={handleRemoveUser} icon="xmark" size="sm" />
               </FlexItem>
             </Flex>
           )
