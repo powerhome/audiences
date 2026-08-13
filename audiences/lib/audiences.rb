@@ -12,6 +12,10 @@ module Audiences
   autoload :Integrations, "audiences/integrations"
   autoload :VERSION, "audiences/version"
 
+  module ReadSources
+    autoload :Legacy, "audiences/read_sources/legacy"
+  end
+
 module_function
 
   # Updates the given context

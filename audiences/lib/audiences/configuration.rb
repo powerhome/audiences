@@ -79,6 +79,24 @@ module Audiences
     ->(*) { active }
   end
 
+  # The source that backs the read endpoint (ScimProxyController#get).
+  #
+  # Defaults to Audiences::ReadSources::Legacy, which reads Audiences' own
+  # projection (ExternalUser / Group). Applications can inject an alternative
+  # source (e.g. one backed by an external store) as long as it responds to
+  # `#fetch(resource_type:, query:, start_index:, count:)` and returns records
+  # renderable as the client-facing contract. The controller never references
+  # the source's backing models directly, so the read source is swappable
+  # without coupling Audiences to any particular provider.
+  #
+  # I.e.:
+  #
+  #   Audiences.configure do |config|
+  #     config.read_source = MyExternalReadSource.new
+  #   end
+  #
+  config_accessor(:read_source) { Audiences::ReadSources::Legacy.new }
+
   # These are the user attributes that will be exposed in the audiences endpoints.
   # They're required by the UI to display the user information.
   #

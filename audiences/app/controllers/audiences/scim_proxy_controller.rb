@@ -2,23 +2,17 @@
 
 module Audiences
   class ScimProxyController < ApplicationController
+    # Reads resources through the configured read source. The source is
+    # swappable via Audiences.config.read_source (defaults to the legacy
+    # source that reads Audiences' own projection), so the controller stays
+    # agnostic to where the data comes from.
     def get
-      resources = scope.search(params[:query])
-                       .offset(params[:startIndex])
-                       .limit(params[:count])
-
-      render json: resources
-    end
-
-  private
-
-    def scope
-      if params[:scim_path].eql?("Users")
-        Audiences::ExternalUser.instance_exec(&Audiences.default_users_scope)
-      else
-        Audiences::Group.where(resource_type: params[:scim_path])
-                        .instance_exec(&Audiences.default_groups_scope)
-      end
+      render json: Audiences.read_source.fetch(
+        resource_type: params[:scim_path],
+        query: params[:query],
+        start_index: params[:startIndex],
+        count: params[:count]
+      )
     end
   end
 end
