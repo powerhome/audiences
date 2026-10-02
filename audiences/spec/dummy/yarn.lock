@@ -308,11 +308,6 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.9.tgz#50dea3616bc8191fb8e112283b49eaff03e78429"
   integrity sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==
 
-"@fortawesome/fontawesome-free@^6.2.1":
-  version "6.7.2"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.7.2.tgz#8249de9b7e22fcb3ceb5e66090c30a1d5492b81a"
-  integrity sha512-JUOtgFW6k9u4Y+xeIaEiLr3+cjoUPiAuLXoyKOJSia6Duzb7pq+A76P9ZdPDoAoxHdHzq6gE9/jKBGXlZT8FbA==
-
 "@jridgewell/gen-mapping@^0.3.5":
   version "0.3.8"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.8.tgz#4f0e06362e01362f823d348f1872b08f666d8142"
@@ -736,13 +731,12 @@ picomatch@^2.3.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
-playbook-ui@14.17.0-alpha.alphaforaudiences7167:
-  version "14.17.0-alpha.alphaforaudiences7167"
-  resolved "https://registry.yarnpkg.com/playbook-ui/-/playbook-ui-14.17.0-alpha.alphaforaudiences7167.tgz#7810bb6be6c2f39ed1a7b8dcff4968f7f2520218"
-  integrity sha512-M0YMwJ65rvv2Og3nA0wBcqKr4dPQvY8n54HB/phseeNJ7q0Z7yz/65XS+uwxSvuaqmlgnEyk6DKhXSZx7zsh8A==
+playbook-ui@^16.11.0:
+  version "16.11.0"
+  resolved "https://registry.yarnpkg.com/playbook-ui/-/playbook-ui-16.11.0.tgz#f332073bde4895b47201d940a096bc67b7cada34"
+  integrity sha512-VA0qmG3CXL6UwUM9f/KpboZZ8/ng1iDSh+YIMn8enWkjs8Y3jVHfHp0y9oIZM3QGz+3bYIGn4qtO3W+TgL/5Wg==
   dependencies:
     "@floating-ui/dom" "^1.6.13"
-    "@fortawesome/fontawesome-free" "^6.2.1"
     "@popperjs/core" "^2.11.8"
     classnames "2.5.1"
     flatpickr "^4.6.13"
