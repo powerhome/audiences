@@ -36,8 +36,12 @@ module Audiences
     end
 
     scope :from_scim, ->(*scim_json) do
-      where(scim_id: scim_json.pluck("id").compact)
-        .or(where(user_id: scim_json.pluck("externalId").compact))
+      # Flatten in case array is passed
+      json_array = scim_json.flatten
+      ids = json_array.filter_map { |h| h.is_a?(Hash) ? (h["id"] || h[:id]) : nil }
+      external_ids = json_array.filter_map { |h| h.is_a?(Hash) ? (h["externalId"] || h[:externalId]) : nil }
+
+      where(scim_id: ids).or(where(user_id: external_ids))
     end
 
     scope :matching, ->(criterion) do
@@ -79,37 +83,22 @@ module Audiences
         "title" => names["Titles"],
         "urn:ietf:params:scim:schemas:extension:authservice:2.0:User" => {
           "role" => names["Roles"], "department" => names["Departments"],
-          "territory" => names["Territories"], "territoryAbbr" => TERRITORY_ABBRS[names["Territories"]]
+          "territory" => names["Territories"], "territoryAbbr" => territory_abbr(names["Territories"])
         },
       }
     end
 
-    TERRITORY_ABBRS = {
-      "Philadelphia" => "PHL",
-      "New Jersey" => "NJ",
-      "Maryland" => "MD",
-      "Connecticut" => "CT",
-      "Long Island" => "LI",
-      "Boston" => "BOS",
-      "Atlanta" => "ATL",
-      "Chicago" => "CHI",
-      "Detroit" => "DET",
-      "Houston" => "HOU",
-      "Dallas" => "DAL",
-      "Denver" => "DEN",
-      "Tampa" => "TPA",
-      "Austin" => "AUS",
-      "Charlotte" => "CLT",
-      "Nashville" => "NSH",
-      "Phoenix" => "PHX",
-      "Pittsburgh" => "PIT",
-      "San Antonio" => "SAO",
-      "Fort Lauderdale" => "FLL",
-      "Las Vegas" => "LVS",
-      "Orlando" => "ORL",
-      "Cincinnati" => "CIN",
-      "Columbus" => "CLB",
-      "Jacksonville" => "JAX",
-    }.freeze
+    def missing_group_types(expected_types = Audiences.config.required_group_types)
+      return [] if expected_types.blank?
+
+      actual_types = groups.map(&:resource_type)
+      expected_types - actual_types
+    end
+
+  private
+
+    def territory_abbr(territory)
+      Audiences.config.territory_abbreviations[territory]
+    end
   end
 end

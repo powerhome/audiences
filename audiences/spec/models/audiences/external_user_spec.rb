@@ -8,6 +8,62 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
     it { is_expected.to have_many(:groups).through(:group_memberships).dependent(:destroy) }
   end
 
+  describe "#missing_group_types" do
+    let!(:department_group) { create_group(resource_type: "Departments") }
+    let!(:title_group) { create_group(resource_type: "Titles") }
+    let!(:territory_group) { create_group(resource_type: "Territories") }
+    let!(:role_group) { create_group(resource_type: "Roles") }
+    let(:all_required_groups) { [department_group, title_group, territory_group, role_group] }
+    let(:required_types) { %w[Departments Titles Territories Roles] }
+
+    it "returns empty array when user has all required group types" do
+      user = create_user(groups: all_required_groups)
+      expect(user.missing_group_types(required_types)).to eq([])
+    end
+
+    it "returns missing type when user is missing one required group type" do
+      user = create_user(groups: [title_group, territory_group, role_group])
+      expect(user.missing_group_types(required_types)).to eq(["Departments"])
+    end
+
+    it "returns all types when user has empty groups" do
+      user = create_user(groups: [])
+      expect(user.missing_group_types(required_types)).to match_array(required_types)
+    end
+
+    it "returns all types when user has no groups" do
+      user = create_user
+      expect(user.missing_group_types(required_types)).to match_array(required_types)
+    end
+
+    it "works regardless of group order" do
+      user = create_user(groups: [role_group, department_group, title_group, territory_group])
+      expect(user.missing_group_types(required_types)).to eq([])
+    end
+
+    it "ignores extra groups beyond required types" do
+      extra_group = create_group(resource_type: "OtherType")
+      user = create_user(groups: all_required_groups + [extra_group])
+      expect(user.missing_group_types(required_types)).to eq([])
+    end
+
+    it "handles multiple groups of same type" do
+      extra_department = create_group(resource_type: "Departments")
+      user = create_user(groups: all_required_groups + [extra_department])
+      expect(user.missing_group_types(required_types)).to eq([])
+    end
+
+    it "returns empty array when required_group_types is empty" do
+      user = create_user(groups: [])
+      expect(user.missing_group_types([])).to eq([])
+    end
+
+    it "returns empty array when required_group_types is nil" do
+      user = create_user(groups: [])
+      expect(user.missing_group_types(nil)).to eq([])
+    end
+  end
+
   describe "notifications" do
     it "publishes notifications for relevant contexts based on its gropus when active is changed" do
       group1, _group2 = create_groups(2)
@@ -211,6 +267,30 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
           "territoryAbbr" => "LI",
         }
       )
+    end
+
+    it "uses custom territory abbreviations from config" do
+      allow(Audiences.config).to receive(:territory_abbreviations).and_return({ "Custom Territory" => "CUST" })
+
+      user = create_user(data: { "displayName" => "Test User" })
+      create_group(resource_type: "Territories", display_name: "Custom Territory", external_users: [user])
+
+      scim_data = user.as_scim
+      extension_data = scim_data["urn:ietf:params:scim:schemas:extension:authservice:2.0:User"]
+
+      expect(extension_data["territory"]).to eq("Custom Territory")
+      expect(extension_data["territoryAbbr"]).to eq("CUST")
+    end
+
+    it "returns nil for unknown territories" do
+      user = create_user(data: { "displayName" => "Test User" })
+      create_group(resource_type: "Territories", display_name: "Unknown Territory", external_users: [user])
+
+      scim_data = user.as_scim
+      extension_data = scim_data["urn:ietf:params:scim:schemas:extension:authservice:2.0:User"]
+
+      expect(extension_data["territory"]).to eq("Unknown Territory")
+      expect(extension_data["territoryAbbr"]).to be_nil
     end
   end
 end

@@ -3,35 +3,40 @@
 name: Automated Code Reviews
 on: [pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   brakeman:
-    name: Brakeman
+    name: brakeman
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-      - name: "Brakeman audiences"
-        uses: reviewdog/action-brakeman@5083efd49634e26645a0736681b618ccc3fb7f14 # v2
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - name: "brakeman audiences"
+        uses: reviewdog/action-brakeman@3ca1f826ac652d188845fe8faa3a1423afb904b6 # v2.20.0
         with:
           brakeman_version: gemfile
           tool_name: "audiences"
           workdir: "./audiences"
   bearer:
-    name: Bearer
+    name: bearer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252 # v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
         with:
           reviewdog_version: latest
-      - name: Bearer
+      - name: bearer
         uses: bearer/bearer-action@828eeb928ce2f4a7ca5ed57fb8b59508cb8c79bc # v2
         with:
           diff: true
           format: rdjson
           output: rd.json
+          config-file: bearer.yml
       - name: Run reviewdog
         if: always()
         env:

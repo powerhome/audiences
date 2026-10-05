@@ -5,6 +5,8 @@ module Audiences
     belongs_to :external_user
     belongs_to :group
 
+    validates :external_user_id, uniqueness: { scope: :group_id }
+
     after_commit on: %i[create destroy] do
       relevant_groups = Audiences::Context.relevant_to(group)
 
