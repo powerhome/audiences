@@ -1,5 +1,8 @@
 # Unreleased
 
+**Breaking Changes:**
+- Require Rails 7.2 or newer and Ruby 3.1 or newer. The development bundle is Rails 8.1, and CI covers Rails 7.2, 8.0, and 8.1.
+
 # Version 3.0.0 (2026-06-18)
 
 **Breaking Changes:**
