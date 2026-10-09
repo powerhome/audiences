@@ -42,7 +42,7 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 ### Configuring Audiences
 
-### Read Source
+#### Read Source
 
 The read source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns and never queries `ExternalUser` or `Group` itself:
 
@@ -57,7 +57,7 @@ render json: Audiences.read_source.fetch(
 
 `Audiences.config.read_source` is the seam. It defaults to `Audiences::ReadSources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. An application can replace it with any object that satisfies the `#fetch` contract below, so reads can be served from another store without Audiences depending on that store.
 
-#### What the read source does not cover
+##### What the read source does not cover
 
 This seam is only the resource endpoint. It is not a general data-access layer, and configuring it does not move the rest of Audiences off the local projection:
 
@@ -69,7 +69,7 @@ This seam is only the resource endpoint. It is not a general data-access layer, 
 
 Audience calculation is also unaffected. Criteria match against `audiences_groups` and `audiences_group_memberships` regardless of what the read source does.
 
-#### Assigning a source
+##### Assigning a source
 
 ```ruby
 Audiences.configure do |config|
@@ -89,7 +89,7 @@ end
 
 Requests are authenticated before the source is reached. `config.authenticate` runs in a `before_action`, and a failed check renders `401` without calling `#fetch`.
 
-#### The `#fetch` contract
+##### The `#fetch` contract
 
 ```ruby
 def fetch(resource_type:, query:, start_index:, count:)
@@ -101,7 +101,7 @@ All four arguments come straight from request params, so each one is a `String` 
 - `query` is a substring to match against the display name. Legacy passes it to the `search` scope, which builds an Arel `matches` (case-insensitive `LIKE`, or `ILIKE` on PostgreSQL). `search(nil)` becomes `LIKE '%%'`, which matches any non-null display name.
 - `start_index` is an offset and `count` is a limit, both as strings such as `"2"`. Legacy hands them to `offset` and `limit`, where Rails casts them and treats `nil` as no restriction. `count` is a cap, not a page size: omitting it returns the whole catalogue. A source that does arithmetic on either value has to call `to_i` first.
 
-#### The return contract
+##### The return contract
 
 `#fetch` returns a collection that `render json:` can serialize. An `ActiveRecord::Relation` is serialized through each record's `as_json`, which is how Legacy produces the payload. An array of hashes is rendered as given, so a source that builds hashes owns the whole shape.
 
@@ -119,7 +119,7 @@ For `"Users"`, `ExternalUser#as_json` is `as_scim.slice(*Audiences.exposed_user_
 
 `exposed_user_attributes` holds string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. The slice silently drops any configured key the payload lacks, so adding `title`, `groups`, or the extension URN to that list only works if the source emits them.
 
-#### Scopes are the source's responsibility
+##### Scopes are the source's responsibility
 
 Legacy applies the configured scopes inside `#fetch`. The controller does not:
 
@@ -135,7 +135,7 @@ Both default to `-> { active }`. A replacement source has to apply them itself; 
 
 There is one `default_users_scope` for the whole gem, and it is `instance_exec`'d against whatever relation the calling code holds. The context endpoints always run it against `ExternalUser`, through `Context` and `Criterion`. A source backed by a different model runs that same proc against that model. The proc may therefore only call scopes that exist on every model it will reach — anything else raises `NoMethodError` on the path that lacks it. A source reading from another store needs equivalent scopes defined on its own model before the configured proc can run there.
 
-### Adding Audiences to a Model
+#### Adding Audiences to a Model
 
 A model object can contain multiple audience contexts using the `has_audience` module helper, which is added to ActiveRecord automatically when configured:
 
@@ -157,7 +157,7 @@ class Survey < ApplicationRecord
 end
 ```
 
-### Listening to Audience Changes
+#### Listening to Audience Changes
 
 Audiences allows your app to keep up with mutable groups of people. To react to audience changes, subscribe to audiences related to a certain owner type and handle changes through a block:
 
@@ -190,7 +190,7 @@ See a working example in our dummy app:
 - [Job class](../spec/dummy/app/jobs/update_memberships_job.rb)
 - [Example owning model](../spec/dummy/app/models/example_owner.rb)
 
-### SCIM Resource Attributes
+#### SCIM Resource Attributes
 
 Configure which attributes are requested from the SCIM backend for each resource type. `Audiences` includes `id`, `externalId`, and `displayName` by default in every resource type. It also requests `photos.type` and `photos.value` for users by default. To request additional attributes:
 
