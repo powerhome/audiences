@@ -54,4 +54,19 @@ RSpec.describe Audiences::ScimProxyController do
       expect(response.parsed_body).to match [user2, user3].as_json
     end
   end
+
+  context "with a custom read_source" do
+    it "delegates the request to the configured source and renders its result" do
+      payload = [{ "id" => "src-1", "displayName" => "From custom source" }]
+      source = instance_double(Audiences::ReadSources::Legacy, fetch: payload)
+      allow(Audiences).to receive(:read_source).and_return(source)
+
+      get :get, params: { scim_path: "Groups", query: "q", startIndex: "2", count: "5" }
+
+      expect(source).to have_received(:fetch).with(
+        resource_type: "Groups", query: "q", start_index: "2", count: "5"
+      )
+      expect(response.parsed_body).to eq(payload.as_json)
+    end
+  end
 end
