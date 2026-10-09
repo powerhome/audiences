@@ -44,7 +44,7 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 #### Read Source
 
-The read source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns and never queries `ExternalUser` or `Group` itself:
+The read source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns:
 
 ```ruby
 render json: Audiences.read_source.fetch(
@@ -55,9 +55,9 @@ render json: Audiences.read_source.fetch(
 )
 ```
 
-`Audiences.config.read_source` is the seam. It defaults to `Audiences::ReadSources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. An application can replace it with any object that satisfies the `#fetch` contract below, so reads can be served from another store without Audiences depending on that store.
+`Audiences.config.read_source` defaults to `Audiences::ReadSources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. Replacing it with any object that satisfies the `#fetch` contract below lets reads come from another store without Audiences depending on that store.
 
-This seam covers only that endpoint. The context endpoints (`GET /:key` and `GET /:key/users`) and audience calculation keep reading the local projection no matter what the read source does.
+That covers only this endpoint. The context endpoints (`GET /:key` and `GET /:key/users`) and audience calculation keep reading the local projection no matter what the read source does.
 
 Assign a replacement from an initializer:
 
@@ -83,29 +83,38 @@ end
 def fetch(resource_type:, query:, start_index:, count:)
 ```
 
-All four arguments come straight from request params, so each one is a `String` or `nil`. Nothing is cast or defaulted before the source sees it.
+All four arguments come straight from request params with no casting or defaulting, so each one is a `String` or `nil`.
 
 - `resource_type` is the wildcard path segment: `"Users"`, `"Groups"`, `"Departments"`, and so on. The segment is optional in the route, so `GET /scim` passes `nil`.
 - `query` is a substring to match against the display name. `nil` applies no filter.
-- `start_index` is an offset and `count` is a limit, both as strings such as `"2"`. `nil` means no restriction, and `count` is a cap rather than a page size — omitting it returns the whole catalogue. A source that does arithmetic on either value has to call `to_i` first.
+- `start_index` is an offset and `count` is a limit, both as strings such as `"2"`. `nil` means no restriction, so omitting `count` returns the whole catalogue. A source doing arithmetic on either has to call `to_i` first.
 
 ##### The return contract
 
-`#fetch` returns a collection that `render json:` can serialize: an `ActiveRecord::Relation` goes through each record's `as_json`, and an array of hashes renders as given.
+Return a collection `render json:` can serialize: an `ActiveRecord::Relation`, serialized through each record's `as_json`, or an array of hashes rendered as given.
 
-For every `resource_type` other than `"Users"`, an element is exactly `Group#as_json`. `id` is the SCIM id, not the primary key:
+Every resource type except `"Users"` returns elements of this shape, where `id` is the SCIM id rather than the primary key:
 
 ```json
 { "id": "<scim_id>", "externalId": "<external_id>", "displayName": "<display_name>" }
 ```
 
-For `"Users"`, `ExternalUser#as_json` is `as_scim.slice(*Audiences.exposed_user_attributes)`. `as_scim` merges the stored SCIM `data` with fields derived from the user's group memberships:
+A `"Users"` element is the stored SCIM data plus these keys, derived from the user's group memberships:
 
-- `groups`: `[{ "value" => "<group scim_id>", "display" => "<group display_name>" }, ...]`
-- `title`: display name of the user's `Titles` group
-- `urn:ietf:params:scim:schemas:extension:authservice:2.0:User`: `role` from `Roles`, `department` from `Departments`, `territory` from `Territories`, and `territoryAbbr` looked up in `config.territory_abbreviations`
+```json
+{
+  "groups": [{ "value": "<group scim_id>", "display": "<group display_name>" }],
+  "title": "<Titles group display name>",
+  "urn:ietf:params:scim:schemas:extension:authservice:2.0:User": {
+    "role": "<Roles group display name>",
+    "department": "<Departments group display name>",
+    "territory": "<Territories group display name>",
+    "territoryAbbr": "<territory_abbreviations lookup>"
+  }
+}
+```
 
-`exposed_user_attributes` holds string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. The slice silently drops any configured key the payload lacks, so adding `title`, `groups`, or the extension URN to that list only works if the source emits them.
+That payload is then filtered to the keys in `exposed_user_attributes`, which holds string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. The filter drops any configured key the payload lacks, so listing `title`, `groups`, or the extension URN only works if the source emits them. Legacy builds all of this in `ExternalUser#as_scim`.
 
 ##### Scopes
 
@@ -119,7 +128,7 @@ else
 end
 ```
 
-Both default to `-> { active }`. A replacement source has to apply them itself; skipping them serves inactive records and bypasses any membership restriction an application expressed there.
+Both default to `-> { active }`. A replacement source has to apply them itself; skipping them serves inactive records and bypasses whatever membership restriction the application configured.
 
 Each proc is `instance_exec`'d against whatever relation the calling code holds, and there is one `default_users_scope` for the whole gem — the context endpoints always run it against `ExternalUser`. A proc may therefore only call scopes that exist on every model it reaches, and a source backed by another model needs equivalent scopes defined there.
 
@@ -177,17 +186,6 @@ See a working example in our dummy app:
 - [Initializer](../spec/dummy/config/initializers/audiences.rb)
 - [Job class](../spec/dummy/app/jobs/update_memberships_job.rb)
 - [Example owning model](../spec/dummy/app/models/example_owner.rb)
-
-#### SCIM Resource Attributes
-
-Configure which attributes are requested from the SCIM backend for each resource type. `Audiences` includes `id`, `externalId`, and `displayName` by default in every resource type. It also requests `photos.type` and `photos.value` for users by default. To request additional attributes:
-
-```ruby
-Audiences.configure do |config|
-  config.resource :Users, attributes: ["name" => %w[givenName familyName formatted]]
-  config.resource :Groups, attributes: %w[mfaRequired]
-end
-```
 
 ## Contributing
 
