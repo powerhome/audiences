@@ -1,7 +1,20 @@
-# Unreleased
+# Version 3.2.0 (2026-10-21)
 
 **Breaking Changes:**
-- Require Rails 7.2 or newer and Ruby 3.1 or newer. The development bundle is Rails 8.1, and CI covers Rails 7.2, 8.0, and 8.1.
+- Require Rails 7.2 or newer and Ruby 3.1 or newer. Rails 6.1, 7.0, and 7.1 are no longer supported. [#567](https://github.com/powerhome/audiences/pull/567)
+
+**Improvements:**
+- Add `Audiences.config.read_source` and the `Audiences.read_source` accessor so applications can supply a custom source for `GET /scim(/*scim_path)` through a `fetch(resource_type:, query:, start_index:, count:)` interface. [#565](https://github.com/powerhome/audiences/pull/565)
+- Default to `Audiences::ReadSources::Legacy`, preserving local user/group reads, configured scopes, search, pagination, and JSON serialization. Context endpoints and audience calculations continue to use the local projection.
+- Document read-source configuration, reload-safe initialization, the request/response contract, and scope requirements.
+
+**Development:**
+- Update the development bundle to Rails 8.1 and cover Rails 7.2, 8.0, and 8.1 with both MySQL and PostgreSQL in CI. Refresh development and appraisal dependencies. [#567](https://github.com/powerhome/audiences/pull/567)
+
+# Version 3.1.0 (2026-09-23)
+
+**Development:**
+- Update the dummy application's Playbook UI dependency from a prerelease to the released 16.11.0 version. [#562](https://github.com/powerhome/audiences/pull/562)
 
 # Version 3.0.0 (2026-06-18)
 
