@@ -1,3 +1,8 @@
+# Version 3.2.1 (2026-10-22)
+
+**Compatibility:**
+- Restore Rails 7.1 support so applications can adopt the pluggable read source while transitioning to Rails 7.2. Audiences development remains on Rails 8.1, and Rails 7.1 is covered by the compatibility test matrix.
+
 # Version 3.2.0 (2026-10-21)
 
 **Breaking Changes:**
