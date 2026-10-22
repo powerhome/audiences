@@ -4,6 +4,8 @@
 
 ## Installation
 
+Requires Ruby 3.1 or newer and Rails 7.2 or newer. Rails versions may impose a higher Ruby requirement; the Rails 8.1 development bundle requires Ruby 3.2 or newer.
+
 Add this line to your application's Gemfile:
 
 ```ruby
