@@ -1,9 +1,9 @@
 PATH
   remote: ..
   specs:
-    audiences (3.2.0)
+    audiences (3.2.1)
       aether_observatory (~> 1.0)
-      rails (>= 7.2)
+      rails (>= 7.1)
 
 GEM
   remote: https://rubygems.org/
