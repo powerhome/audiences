@@ -20,6 +20,21 @@ RSpec.describe Audiences do
       expect(updated_context.extra_users).to match_array([user1, user2])
     end
 
+    it "resolves extra users through the configured source" do
+      picked, = create_users(2)
+      source_user = create_user
+
+      source = instance_double(Audiences::Sources::Legacy)
+      allow(Audiences).to receive(:source).and_return(source)
+      allow(source).to receive(:resolve_extra_users)
+        .with(references: [{ "id" => picked.scim_id }])
+        .and_return([source_user])
+
+      updated_context = Audiences.update(token, extra_users: [{ "id" => picked.scim_id }])
+
+      expect(updated_context.extra_users).to match_array [source_user]
+    end
+
     it "updates group criterion" do
       department1 = create_group(resource_type: "Departments")
       department2 = create_group(resource_type: "Departments")

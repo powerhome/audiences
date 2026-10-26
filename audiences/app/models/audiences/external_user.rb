@@ -44,23 +44,6 @@ module Audiences
       where(scim_id: ids).or(where(user_id: external_ids))
     end
 
-    scope :matching, ->(criterion) do
-      return none if criterion.groups.empty?
-
-      criterion.groups
-               .group_by(&:resource_type)
-               .values
-               .reduce(self) do |scope, groups|
-        scope.members_of(groups)
-      end
-    end
-
-    scope :matching_any, ->(first, *others) do
-      others.reduce(matching(first)) do |scope, criterion|
-        scope.or matching(criterion)
-      end
-    end
-
     def picture_urls = [picture_url]
 
     def picture_urls=(urls)

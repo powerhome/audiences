@@ -60,6 +60,28 @@ RSpec.describe Audiences::Criterion do
   end
 
   describe "#users" do
+    it "must be a member of any group within each type" do
+      user1, user2, user3, user4 = create_users(4)
+
+      title1 = create_group(resource_type: "Titles", external_users: [user1, user2])
+      title2 = create_group(resource_type: "Titles", external_users: [user3, user4])
+      department1 = create_group(resource_type: "Departments", external_users: [user1])
+      _department2 = create_group(resource_type: "Departments", external_users: [user3])
+      department3 = create_group(resource_type: "Departments", external_users: [user4])
+
+      criterion = create_criterion(groups: [department1, department3, title1, title2])
+
+      expect(criterion.users.pluck(:id)).to match_array [user1.id, user4.id]
+    end
+
+    it "is empty when the criterion has no groups" do
+      create_users(4)
+
+      criterion = create_criterion(groups: [])
+
+      expect(criterion.users).to be_empty
+    end
+
     it "resolves matching users through the configured source" do
       group = create_group
       projected_users = create_users(2, groups: [group])

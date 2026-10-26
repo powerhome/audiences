@@ -34,6 +34,10 @@ module Audiences
         ExternalUser.all
       end
 
+      def resolve_extra_users(references:)
+        ExternalUser.from_scim(*references)
+      end
+
     private
 
       def scope(resource_type)

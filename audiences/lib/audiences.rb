@@ -33,7 +33,7 @@ module_function
     Audiences::Context.load(key) do |context|
       context.update!(
         match_all: match_all,
-        extra_users: ::Audiences::ExternalUser.from_scim(*extra_users.map(&:with_indifferent_access)),
+        extra_users: Audiences.source.resolve_extra_users(references: extra_users.map(&:with_indifferent_access)),
         criteria: ::Audiences::Criterion.map(criteria.map(&:with_indifferent_access))
       )
     end

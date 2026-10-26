@@ -35,6 +35,21 @@ RSpec.describe Audiences::Context do
       expect(context.users).not_to include(*projected_users)
     end
 
+    it "matches users from any of its criteria, ignoring criteria with no groups" do
+      user1, user2, user3, user4 = create_users(4)
+
+      title1 = create_group(resource_type: "Titles", external_users: [user1, user2])
+      title2 = create_group(resource_type: "Titles", external_users: [user3])
+      department1 = create_group(resource_type: "Departments", external_users: [user1, user3, user4])
+
+      context = create_context
+      create_criterion(context: context, groups: [department1, title1])
+      create_criterion(context: context, groups: [department1, title2])
+      create_criterion(context: context, groups: [])
+
+      expect(context.users).to match_array [user1, user3]
+    end
+
     it "resolves criteria matches through the configured source" do
       group = create_group
       projected_users = create_users(2, groups: [group])
