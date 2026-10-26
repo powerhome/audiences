@@ -45,8 +45,10 @@ module Audiences
     end
 
     def users
-      Audiences::ExternalUser.matching(self)
-                             .instance_exec(&Audiences.default_users_scope)
+      source = Audiences.source
+
+      source.users_matching(groups: source.groups_of(self))
+            .instance_exec(&Audiences.default_users_scope)
     end
 
     delegate :count, to: :users

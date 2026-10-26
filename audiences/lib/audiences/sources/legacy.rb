@@ -16,6 +16,20 @@ module Audiences
           .limit(count)
       end
 
+      # Reads the legacy `criterion_groups.group_id` reference. Phase 4 drops
+      # that column along with this class.
+      def groups_of(criterion)
+        criterion.groups
+      end
+
+      def users_matching(groups:)
+        return ExternalUser.none if groups.empty?
+
+        groups.group_by(&:resource_type)
+              .values
+              .reduce(ExternalUser.all) { |users, of_type| users.members_of(of_type) }
+      end
+
     private
 
       def scope(resource_type)

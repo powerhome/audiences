@@ -59,6 +59,25 @@ RSpec.describe Audiences::Criterion do
     end
   end
 
+  describe "#users" do
+    it "resolves matching users through the configured source" do
+      group = create_group
+      projected_users = create_users(2, groups: [group])
+      criterion = create_criterion(groups: [group])
+      source_users = create_users(2)
+
+      source = instance_double(Audiences::Sources::Legacy)
+      allow(Audiences).to receive(:source).and_return(source)
+      allow(source).to receive(:groups_of).with(criterion).and_return(criterion.groups)
+      allow(source).to receive(:users_matching)
+        .with(groups: criterion.groups)
+        .and_return(Audiences::ExternalUser.where(id: source_users))
+
+      expect(criterion.users).to match_array source_users
+      expect(criterion.users).not_to include(*projected_users)
+    end
+  end
+
   describe "#count" do
     it "is the count of member users" do
       users = create_users(2)
