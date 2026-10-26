@@ -44,12 +44,12 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 ### Configuring Audiences
 
-#### Read Source
+#### Source
 
-The read source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns:
+The source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns:
 
 ```ruby
-render json: Audiences.read_source.fetch(
+render json: Audiences.source.fetch(
   resource_type: params[:scim_path],
   query: params[:query],
   start_index: params[:startIndex],
@@ -57,15 +57,15 @@ render json: Audiences.read_source.fetch(
 )
 ```
 
-`Audiences.config.read_source` defaults to `Audiences::ReadSources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. Replacing it with any object that satisfies the `#fetch` contract below lets reads come from another store without Audiences depending on that store.
+`Audiences.config.source` defaults to `Audiences::Sources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. Replacing it with any object that satisfies the `#fetch` contract below lets reads come from another store without Audiences depending on that store.
 
-That covers only this endpoint. The context endpoints (`GET /:key` and `GET /:key/users`) and audience calculation keep reading the local projection no matter what the read source does.
+That covers only this endpoint. The context endpoints (`GET /:key` and `GET /:key/users`) and audience calculation keep reading the local projection no matter what the source does.
 
 Assign a replacement from an initializer:
 
 ```ruby
 Audiences.configure do |config|
-  config.read_source = MyReadSource.new
+  config.source = MySource.new
 end
 ```
 
@@ -74,7 +74,7 @@ When the implementation is an autoloaded constant, assign it inside a `to_prepar
 ```ruby
 Audiences.configure do |config|
   Rails.application.config.to_prepare do
-    config.read_source = MyReadSource.new
+    config.source = MySource.new
   end
 end
 ```

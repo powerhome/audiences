@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Audiences
-  module ReadSources
-    # Default read source.
+  module Sources
+    # Default source.
     #
     # Reads Audiences' own projection (ExternalUser / Group), preserving the exact
     # scoping, search and pagination behavior the read endpoint has always had.
