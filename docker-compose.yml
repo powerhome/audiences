@@ -3,7 +3,7 @@ volumes:
   dummy_web_db:
 services:
   dummy-web:
-    image: ruby:3.4.5@sha256:8fc13ab79e1bf71da804040b587feca8cd9306c2f5def3a970e94f24f60cf97b
+    image: ruby:3.4.5@sha256:73e085e58f9496502b0463a787b497b961d946bc1db43c6782c0c3c95281e432
     platform: linux/x86_64
     working_dir: /app/audiences/spec/dummy
     environment:
