@@ -22,6 +22,19 @@ RSpec.describe Audiences::Context do
       expect(context.users).to match_array users
     end
 
+    it "resolves all users through the configured source when match_all is true" do
+      projected_users = create_users(2)
+      context = create_context(match_all: true)
+      source_users = create_users(2)
+
+      source = instance_double(Audiences::Sources::Legacy)
+      allow(Audiences).to receive(:source).and_return(source)
+      allow(source).to receive(:all_users).and_return(Audiences::ExternalUser.where(id: source_users))
+
+      expect(context.users).to match_array source_users
+      expect(context.users).not_to include(*projected_users)
+    end
+
     it "is the union of extra users and criteria matches when match_all is false" do
       group1, group2, _group3 = create_groups(3)
       group_users = create_users(2, groups: [group1, group2])

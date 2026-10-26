@@ -30,6 +30,10 @@ module Audiences
               .reduce(ExternalUser.all) { |users, of_type| users.members_of(of_type) }
       end
 
+      def all_users
+        ExternalUser.all
+      end
+
     private
 
       def scope(resource_type)

@@ -51,7 +51,7 @@ module Audiences
     end
 
     def matching_external_users
-      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
+      match_all ? Audiences.source.all_users : matching_extra_users.or(matching_criteria)
     end
 
     def matching_extra_users
