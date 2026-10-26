@@ -44,11 +44,14 @@ module Audiences
       { id: id, count: count, groups: groups }.as_json(...)
     end
 
-    def users
+    def matching_users
       source = Audiences.source
 
       source.users_matching(groups: source.groups_of(self))
-            .instance_exec(&Audiences.default_users_scope)
+    end
+
+    def users
+      matching_users.instance_exec(&Audiences.default_users_scope)
     end
 
     delegate :count, to: :users

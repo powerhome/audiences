@@ -59,7 +59,9 @@ module Audiences
     end
 
     def matching_criteria
-      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      return Audiences.source.all_users.none if criteria.empty?
+
+      criteria.map(&:matching_users).reduce(:or)
     end
   end
 end
