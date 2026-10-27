@@ -45,6 +45,21 @@ RSpec.describe Audiences::Criterion do
       expect(criteria.last.groups).to match_array [territory]
     end
 
+    it "resolves groups through the configured source" do
+      department = create_group(resource_type: "Departments")
+      source_group = create_group(resource_type: "Departments")
+
+      source = instance_double(Audiences::Sources::Legacy)
+      allow(Audiences).to receive(:source).and_return(source)
+      allow(source).to receive(:resolve_criterion_groups)
+        .with(resource_type: "Departments", references: [department.as_json])
+        .and_return([source_group])
+
+      criteria = Audiences::Criterion.map([{ "groups" => { "Departments" => [department.as_json] } }])
+
+      expect(criteria.first.groups).to match_array [source_group]
+    end
+
     it "allows setting creating groups not matching the default group scope" do
       department = create_group(resource_type: "Departments", scim_id: "123", active: false)
 

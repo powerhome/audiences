@@ -38,6 +38,10 @@ module Audiences
         ExternalUser.from_scim(*references)
       end
 
+      def resolve_criterion_groups(resource_type:, references:)
+        Group.from_scim(resource_type, *references)
+      end
+
     private
 
       def scope(resource_type)

@@ -30,9 +30,11 @@ module Audiences
     # @param [Array<Hash>] criteria Array of attribute hashes describing groups
     # @return [Array<Criterion>] Array of Criterion objects
     def self.map(criteria)
+      source = Audiences.source
+
       Array(criteria).map do |attrs|
-        groups = attrs["groups"]&.flat_map do |resource_type, scim_groups|
-          Audiences::Group.from_scim(resource_type, *scim_groups).to_a
+        groups = attrs["groups"]&.flat_map do |resource_type, references|
+          source.resolve_criterion_groups(resource_type: resource_type, references: references).to_a
         end
         new(groups: groups)
       end
