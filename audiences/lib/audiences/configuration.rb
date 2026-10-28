@@ -97,6 +97,25 @@ module Audiences
   #
   config_accessor(:source) { Audiences::Sources::Legacy.new }
 
+  # The models backing the `configured_group_id` / `configured_user_id`
+  # references, named as strings so the constants resolve after eager load.
+  #
+  # These are read in a class body, so they must be set before eager load
+  # rather than in a `to_prepare` block.
+  #
+  # Left unset, the configured references stay null and Audiences behaves
+  # exactly as it did before they existed.
+  #
+  # I.e.:
+  #
+  #   Audiences.configure do |config|
+  #     config.group_model_class = "MyGroup"
+  #     config.user_model_class = "MyUser"
+  #   end
+  #
+  config_accessor(:group_model_class)
+  config_accessor(:user_model_class)
+
   # These are the user attributes that will be exposed in the audiences endpoints.
   # They're required by the UI to display the user information.
   #
