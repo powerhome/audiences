@@ -55,7 +55,7 @@ module Audiences
     end
 
     def matching_extra_users
-      ExternalUser.where(id: extra_users.select(:id))
+      Audiences.source.extra_users_of(self)
     end
 
     def matching_criteria

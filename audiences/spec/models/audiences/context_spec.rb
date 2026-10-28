@@ -63,6 +63,9 @@ RSpec.describe Audiences::Context do
       allow(source).to receive(:users_matching)
         .with(groups: criterion.groups)
         .and_return(Audiences::ExternalUser.where(id: source_users))
+      allow(source).to receive(:extra_users_of)
+        .with(context)
+        .and_return(Audiences::ExternalUser.where(id: []))
 
       expect(context.users).to match_array source_users
       expect(context.users).not_to include(*projected_users)

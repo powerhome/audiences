@@ -12,6 +12,7 @@ require "webmock/rspec"
 
 require_relative "support/factories"
 require_relative "support/test_domain_events"
+require_relative "support/example_source"
 
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|

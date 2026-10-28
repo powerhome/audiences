@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_28_120100) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_28_130000) do
   create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id"
     t.bigint "context_id"
@@ -119,6 +119,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_28_120100) do
     t.string "resource_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "example_source_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "example_source_user_id"
+    t.bigint "example_source_group_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["example_source_group_id"], name: "index_example_source_memberships_on_example_source_group_id"
+    t.index ["example_source_user_id"], name: "index_example_source_memberships_on_example_source_user_id"
   end
 
   create_table "example_source_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

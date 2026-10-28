@@ -34,6 +34,12 @@ module Audiences
         ExternalUser.all
       end
 
+      # Reads the legacy `context_extra_users.external_user_id` reference.
+      # Phase 4 drops that column along with this class.
+      def extra_users_of(context)
+        ExternalUser.where(id: context.context_extra_users.select(:external_user_id))
+      end
+
       def resolve_extra_users(references:)
         ExternalUser.from_scim(*references)
       end
