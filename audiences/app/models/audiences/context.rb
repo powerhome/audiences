@@ -35,6 +35,17 @@ module Audiences
 
     delegate :count, to: :users
 
+    def extra_user_selections=(selections)
+      existing = context_extra_users.index_by(&:external_user_id)
+      retained_ids = selections.map(&:external_user_id)
+      extra_users.delete(existing.except(*retained_ids).values.map(&:external_user))
+
+      selections.each do |selection|
+        save_extra_user_selection(selection, existing[selection.external_user_id])
+      end
+      association(:extra_users).reset
+    end
+
     def as_json(...)
       {
         match_all: match_all,
@@ -45,6 +56,16 @@ module Audiences
     end
 
   private
+
+    def save_extra_user_selection(selection, stored)
+      if stored
+        if stored.configured_user_id != selection.configured_user_id
+          stored.update!(configured_user: selection.configured_user)
+        end
+      else
+        context_extra_users << selection
+      end
+    end
 
     def notify_subscriptions
       Notifications.publish(self)

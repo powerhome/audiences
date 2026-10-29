@@ -6,6 +6,23 @@ module Audiences
     # projection. Stands in for an adopter's adapter so specs can prove the
     # seam actually swaps.
     class ExampleSource
+      def initialize
+        @group_references = {}
+        @group_external_references = {}
+        @user_references = {}
+        @user_external_references = {}
+      end
+
+      def register_group(group, id:, external_id:)
+        @group_references[[group.resource_type, id.to_s]] = group.id
+        @group_external_references[[group.resource_type, external_id.to_s]] = group.id
+      end
+
+      def register_user(user, id:, external_id:)
+        @user_references[id.to_s] = user.id
+        @user_external_references[external_id.to_s] = user.id
+      end
+
       def fetch(resource_type:, query:, start_index:, count:)
         ExampleSourceGroup.where(resource_type: resource_type)
                           .where(ExampleSourceGroup.arel_table[:display_name].matches("%#{query}%"))
@@ -34,11 +51,23 @@ module Audiences
       end
 
       def resolve_criterion_groups(resource_type:, references:)
-        ExampleSourceGroup.where(resource_type: resource_type, id: references.pluck("id"))
+        ids = references.flat_map do |reference|
+          [
+            @group_references[[resource_type, reference["id"].to_s]] || reference["id"],
+            @group_external_references[[resource_type, reference["externalId"].to_s]],
+          ]
+        end.compact
+        ExampleSourceGroup.where(resource_type: resource_type, id: ids)
       end
 
       def resolve_extra_users(references:)
-        ExampleSourceUser.where(id: references.pluck("id"))
+        ids = references.flat_map do |reference|
+          [
+            @user_references[reference["id"].to_s] || reference["id"],
+            @user_external_references[reference["externalId"].to_s],
+          ]
+        end.compact
+        ExampleSourceUser.where(id: ids)
       end
 
     private
@@ -47,6 +76,26 @@ module Audiences
         ExampleSourceUser.where(
           id: ExampleSourceMembership.where(example_source_group: groups).select(:example_source_user_id)
         )
+      end
+    end
+
+    # Consumer operations follow selection; picked-reference resolution does not.
+    class ExampleSelector
+      attr_accessor :use_configured
+      attr_reader :configured
+
+      def initialize
+        @configured = ExampleSource.new
+        @legacy = Sources::Legacy.new
+      end
+
+      delegate :fetch, :all_users, :groups_of, :users_matching, :extra_users_of, to: :selected
+      delegate :resolve_criterion_groups, :resolve_extra_users, to: :@configured
+
+    private
+
+      def selected
+        use_configured ? @configured : @legacy
       end
     end
   end

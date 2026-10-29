@@ -45,7 +45,7 @@ module Audiences
       end
 
       def resolve_criterion_groups(resource_type:, references:)
-        Group.from_scim(resource_type, *references)
+        Group.where(resource_type: resource_type).from_scim(resource_type, *references)
       end
 
     private

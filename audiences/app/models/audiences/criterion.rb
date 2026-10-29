@@ -30,13 +30,14 @@ module Audiences
     # @param [Array<Hash>] criteria Array of attribute hashes describing groups
     # @return [Array<Criterion>] Array of Criterion objects
     def self.map(criteria)
-      source = Audiences.source
+      resolver = SelectionResolver.new
 
       Array(criteria).map do |attrs|
-        groups = attrs["groups"]&.flat_map do |resource_type, references|
-          source.resolve_criterion_groups(resource_type: resource_type, references: references).to_a
+        selections = attrs["groups"]&.flat_map do |resource_type, references|
+          resolver.criterion_groups(resource_type: resource_type, references: references)
         end
-        new(groups: groups)
+        selections ||= []
+        new(groups: selections.map(&:group), criterion_groups: selections)
       end
     end
 

@@ -103,8 +103,8 @@ module Audiences
   # These are read in a class body, so they must be set before eager load
   # rather than in a `to_prepare` block.
   #
-  # Left unset, the configured references stay null and Audiences behaves
-  # exactly as it did before they existed.
+  # Configure both models when installing the adapter. New selections always
+  # carry both references, independently of the source used for membership reads.
   #
   # I.e.:
   #

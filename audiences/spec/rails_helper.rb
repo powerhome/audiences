@@ -33,4 +33,12 @@ RSpec.configure do |config|
   config.before do
     Audiences::Notifications.subscriptions.clear
   end
+
+  config.around do |example|
+    previous_source = Audiences.config.source
+    Audiences.config.source = Audiences::Test::ExampleSelector.new
+    example.run
+  ensure
+    Audiences.config.source = previous_source
+  end
 end

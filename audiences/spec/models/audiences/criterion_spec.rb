@@ -30,8 +30,8 @@ RSpec.describe Audiences::Criterion do
 
   describe ".map([])" do
     it "builds contexts with the given " do
-      department = create_group(resource_type: "Departments")
-      territory = create_group(resource_type: "Territories")
+      department = create_paired_group(resource_type: "Departments")
+      territory = create_paired_group(resource_type: "Territories")
 
       criteria = Audiences::Criterion.map(
         [
@@ -45,23 +45,8 @@ RSpec.describe Audiences::Criterion do
       expect(criteria.last.groups).to match_array [territory]
     end
 
-    it "resolves groups through the configured source" do
-      department = create_group(resource_type: "Departments")
-      source_group = create_group(resource_type: "Departments")
-
-      source = instance_double(Audiences::Sources::Legacy)
-      allow(Audiences).to receive(:source).and_return(source)
-      allow(source).to receive(:resolve_criterion_groups)
-        .with(resource_type: "Departments", references: [department.as_json])
-        .and_return([source_group])
-
-      criteria = Audiences::Criterion.map([{ "groups" => { "Departments" => [department.as_json] } }])
-
-      expect(criteria.first.groups).to match_array [source_group]
-    end
-
     it "allows setting creating groups not matching the default group scope" do
-      department = create_group(resource_type: "Departments", scim_id: "123", active: false)
+      department = create_paired_group(resource_type: "Departments", scim_id: "123", active: false)
 
       criteria = Audiences::Criterion.map(
         [
@@ -71,6 +56,49 @@ RSpec.describe Audiences::Criterion do
 
       expect(criteria.size).to eql 1
       expect(criteria.first.groups).to match_array([department])
+    end
+  end
+
+  describe "saving selections with configured groups" do
+    let(:department) { ExampleSourceGroup.create!(display_name: "Engineering", resource_type: "Departments") }
+    let(:legacy_group) { create_group(resource_type: "Departments", scim_id: department.id) }
+    let(:context) { create_context }
+
+    before do
+      allow(Audiences).to receive(:source).and_return(Audiences::Test::ExampleSource.new)
+    end
+
+    it "saves both the legacy and configured reference for a picked group" do
+      legacy_group
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }] } }]
+      criterion = described_class.map(picks).sole
+      criterion.context = context
+      criterion.save!
+
+      selection = criterion.reload.criterion_groups.sole
+      expect(selection.group).to eq(legacy_group)
+      expect(selection.configured_group).to eq(department)
+    end
+
+    it "rejects a missing configured group instead of saving only the picks that resolve" do
+      legacy_group
+      create_group(resource_type: "Departments", scim_id: "missing")
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }, { "id" => "missing" }] } }]
+
+      expect { described_class.map(picks) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "rejects a picked configured group without a legacy counterpart" do
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }] } }]
+
+      expect { described_class.map(picks) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "does not use a legacy group from another resource type as the counterpart" do
+      create_group(resource_type: "Territories", scim_id: department.id)
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }] } }]
+
+      expect { described_class.map(picks) }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
