@@ -44,64 +44,111 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 ### Configuring Audiences
 
-#### Source
+#### Configure a source
 
-The source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns:
+`Audiences.source` is the port for directory reads, membership queries, picked-reference resolution, and user-search filtering. Your application supplies an adapter through `Audiences.config.source`; only the adapter needs to know its storage schema and lookup fields.
 
-```ruby
-render json: Audiences.source.fetch(
-  resource_type: params[:scim_path],
-  query: params[:query],
-  start_index: params[:startIndex],
-  count: params[:count]
-)
-```
-
-`Audiences.config.source` defaults to `Audiences::Sources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. Replacing it with any object that satisfies the `#fetch` contract below lets reads come from another store without Audiences depending on that store.
-
-That covers only this endpoint. The context endpoints (`GET /:key` and `GET /:key/users`) and audience calculation keep reading the local projection no matter what the source does.
-
-Assign a replacement from an initializer:
+Configure the adapter and the models backing saved group and user references:
 
 ```ruby
 Audiences.configure do |config|
-  config.source = MySource.new
-end
-```
-
-When the implementation is an autoloaded constant, assign it inside a `to_prepare` block so each reload picks up the new class. Keep the block inside `configure` so `config` stays in scope:
-
-```ruby
-Audiences.configure do |config|
+  config.group_model_class = "DirectoryGroup"
+  config.user_model_class = "DirectoryUser"
   Rails.application.config.to_prepare do
     config.source = MySource.new
   end
 end
 ```
 
-##### The `#fetch` contract
+Set the model class names as strings before the Audiences join models load. Their associations read configuration in their class bodies, so these settings must not be deferred to `to_prepare`. The source assignment uses `to_prepare` so an autoloaded adapter is refreshed on reload.
 
-```ruby
-def fetch(resource_type:, query:, start_index:, count:)
-```
+`Audiences.config.source` defaults to the transitional `Audiences::Sources::Legacy`, backed by Audiences' `ExternalUser` and `Group` projection. Installing this version requires the adapter and both model settings for dual-write; the earlier fetch-only adapter contract is no longer sufficient.
 
-All four arguments come straight from request params with no casting or defaulting, so each one is a `String` or `nil`.
+#### Implement an adapter
+
+Implement all the operations below on one source object. Membership reads and selection writes have different responsibilities: read methods return users or groups, while resolution methods find the records needed to save a selection.
+
+##### Directory reads
+
+`fetch(resource_type:, query:, start_index:, count:)` backs `GET /scim(/*scim_path)`. All four arguments come straight from request params without casting or defaulting, so each is a `String` or `nil`.
 
 - `resource_type` is the wildcard path segment: `"Users"`, `"Groups"`, `"Departments"`, and so on. The segment is optional in the route, so `GET /scim` passes `nil`.
 - `query` is a substring to match against the display name. `nil` applies no filter.
 - `start_index` is an offset and `count` is a limit, both as strings such as `"2"`. `nil` means no restriction, so omitting `count` returns the whole catalogue. A source doing arithmetic on either has to call `to_i` first.
 
-##### The return contract
+Return a collection that `render json:` can serialize: a relation of records with suitable `as_json` methods, or an array of hashes. Unlike user search below, `fetch` owns its pagination. See [response serialization](#response-serialization) for the client-facing format.
 
-Return a collection `render json:` can serialize: an `ActiveRecord::Relation`, serialized through each record's `as_json`, or an array of hashes rendered as given.
+##### Membership queries
 
-Every resource type except `"Users"` returns elements of this shape, where `id` is the SCIM id rather than the primary key:
+- `all_users`: return the base user relation used by `match_all` and by UsersSearch when no scope is supplied.
+- `groups_of(criterion)`: return that criterion's selected groups. A configured adapter reads the configured references from `criterion.criterion_groups`; Legacy reads `criterion.groups`. Group records must expose `resource_type`.
+- `users_matching(groups:)`: return users belonging to any selected group within each resource type, and to a selected group in every represented type. Return an empty relation when no groups are supplied.
+- `extra_users_of(context)`: return explicitly selected users. A configured adapter reads `configured_user_id` from `context.context_extra_users`; Legacy reads `external_user_id`.
 
-```json
-{ "id": "<scim_id>", "externalId": "<external_id>", "displayName": "<display_name>" }
+`all_users`, `users_matching`, and `extra_users_of` must return unpaginated `ActiveRecord::Relation` objects on the same user model, not arrays. Audiences combines criteria with `.or` and unions them with extra users, so joins, selected columns, ordering, and other relation options must remain structurally compatible across calls.
+
+`Context#users` and `Criterion#users` apply `default_users_scope` to the resulting relations. These operations query membership; they do not save selections.
+
+##### Reference resolution
+
+- `resolve_criterion_groups(resource_type:, references:)`: find picked groups of the given resource type and return records of `group_model_class`.
+- `resolve_extra_users(references:)`: find picked users and return records of `user_model_class`.
+
+`references` contains submitted picker hashes, such as `{ "id" => "group-reference" }` or `{ "externalId" => "external-reference" }`. Treat these identifiers according to your adapter's schema; Audiences does not choose the lookup fields.
+
+Return a collection of matching records, such as a relation or array, not a scalar record or a legacy/configured pair. During dual-write, each adapter receives one submitted reference per call and must resolve exactly one record. Missing or ambiguous matches raise `ActiveRecord::RecordNotFound` before saved selections change.
+
+Do not apply the default active scopes during resolution: existing selection behavior allows inactive records to be picked.
+
+##### User search
+
+`search_users(scope:, query:)` returns an unpaginated user relation filtered from the supplied `scope`. Never restart from all users or widen the audience: the scope may already contain context membership, criterion membership, and application restrictions.
+
+The adapter owns searchable attributes and database-specific SQL. Legacy retains its serialized-`data` search, including PostgreSQL's `CAST(data AS TEXT)` and MySQL's `CAST(data AS CHAR)`. Other adapters can search their own columns without a `data` field or those casts.
+
+UsersSearch owns the total count before pagination, limit, offset, and `{ users:, count: }` response:
+
+```ruby
+search = Audiences::UsersSearch.new(
+  scope: context.users,
+  query: "Jane",
+  limit: 20,
+  offset: 0
+)
+search.as_json
 ```
 
-A `"Users"` element is the stored SCIM data plus these keys, derived from the user's group memberships:
+The default limit is 20 and the default offset is 0. Without an explicit scope, UsersSearch uses `Audiences.source.all_users`; it does not independently apply `default_users_scope`.
+
+#### Scopes and serialization
+
+##### Default scopes
+
+Legacy applies the configured scopes inside `#fetch`. The controller does not:
+
+```ruby
+if resource_type == "Users"
+  ExternalUser.instance_exec(&Audiences.default_users_scope)
+else
+  Group.where(resource_type: resource_type).instance_exec(&Audiences.default_groups_scope)
+end
+```
+
+Both default to `-> { active }`. A replacement source has to apply them itself; skipping them serves inactive records and bypasses whatever membership restriction the application configured.
+
+Each proc is `instance_exec`'d against the calling relation. Membership queries now apply `default_users_scope` to the selected source's user model, not always to `ExternalUser`. During migration, the same proc also reaches legacy records through directory reads or context serialization. It must use scopes supported by every model it reaches.
+
+##### Response serialization
+
+Directory resources other than `"Users"` return elements of this shape:
+
+```json
+{ "id": "<group_reference>", "externalId": "<external_reference>", "displayName": "<display_name>" }
+```
+
+`id` is the picker reference understood by the adapter, not necessarily its database primary key. Legacy emits its `scim_id`.
+
+Legacy builds a `"Users"` element from stored SCIM data plus these keys derived from group memberships:
 
 ```json
 {
@@ -116,23 +163,28 @@ A `"Users"` element is the stored SCIM data plus these keys, derived from the us
 }
 ```
 
-That payload is then filtered to the keys in `exposed_user_attributes`, which holds string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. The filter drops any configured key the payload lacks, so listing `title`, `groups`, or the extension URN only works if the source emits them. Legacy builds all of this in `ExternalUser#as_scim`.
+Legacy filters that payload to `exposed_user_attributes`, which uses string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. Configured keys that the payload lacks are omitted.
 
-##### Scopes
+Replacement adapters must provide the same client-facing attributes without requiring the same storage schema. Returned user records must serialize appropriately for both directory reads and UsersSearch. The controller does not filter arbitrary adapter results; the adapter owns serialization and attribute exposure.
 
-Legacy applies the configured scopes inside `#fetch`. The controller does not:
+Current context-summary JSON still renders criterion-group details through `criterion.groups` and extra-user details through `context.extra_users`, both legacy associations. Counts, membership queries, and user-list search use the source. Replacing the source does not replace those summary serializers.
 
-```ruby
-if resource_type == "Users"
-  ExternalUser.instance_exec(&Audiences.default_users_scope)
-else
-  Group.where(resource_type: resource_type).instance_exec(&Audiences.default_groups_scope)
-end
-```
+#### Migrate existing audiences
 
-Both default to `-> { active }`. A replacement source has to apply them itself; skipping them serves inactive records and bypasses whatever membership restriction the application configured.
+1. Apply the migrations adding `configured_group_id` alongside `group_id` on `audiences_criterion_groups`, and `configured_user_id` alongside `external_user_id` on `audiences_context_extra_users`.
+2. Configure the adapter and backing models before enabling the new write path. Both adapters must understand the references submitted by the picker. Keep the existing projection synchronization running.
+3. Backfill configured references on existing selections before switching their reads to the new source. The configured associations remain `optional: true` for historical rows; stricter association validation is deferred until after production backfill.
 
-Each proc is `instance_exec`'d against whatever relation the calling code holds, and there is one `default_users_scope` for the whole gem — the context endpoints always run it against `ExternalUser`. A proc may therefore only call scopes that exist on every model it reaches, and a source backed by another model needs equivalent scopes defined there.
+Selection writes through `Audiences.update` resolve both sources and save both references unconditionally. Only the adapters interpret identifiers. There is no separate dual-write switch or identity-key configuration, and the public `extra_users:` argument is unchanged.
+
+Extra-user writes retain existing join rows, delete only removed selections, and insert only additions. A retained row is updated only when its configured reference is missing or different; unchanged selections cause no extra-user join-table writes. Criteria retain their existing replacement behavior. A rejected save rolls back all selection changes.
+
+If your application uses a temporary read-source selector:
+
+- Select `fetch`, `all_users`, `groups_of`, `users_matching`, `extra_users_of`, and `search_users` according to the read toggle.
+- Always delegate `resolve_criterion_groups` and `resolve_extra_users` to the configured adapter, regardless of the toggle.
+
+Read selection never controls dual-write. Keeping legacy columns populated allows reverting to the previous Audiences code without repairing newly saved selections. Notification triggers still originate on the projection, so changing the read source is not a reason to remove synchronization or projection callbacks.
 
 #### Adding Audiences to a Model
 
