@@ -1,5 +1,9 @@
 # Development guide
 
+## Development runtime
+
+The gem's development bundle uses Rails 8.1 and requires Ruby 3.2 or newer. The Docker setup below supplies the development runtime.
+
 ## Full stack w/ Docker
 
 To start up the development environment with the entire stack, just use the docker compose config at the root of this repo:

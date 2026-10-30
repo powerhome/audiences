@@ -4,7 +4,7 @@
 
 ## Installation
 
-Requires Ruby 3.1 or newer and Rails 7.2 or newer. Rails versions may impose a higher Ruby requirement; the Rails 8.1 development bundle requires Ruby 3.2 or newer.
+Requires Ruby 3.1 or newer and Rails 7.1 or newer. Your chosen Rails version may require a newer Ruby.
 
 Add this line to your application's Gemfile:
 
@@ -60,7 +60,7 @@ Audiences.configure do |config|
 end
 ```
 
-Set the model class names as strings before the Audiences join models load. Their associations read configuration in their class bodies, so these settings must not be deferred to `to_prepare`. The source assignment uses `to_prepare` so an autoloaded adapter is refreshed on reload.
+Set the model class names as strings in an initializer before Audiences models load. Keep those settings outside `to_prepare`. Assign the source inside `to_prepare` so reloads pick up changes to the adapter.
 
 `Audiences.config.source` defaults to the transitional `Audiences::Sources::Legacy`, backed by Audiences' `ExternalUser` and `Group` projection. Installing this version requires the adapter and both model settings for dual-write; the earlier fetch-only adapter contract is no longer sufficient.
 
@@ -112,7 +112,7 @@ Do not apply the default active scopes during resolution: existing selection beh
 
 `search_users(scope:, query:)` returns an unpaginated user relation filtered from the supplied `scope`. Never restart from all users or widen the audience: the scope may already contain context membership, criterion membership, and application restrictions.
 
-The adapter owns searchable attributes and database-specific SQL. Legacy retains its serialized-`data` search, including PostgreSQL's `CAST(data AS TEXT)` and MySQL's `CAST(data AS CHAR)`. Other adapters can search their own columns without a `data` field or those casts.
+The adapter defines which attributes are searchable. Legacy searches across stored user attributes in its serialized data, not just the display name. Other adapters implement filtering appropriate to their own data.
 
 UsersSearch owns the total count before pagination, limit, offset, and `{ users:, count: }` response:
 
@@ -132,19 +132,14 @@ The default limit is 20 and the default offset is 0. Without an explicit scope, 
 
 ##### Default scopes
 
-Legacy applies the configured scopes inside `#fetch`. The controller does not:
+Adapters must apply the configured scopes in `fetch`:
 
-```ruby
-if resource_type == "Users"
-  ExternalUser.instance_exec(&Audiences.default_users_scope)
-else
-  Group.where(resource_type: resource_type).instance_exec(&Audiences.default_groups_scope)
-end
-```
+- For user resources, apply `default_users_scope`.
+- For group resources, restrict results to the requested resource type and apply `default_groups_scope`.
 
-Both default to `-> { active }`. A replacement source has to apply them itself; skipping them serves inactive records and bypasses whatever membership restriction the application configured.
+Both scopes default to `-> { active }`. Respect application overrides so directory results follow the configured eligibility and membership restrictions.
 
-Each proc is `instance_exec`'d against the calling relation. Membership queries now apply `default_users_scope` to the selected source's user model, not always to `ExternalUser`. During migration, the same proc also reaches legacy records through directory reads or context serialization. It must use scopes supported by every model it reaches.
+Scope procs must use scopes supported by every model they run against, including the configured source's models and Legacy models while those remain in use.
 
 ##### Response serialization
 
@@ -175,24 +170,27 @@ Legacy filters that payload to `exposed_user_attributes`, which uses string keys
 
 Replacement adapters must provide the same client-facing attributes without requiring the same storage schema. Returned user records must serialize appropriately for both directory reads and UsersSearch. The controller does not filter arbitrary adapter results; the adapter owns serialization and attribute exposure.
 
-Current context-summary JSON still renders criterion-group details through `criterion.groups` and extra-user details through `context.extra_users`, both legacy associations. Counts, membership queries, and user-list search use the source. Replacing the source does not replace those summary serializers.
+Context-summary JSON currently gets group and extra-user details from the legacy projection. Counts, membership queries, and user-list search use the selected source. Switching sources does not change where those summary details come from.
 
-#### Migrate existing audiences
+#### Upgrade an existing legacy-backed installation
 
-1. Apply the migrations adding `configured_group_id` alongside `group_id` on `audiences_criterion_groups`, and `configured_user_id` alongside `external_user_id` on `audiences_context_extra_users`.
-2. Configure the adapter and backing models before enabling the new write path. Both adapters must understand the references submitted by the picker. Keep the existing projection synchronization running.
-3. Backfill configured references on existing selections before switching their reads to the new source. The configured associations remain `optional: true` for historical rows; stricter association validation is deferred until after production backfill.
+1. **Apply the supplied database migrations.** These add `configured_group_id` alongside `group_id` on `audiences_criterion_groups`, and `configured_user_id` alongside `external_user_id` on `audiences_context_extra_users`. Keep the legacy columns.
+2. **Deploy the updated gem with the adapter configured, while reads still use Legacy.** Set the backing model classes before the join models load. The selector must send reference-resolution calls to the configured adapter regardless of which source handles reads. Selection saves now write both references automatically.
+3. **Populate configured references on existing selections.** For each existing criterion-group or extra-user selection, resolve the corresponding configured record and store its primary key in the new column. Leave the legacy reference unchanged.
+4. **Verify the backfill before selecting the new source for reads.** Every existing selection must resolve through either source.
 
-Selection writes through `Audiences.update` resolve both sources and save both references unconditionally. Only the adapters interpret identifiers. There is no separate dual-write switch or pairing-key configuration, and the public `extra_users:` argument is unchanged.
+The configured adapter and the built-in Legacy adapter must understand the references submitted by the picker. Keep projection synchronization running throughout this transition so Legacy reads and a code revert remain usable.
 
-Extra-user writes retain existing join rows, delete only removed selections, and insert only additions. A retained row is updated only when its configured reference is missing or different; unchanged selections cause no extra-user join-table writes. Criteria retain their existing replacement behavior. A rejected save rolls back all selection changes.
+Selection writes through `Audiences.update` resolve both sources and save both references unconditionally. The public `extra_users:` argument is unchanged.
+
+Selection updates are atomic: a rejected save leaves the previous selections intact.
 
 If your application uses a temporary read-source selector:
 
 - Select `fetch`, `all_users`, `groups_of`, `users_matching`, `extra_users_of`, `search_users`, and `identity_values_for` according to the read toggle.
 - Always delegate `resolve_criterion_groups` and `resolve_extra_users` to the configured adapter, regardless of the toggle.
 
-Read selection never controls dual-write. Keeping legacy columns populated allows reverting to the previous Audiences code without repairing newly saved selections. Notification triggers still originate on the projection, so changing the read source is not a reason to remove synchronization or projection callbacks.
+Read selection never controls dual-write. Notification triggers still originate on the projection; changing the read source does not replace those triggers.
 
 #### Adding Audiences to a Model
 
