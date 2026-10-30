@@ -262,7 +262,7 @@ RSpec.describe Audiences::Context do
 
   describe "#as_json" do
     it "does not include users not matching the default scope" do
-      Audiences.config.default_users_scope = -> { where(active: true) }
+      allow(Audiences).to receive(:default_users_scope).and_return(-> { where(active: true) })
 
       active_user = create_user(active: true)
       inactive_user = create_user(active: false)

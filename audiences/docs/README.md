@@ -46,7 +46,7 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 #### Configure a source
 
-`Audiences.source` is the port for directory reads, membership queries, picked-reference resolution, and user-search filtering. Your application supplies an adapter through `Audiences.config.source`; only the adapter needs to know its storage schema and lookup fields.
+`Audiences.source` is the port for directory reads, membership queries, host-identity values, picked-reference resolution, and user-search filtering. Your application supplies an adapter through `Audiences.config.source`; only the adapter needs to know its storage schema and lookup fields.
 
 Configure the adapter and the models backing saved group and user references:
 
@@ -88,6 +88,14 @@ Return a collection that `render json:` can serialize: a relation of records wit
 `all_users`, `users_matching`, and `extra_users_of` must return unpaginated `ActiveRecord::Relation` objects on the same user model, not arrays. Audiences combines criteria with `.or` and unions them with extra users, so joins, selected columns, ordering, and other relation options must remain structurally compatible across calls.
 
 `Context#users` and `Criterion#users` apply `default_users_scope` to the resulting relations. These operations query membership; they do not save selections.
+
+##### Host identity values
+
+`identity_values_for(users:)` accepts the already-filtered membership relation and returns an array containing one host-identity lookup value per source user. Preserve the supplied relation's order, repeated values, and any `nil` values; do not broaden the scope or return host records.
+
+The adapter determines how to extract those values. Legacy uses `users.pluck(:user_id)`. Audiences uses the returned values to look up `identity_class` records by `identity_key` in bulk, with ActiveRecord key conversion. The resulting array preserves source order and repeated identities, with `nil` entries for missing host identities.
+
+This operation is used by the generated host-identity helper. Membership queries, external-user helpers, and user search continue to return source records.
 
 ##### Reference resolution
 
@@ -175,13 +183,13 @@ Current context-summary JSON still renders criterion-group details through `crit
 2. Configure the adapter and backing models before enabling the new write path. Both adapters must understand the references submitted by the picker. Keep the existing projection synchronization running.
 3. Backfill configured references on existing selections before switching their reads to the new source. The configured associations remain `optional: true` for historical rows; stricter association validation is deferred until after production backfill.
 
-Selection writes through `Audiences.update` resolve both sources and save both references unconditionally. Only the adapters interpret identifiers. There is no separate dual-write switch or identity-key configuration, and the public `extra_users:` argument is unchanged.
+Selection writes through `Audiences.update` resolve both sources and save both references unconditionally. Only the adapters interpret identifiers. There is no separate dual-write switch or pairing-key configuration, and the public `extra_users:` argument is unchanged.
 
 Extra-user writes retain existing join rows, delete only removed selections, and insert only additions. A retained row is updated only when its configured reference is missing or different; unchanged selections cause no extra-user join-table writes. Criteria retain their existing replacement behavior. A rejected save rolls back all selection changes.
 
 If your application uses a temporary read-source selector:
 
-- Select `fetch`, `all_users`, `groups_of`, `users_matching`, `extra_users_of`, and `search_users` according to the read toggle.
+- Select `fetch`, `all_users`, `groups_of`, `users_matching`, `extra_users_of`, `search_users`, and `identity_values_for` according to the read toggle.
 - Always delegate `resolve_criterion_groups` and `resolve_extra_users` to the configured adapter, regardless of the toggle.
 
 Read selection never controls dual-write. Keeping legacy columns populated allows reverting to the previous Audiences code without repairing newly saved selections. Notification triggers still originate on the projection, so changing the read source is not a reason to remove synchronization or projection callbacks.
@@ -197,7 +205,7 @@ Audiences.configure do |config|
 end
 ```
 
-The `identity_class` represents the SCIM user within the app domain, and the `identity_key` maps directly to the SCIM User's `externalId`.
+`identity_class` is the host application's model returned by the identity helper. `identity_key` is the column on that model matched against `identity_values_for(users:)`; it defaults to `:id` and can be a key such as `login`. These settings are independent of `user_model_class`, which identifies the adapter's membership-source model.
 
 Once configured, add audience contexts to a model:
 
@@ -207,6 +215,8 @@ class Survey < ApplicationRecord
   has_audience :supervisors
 end
 ```
+
+`survey.responders_context.users` and `survey.responders_external_users` return source user records. `survey.responders` returns an array of host identities resolved through `identity_class` and `identity_key`.
 
 #### Listening to Audience Changes
 

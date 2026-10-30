@@ -117,6 +117,38 @@ RSpec.describe Audiences::Criterion do
       expect(criterion.users.pluck(:id)).to match_array [user1.id, user4.id]
     end
 
+    it "matches any selected group within each type and requires every type with the configured source" do
+      Audiences.config.source.use_configured = true
+      both_types = ExampleSourceUser.create!(display_name: "Both types")
+      alternative_groups = ExampleSourceUser.create!(display_name: "Alternative groups")
+      department_only = ExampleSourceUser.create!(display_name: "Department only")
+      territory_only = ExampleSourceUser.create!(display_name: "Territory only")
+      engineering = ExampleSourceGroup.create!(
+        display_name: "Engineering", resource_type: "Departments", example_source_users: [both_types, department_only]
+      )
+      sales = ExampleSourceGroup.create!(
+        display_name: "Sales", resource_type: "Departments", example_source_users: [alternative_groups]
+      )
+      north = ExampleSourceGroup.create!(
+        display_name: "North", resource_type: "Territories", example_source_users: [both_types, territory_only]
+      )
+      south = ExampleSourceGroup.create!(
+        display_name: "South", resource_type: "Territories", example_source_users: [alternative_groups]
+      )
+      [engineering, sales, north, south].each do |group|
+        create_group(resource_type: group.resource_type, scim_id: group.id)
+      end
+      picks = [{ "groups" => {
+        "Departments" => [{ "id" => engineering.id }, { "id" => sales.id }],
+        "Territories" => [{ "id" => north.id }, { "id" => south.id }],
+      } }]
+      criterion = described_class.map(picks).sole
+      criterion.context = create_context
+      criterion.save!
+
+      expect(criterion.users).to match_array([both_types, alternative_groups])
+    end
+
     it "is empty when the criterion has no groups" do
       create_users(4)
 

@@ -34,6 +34,11 @@ module Audiences
         ExampleSourceUser.all
       end
 
+      def identity_values_for(users:)
+        values_by_user_id = @user_external_references.invert
+        users.pluck(:id).map { |id| values_by_user_id[id] }
+      end
+
       def search_users(scope:, query:)
         scope.where(ExampleSourceUser.arel_table[:display_name].matches("%#{query}%"))
       end
@@ -47,7 +52,7 @@ module Audiences
 
         groups.group_by(&:resource_type)
               .values
-              .reduce(ExampleSourceUser.all) { |users, of_type| users.merge(members_of(of_type)) }
+              .reduce(ExampleSourceUser.all) { |users, of_type| users.where(id: member_ids_of(of_type)) }
       end
 
       def groups_of(criterion)
@@ -76,10 +81,8 @@ module Audiences
 
     private
 
-      def members_of(groups)
-        ExampleSourceUser.where(
-          id: ExampleSourceMembership.where(example_source_group: groups).select(:example_source_user_id)
-        )
+      def member_ids_of(groups)
+        ExampleSourceMembership.where(example_source_group: groups).select(:example_source_user_id)
       end
     end
 
@@ -94,6 +97,7 @@ module Audiences
       end
 
       delegate :fetch, :all_users, :groups_of, :users_matching, :extra_users_of, :search_users, to: :selected
+      delegate :identity_values_for, to: :selected
       delegate :resolve_criterion_groups, :resolve_extra_users, to: :@configured
 
     private

@@ -34,6 +34,10 @@ module Audiences
         ExternalUser.all
       end
 
+      def identity_values_for(users:)
+        users.pluck(:user_id)
+      end
+
       # Filter the supplied audience without widening it or applying pagination.
       def search_users(scope:, query:)
         sql = if scope.connection.adapter_name == "PostgreSQL"

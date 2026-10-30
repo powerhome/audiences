@@ -165,13 +165,14 @@ module Audiences
   end
 
   #
-  # Identity model representing a SCIM User in the current application. I.e.: "User"
+  # Host model returned by has_audience identity helpers, e.g. "User".
+  # This is distinct from user_model_class, which backs source membership records.
   #
   config_accessor :identity_class
 
   #
-  # The key attribute on `identity_class` matching with the SCIM User externalId.
-  # This configuration defaults to `:id`
+  # The key attribute on identity_class matching the source's identity_values_for
+  # output. This configuration defaults to :id.
   #
   config_accessor(:identity_key) { :id }
 
