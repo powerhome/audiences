@@ -6,6 +6,7 @@
 
 **Improvements:**
 - Route context and criterion membership queries through the source, combining compatible user relations with `.or`.
+- Render criterion-group and context extra-user details through the selected source, preserving the response shape and default-user filtering.
 - Add configured selection references alongside legacy references, with unconditional dual-write and fail-closed resolution. Preserve retained extra-user join rows and avoid redundant writes. See [upgrade guidance](README.md#upgrade-an-existing-legacy-backed-installation).
 - Delegate user-search filtering to the source while preserving audience restrictions, total count, pagination, and response shape. Legacy keeps its serialized-data search and PostgreSQL/MySQL casts. See the [user-search contract](README.md#user-search).
 - Add `identity_values_for(users:)` for bulk host-identity lookup using `identity_class` and `identity_key`, preserving source order, repeated identities, and missing-identity `nil` entries. See [host identity values](README.md#host-identity-values).

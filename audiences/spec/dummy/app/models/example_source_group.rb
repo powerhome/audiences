@@ -5,4 +5,8 @@
 class ExampleSourceGroup < ApplicationRecord
   has_many :example_source_memberships, dependent: :destroy
   has_many :example_source_users, through: :example_source_memberships
+
+  def as_json(...)
+    { "id" => id.to_s, "externalId" => id.to_s, "displayName" => display_name }.as_json(...)
+  end
 end

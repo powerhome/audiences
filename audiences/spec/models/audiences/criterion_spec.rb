@@ -175,6 +175,49 @@ RSpec.describe Audiences::Criterion do
     end
   end
 
+  describe "#as_json" do
+    let(:source_group) { ExampleSourceGroup.create!(resource_type: "Departments", display_name: "Engineering") }
+    let(:legacy_group) do
+      create_group(
+        resource_type: "Departments", display_name: "Engineering",
+        scim_id: source_group.id.to_s, external_id: source_group.id.to_s
+      )
+    end
+    let(:criterion) do
+      create_criterion(groups: [legacy_group]).tap do |criterion|
+        criterion.criterion_groups.sole.update!(configured_group: source_group)
+      end
+    end
+    let(:expected_json) do
+      {
+        "id" => criterion.id,
+        "count" => 0,
+        "groups" => {
+          "Departments" => [{
+            "id" => source_group.id.to_s,
+            "externalId" => source_group.id.to_s,
+            "displayName" => "Engineering",
+          }],
+        },
+      }
+    end
+
+    it "preserves the criterion response when both sources contain equivalent data" do
+      expect(criterion.as_json).to eq(expected_json)
+
+      Audiences.config.source.use_configured = true
+
+      expect(criterion.as_json).to eq(expected_json)
+    end
+
+    it "renders configured group details rather than stale projection details" do
+      legacy_group.update!(display_name: "Old department name")
+      Audiences.config.source.use_configured = true
+
+      expect(criterion.as_json).to eq(expected_json)
+    end
+  end
+
   describe "#count" do
     it "is the count of member users" do
       users = create_users(2)

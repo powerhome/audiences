@@ -168,9 +168,9 @@ Legacy builds a `"Users"` element from stored SCIM data plus these keys derived 
 
 Legacy filters that payload to `exposed_user_attributes`, which uses string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. Configured keys that the payload lacks are omitted.
 
-Replacement adapters must provide the same client-facing attributes without requiring the same storage schema. Returned user records must serialize appropriately for both directory reads and UsersSearch. The controller does not filter arbitrary adapter results; the adapter owns serialization and attribute exposure.
+Replacement adapters must provide the same client-facing attributes without requiring the same storage schema. Returned records must serialize appropriately for directory reads, UsersSearch, and context or criterion responses. The controller does not filter arbitrary adapter results; the adapter owns serialization and attribute exposure.
 
-Context-summary JSON currently gets group and extra-user details from the legacy projection. Counts, membership queries, and user-list search use the selected source. Switching sources does not change where those summary details come from.
+Criterion group details come from `groups_of(criterion)`, and context extra-user details come from `extra_users_of(context)`. Extra users are filtered by `default_users_scope` before serialization. Counts and selection details follow the selected source while retaining the existing response shape.
 
 #### Upgrade an existing legacy-backed installation
 

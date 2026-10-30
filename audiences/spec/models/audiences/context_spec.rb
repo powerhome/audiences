@@ -271,5 +271,66 @@ RSpec.describe Audiences::Context do
 
       expect(context.as_json["extra_users"]).to eql([active_user.as_json])
     end
+
+    context "with selected users in both sources" do
+      let(:source_user) { ExampleSourceUser.create!(display_name: "Current user") }
+      let(:legacy_user) do
+        create_user(
+          scim_id: source_user.id.to_s, user_id: source_user.id.to_s, display_name: "Current user",
+          data: {
+            "id" => source_user.id.to_s,
+            "externalId" => source_user.id.to_s,
+            "displayName" => "Current user",
+          }
+        )
+      end
+      let(:context) do
+        create_context(extra_users: [legacy_user]).tap do |context|
+          context.context_extra_users.sole.update!(configured_user: source_user)
+        end
+      end
+      let(:expected_json) do
+        {
+          "match_all" => false,
+          "count" => 1,
+          "extra_users" => [{
+            "id" => source_user.id.to_s,
+            "externalId" => source_user.id.to_s,
+            "displayName" => "Current user",
+          }],
+          "criteria" => [],
+        }
+      end
+
+      before do
+        allow(Audiences).to receive(:exposed_user_attributes).and_return(%w[id externalId displayName])
+      end
+
+      it "preserves the context response when both sources contain equivalent data" do
+        expect(context.as_json).to eq(expected_json)
+
+        Audiences.config.source.use_configured = true
+
+        expect(context.as_json).to eq(expected_json)
+      end
+
+      it "renders configured extra-user details rather than stale projection details" do
+        legacy_user.update!(data: legacy_user.data.merge("displayName" => "Old user name"))
+        Audiences.config.source.use_configured = true
+
+        expect(context.as_json).to eq(expected_json)
+      end
+
+      it "applies the default user scope to the configured records being rendered" do
+        hidden = ExampleSourceUser.create!(display_name: "Excluded")
+        context.context_extra_users.create!(
+          external_user: create_user(display_name: "Not yet excluded in projection"), configured_user: hidden
+        )
+        allow(Audiences).to receive(:default_users_scope).and_return(-> { where.not(display_name: "Excluded") })
+        Audiences.config.source.use_configured = true
+
+        expect(context.as_json).to eq(expected_json)
+      end
+    end
   end
 end

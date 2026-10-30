@@ -7,4 +7,9 @@ class ExampleSourceUser < ApplicationRecord
   has_many :example_source_groups, through: :example_source_memberships
 
   scope :active, -> { all }
+
+  def as_json(...)
+    { "id" => id.to_s, "externalId" => id.to_s, "displayName" => display_name }
+      .slice(*Audiences.exposed_user_attributes).as_json(...)
+  end
 end
