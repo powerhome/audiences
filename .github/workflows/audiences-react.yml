@@ -9,6 +9,6 @@ jobs:
     with:
       package: ${{ github.workflow }}
       workdir: ${{ github.workflow }}
-      node: '["22"]'
+      node: '["22.23.4"]'
     secrets:
       npm_token: ${{ secrets.POWERHOME_NPM_REGISTRY_PASSWORD }}

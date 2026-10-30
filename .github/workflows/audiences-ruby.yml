@@ -107,6 +107,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
+        with:
+          node-version: "22.23.4"
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
