@@ -34,6 +34,16 @@ module Audiences
         ExternalUser.all
       end
 
+      # Filter the supplied audience without widening it or applying pagination.
+      def search_users(scope:, query:)
+        sql = if scope.connection.adapter_name == "PostgreSQL"
+                "CAST(data AS TEXT) LIKE ?"
+              else
+                "CAST(data AS CHAR) LIKE ?"
+              end
+        scope.where(sql, "%#{query}%")
+      end
+
       # Reads the legacy `context_extra_users.external_user_id` reference.
       # Phase 4 drops that column along with this class.
       def extra_users_of(context)

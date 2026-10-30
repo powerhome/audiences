@@ -34,6 +34,10 @@ module Audiences
         ExampleSourceUser.all
       end
 
+      def search_users(scope:, query:)
+        scope.where(ExampleSourceUser.arel_table[:display_name].matches("%#{query}%"))
+      end
+
       def extra_users_of(context)
         ExampleSourceUser.where(id: context.context_extra_users.select(:configured_user_id))
       end
@@ -89,7 +93,7 @@ module Audiences
         @legacy = Sources::Legacy.new
       end
 
-      delegate :fetch, :all_users, :groups_of, :users_matching, :extra_users_of, to: :selected
+      delegate :fetch, :all_users, :groups_of, :users_matching, :extra_users_of, :search_users, to: :selected
       delegate :resolve_criterion_groups, :resolve_extra_users, to: :@configured
 
     private

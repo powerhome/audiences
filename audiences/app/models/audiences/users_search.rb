@@ -4,7 +4,7 @@ module Audiences
   class UsersSearch
     DEFAULT_LIMIT = 20
 
-    def initialize(query:, limit: nil, offset: 0, scope: ExternalUser)
+    def initialize(query:, limit: nil, offset: 0, scope: Audiences.source.all_users)
       @scope = scope
       @query = query
       @limit = limit || DEFAULT_LIMIT
@@ -27,12 +27,7 @@ module Audiences
   private
 
     def result
-      sql = if @scope.connection.adapter_name == "PostgreSQL"
-              "CAST(data AS TEXT) LIKE ?"
-            else
-              "CAST(data AS CHAR) LIKE ?"
-            end
-      @result ||= @scope.where(sql, "%#{@query}%")
+      @result ||= Audiences.source.search_users(scope: @scope, query: @query)
     end
   end
 end
