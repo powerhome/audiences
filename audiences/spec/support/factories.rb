@@ -23,6 +23,24 @@ module Audiences
         ExampleOwner.create
       end
 
+      def create_paired_group(**attrs)
+        legacy = create_group(**attrs)
+        configured = ExampleSourceGroup.create!(display_name: legacy.display_name, resource_type: legacy.resource_type)
+        Audiences.source.configured.register_group(configured, id: legacy.scim_id, external_id: legacy.external_id)
+        legacy
+      end
+
+      def create_paired_user(**attrs)
+        legacy = create_user(**attrs)
+        configured = ExampleSourceUser.create!(display_name: legacy.display_name)
+        Audiences.source.configured.register_user(configured, id: legacy.scim_id, external_id: legacy.user_id)
+        legacy
+      end
+
+      def create_paired_users(number, **attrs)
+        Array.new(number) { create_paired_user(**attrs) }
+      end
+
       def create_context(owner: create_example_owner, **attrs)
         owner.members_context.tap do |context|
           context.update!(attrs)

@@ -12,6 +12,7 @@ require "webmock/rspec"
 
 require_relative "support/factories"
 require_relative "support/test_domain_events"
+require_relative "support/example_source"
 
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
@@ -31,5 +32,13 @@ RSpec.configure do |config|
 
   config.before do
     Audiences::Notifications.subscriptions.clear
+  end
+
+  config.around do |example|
+    previous_source = Audiences.config.source
+    Audiences.config.source = Audiences::Test::ExampleSelector.new
+    example.run
+  ensure
+    Audiences.config.source = previous_source
   end
 end

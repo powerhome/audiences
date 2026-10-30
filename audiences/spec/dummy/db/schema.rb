@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_07_01_173946) do
-
+ActiveRecord::Schema[7.1].define(version: 2026_10_28_130000) do
   create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id"
     t.bigint "context_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "configured_user_id"
+    t.index ["configured_user_id"], name: "index_audiences_context_extra_users_on_configured_user_id"
     t.index ["context_id"], name: "index_audiences_context_extra_users_on_context_id"
     t.index ["external_user_id"], name: "index_audiences_context_extra_users_on_external_user_id"
   end
@@ -35,8 +36,10 @@ ActiveRecord::Schema.define(version: 2025_07_01_173946) do
   create_table "audiences_criterion_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "criterion_id"
     t.bigint "group_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "configured_group_id"
+    t.index ["configured_group_id"], name: "index_audiences_criterion_groups_on_configured_group_id"
     t.index ["criterion_id"], name: "index_audiences_criterion_groups_on_criterion_id"
     t.index ["group_id"], name: "index_audiences_criterion_groups_on_group_id"
   end
@@ -66,9 +69,10 @@ ActiveRecord::Schema.define(version: 2025_07_01_173946) do
   create_table "audiences_group_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id", null: false
     t.bigint "group_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["external_user_id"], name: "index_audiences_group_memberships_on_external_user_id"
+    t.index ["group_id", "external_user_id"], name: "index_group_memberships_on_group_and_user", unique: true
     t.index ["group_id"], name: "index_audiences_group_memberships_on_group_id"
   end
 
@@ -77,8 +81,8 @@ ActiveRecord::Schema.define(version: 2025_07_01_173946) do
     t.string "scim_id"
     t.string "display_name"
     t.string "resource_type"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
     t.index ["resource_type", "external_id"], name: "index_audiences_groups_on_resource_type_and_external_id", unique: true
     t.index ["resource_type", "scim_id"], name: "index_audiences_groups_on_resource_type_and_scim_id", unique: true
@@ -110,10 +114,32 @@ ActiveRecord::Schema.define(version: 2025_07_01_173946) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "example_source_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "display_name"
+    t.string "resource_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "example_source_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "example_source_user_id"
+    t.bigint "example_source_group_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["example_source_group_id"], name: "index_example_source_memberships_on_example_source_group_id"
+    t.index ["example_source_user_id"], name: "index_example_source_memberships_on_example_source_user_id"
+  end
+
+  create_table "example_source_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "display_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "example_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

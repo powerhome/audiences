@@ -30,23 +30,31 @@ module Audiences
     # @param [Array<Hash>] criteria Array of attribute hashes describing groups
     # @return [Array<Criterion>] Array of Criterion objects
     def self.map(criteria)
+      resolver = SelectionResolver.new
+
       Array(criteria).map do |attrs|
-        groups = attrs["groups"]&.flat_map do |resource_type, scim_groups|
-          Audiences::Group.from_scim(resource_type, *scim_groups).to_a
+        selections = attrs["groups"]&.flat_map do |resource_type, references|
+          resolver.criterion_groups(resource_type: resource_type, references: references)
         end
-        new(groups: groups)
+        selections ||= []
+        new(groups: selections.map(&:group), criterion_groups: selections)
       end
     end
 
     def as_json(...)
-      groups = self.groups.group_by(&:resource_type)
+      groups = Audiences.source.groups_of(self).group_by(&:resource_type)
 
       { id: id, count: count, groups: groups }.as_json(...)
     end
 
+    def matching_users
+      source = Audiences.source
+
+      source.users_matching(groups: source.groups_of(self))
+    end
+
     def users
-      Audiences::ExternalUser.matching(self)
-                             .instance_exec(&Audiences.default_users_scope)
+      matching_users.instance_exec(&Audiences.default_users_scope)
     end
 
     delegate :count, to: :users

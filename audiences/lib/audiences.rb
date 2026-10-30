@@ -12,8 +12,8 @@ module Audiences
   autoload :Integrations, "audiences/integrations"
   autoload :VERSION, "audiences/version"
 
-  module ReadSources
-    autoload :Legacy, "audiences/read_sources/legacy"
+  module Sources
+    autoload :Legacy, "audiences/sources/legacy"
   end
 
 module_function
@@ -33,7 +33,9 @@ module_function
     Audiences::Context.load(key) do |context|
       context.update!(
         match_all: match_all,
-        extra_users: ::Audiences::ExternalUser.from_scim(*extra_users.map(&:with_indifferent_access)),
+        extra_user_selections: Audiences::SelectionResolver.new.extra_users(
+          references: extra_users.map(&:with_indifferent_access)
+        ),
         criteria: ::Audiences::Criterion.map(criteria.map(&:with_indifferent_access))
       )
     end

@@ -35,31 +35,54 @@ module Audiences
 
     delegate :count, to: :users
 
+    def extra_user_selections=(selections)
+      existing = context_extra_users.index_by(&:external_user_id)
+      retained_ids = selections.map(&:external_user_id)
+      extra_users.delete(existing.except(*retained_ids).values.map(&:external_user))
+
+      selections.each do |selection|
+        save_extra_user_selection(selection, existing[selection.external_user_id])
+      end
+      association(:extra_users).reset
+    end
+
     def as_json(...)
       {
         match_all: match_all,
         count: count,
-        extra_users: extra_users.instance_exec(&Audiences.default_users_scope),
+        extra_users: matching_extra_users.instance_exec(&Audiences.default_users_scope),
         criteria: criteria,
       }.as_json(...)
     end
 
   private
 
+    def save_extra_user_selection(selection, stored)
+      if stored
+        if stored.configured_user_id != selection.configured_user_id
+          stored.update!(configured_user: selection.configured_user)
+        end
+      else
+        context_extra_users << selection
+      end
+    end
+
     def notify_subscriptions
       Notifications.publish(self)
     end
 
     def matching_external_users
-      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
+      match_all ? Audiences.source.all_users : matching_extra_users.or(matching_criteria)
     end
 
     def matching_extra_users
-      ExternalUser.where(id: extra_users.select(:id))
+      Audiences.source.extra_users_of(self)
     end
 
     def matching_criteria
-      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      return Audiences.source.all_users.none if criteria.empty?
+
+      criteria.map(&:matching_users).reduce(:or)
     end
   end
 end

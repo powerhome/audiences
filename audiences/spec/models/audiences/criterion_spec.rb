@@ -30,8 +30,8 @@ RSpec.describe Audiences::Criterion do
 
   describe ".map([])" do
     it "builds contexts with the given " do
-      department = create_group(resource_type: "Departments")
-      territory = create_group(resource_type: "Territories")
+      department = create_paired_group(resource_type: "Departments")
+      territory = create_paired_group(resource_type: "Territories")
 
       criteria = Audiences::Criterion.map(
         [
@@ -46,7 +46,7 @@ RSpec.describe Audiences::Criterion do
     end
 
     it "allows setting creating groups not matching the default group scope" do
-      department = create_group(resource_type: "Departments", scim_id: "123", active: false)
+      department = create_paired_group(resource_type: "Departments", scim_id: "123", active: false)
 
       criteria = Audiences::Criterion.map(
         [
@@ -56,6 +56,165 @@ RSpec.describe Audiences::Criterion do
 
       expect(criteria.size).to eql 1
       expect(criteria.first.groups).to match_array([department])
+    end
+  end
+
+  describe "saving selections with configured groups" do
+    let(:department) { ExampleSourceGroup.create!(display_name: "Engineering", resource_type: "Departments") }
+    let(:legacy_group) { create_group(resource_type: "Departments", scim_id: department.id) }
+    let(:context) { create_context }
+
+    before do
+      allow(Audiences).to receive(:source).and_return(Audiences::Test::ExampleSource.new)
+    end
+
+    it "saves both the legacy and configured reference for a picked group" do
+      legacy_group
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }] } }]
+      criterion = described_class.map(picks).sole
+      criterion.context = context
+      criterion.save!
+
+      selection = criterion.reload.criterion_groups.sole
+      expect(selection.group).to eq(legacy_group)
+      expect(selection.configured_group).to eq(department)
+    end
+
+    it "rejects a missing configured group instead of saving only the picks that resolve" do
+      legacy_group
+      create_group(resource_type: "Departments", scim_id: "missing")
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }, { "id" => "missing" }] } }]
+
+      expect { described_class.map(picks) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "rejects a picked configured group without a legacy counterpart" do
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }] } }]
+
+      expect { described_class.map(picks) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "does not use a legacy group from another resource type as the counterpart" do
+      create_group(resource_type: "Territories", scim_id: department.id)
+      picks = [{ "groups" => { "Departments" => [{ "id" => department.id }] } }]
+
+      expect { described_class.map(picks) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
+  describe "#users" do
+    it "must be a member of any group within each type" do
+      user1, user2, user3, user4 = create_users(4)
+
+      title1 = create_group(resource_type: "Titles", external_users: [user1, user2])
+      title2 = create_group(resource_type: "Titles", external_users: [user3, user4])
+      department1 = create_group(resource_type: "Departments", external_users: [user1])
+      _department2 = create_group(resource_type: "Departments", external_users: [user3])
+      department3 = create_group(resource_type: "Departments", external_users: [user4])
+
+      criterion = create_criterion(groups: [department1, department3, title1, title2])
+
+      expect(criterion.users.pluck(:id)).to match_array [user1.id, user4.id]
+    end
+
+    it "matches any selected group within each type and requires every type with the configured source" do
+      Audiences.config.source.use_configured = true
+      both_types = ExampleSourceUser.create!(display_name: "Both types")
+      alternative_groups = ExampleSourceUser.create!(display_name: "Alternative groups")
+      department_only = ExampleSourceUser.create!(display_name: "Department only")
+      territory_only = ExampleSourceUser.create!(display_name: "Territory only")
+      engineering = ExampleSourceGroup.create!(
+        display_name: "Engineering", resource_type: "Departments", example_source_users: [both_types, department_only]
+      )
+      sales = ExampleSourceGroup.create!(
+        display_name: "Sales", resource_type: "Departments", example_source_users: [alternative_groups]
+      )
+      north = ExampleSourceGroup.create!(
+        display_name: "North", resource_type: "Territories", example_source_users: [both_types, territory_only]
+      )
+      south = ExampleSourceGroup.create!(
+        display_name: "South", resource_type: "Territories", example_source_users: [alternative_groups]
+      )
+      [engineering, sales, north, south].each do |group|
+        create_group(resource_type: group.resource_type, scim_id: group.id)
+      end
+      picks = [{ "groups" => {
+        "Departments" => [{ "id" => engineering.id }, { "id" => sales.id }],
+        "Territories" => [{ "id" => north.id }, { "id" => south.id }],
+      } }]
+      criterion = described_class.map(picks).sole
+      criterion.context = create_context
+      criterion.save!
+
+      expect(criterion.users).to match_array([both_types, alternative_groups])
+    end
+
+    it "is empty when the criterion has no groups" do
+      create_users(4)
+
+      criterion = create_criterion(groups: [])
+
+      expect(criterion.users).to be_empty
+    end
+
+    it "resolves matching users through the configured source" do
+      group = create_group
+      projected_users = create_users(2, groups: [group])
+      criterion = create_criterion(groups: [group])
+      source_users = create_users(2)
+
+      source = instance_double(Audiences::Sources::Legacy)
+      allow(Audiences).to receive(:source).and_return(source)
+      allow(source).to receive(:groups_of).with(criterion).and_return(criterion.groups)
+      allow(source).to receive(:users_matching)
+        .with(groups: criterion.groups)
+        .and_return(Audiences::ExternalUser.where(id: source_users))
+
+      expect(criterion.users).to match_array source_users
+      expect(criterion.users).not_to include(*projected_users)
+    end
+  end
+
+  describe "#as_json" do
+    let(:source_group) { ExampleSourceGroup.create!(resource_type: "Departments", display_name: "Engineering") }
+    let(:legacy_group) do
+      create_group(
+        resource_type: "Departments", display_name: "Engineering",
+        scim_id: source_group.id.to_s, external_id: source_group.id.to_s
+      )
+    end
+    let(:criterion) do
+      create_criterion(groups: [legacy_group]).tap do |criterion|
+        criterion.criterion_groups.sole.update!(configured_group: source_group)
+      end
+    end
+    let(:expected_json) do
+      {
+        "id" => criterion.id,
+        "count" => 0,
+        "groups" => {
+          "Departments" => [{
+            "id" => source_group.id.to_s,
+            "externalId" => source_group.id.to_s,
+            "displayName" => "Engineering",
+          }],
+        },
+      }
+    end
+
+    it "preserves the criterion response when both sources contain equivalent data" do
+      expect(criterion.as_json).to eq(expected_json)
+
+      Audiences.config.source.use_configured = true
+
+      expect(criterion.as_json).to eq(expected_json)
+    end
+
+    it "renders configured group details rather than stale projection details" do
+      legacy_group.update!(display_name: "Old department name")
+      Audiences.config.source.use_configured = true
+
+      expect(criterion.as_json).to eq(expected_json)
     end
   end
 

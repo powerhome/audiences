@@ -19,8 +19,7 @@ module Audiences
         delegate :users, to: :"#{name}_context", prefix: :"#{name}_external"
 
         define_method(name) do
-          send(:"#{name}_context").users.includes(:identity)
-                                  .map(&:identity)
+          IdentityResolver.new.resolve(users: send(:"#{name}_context").users)
         end
 
         scope :"with_#{name}_context", -> { includes(:"#{name}_context") }

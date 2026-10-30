@@ -43,7 +43,7 @@ RSpec.describe Audiences::ContextsController do
     end
 
     it "updates the context extra users scim id" do
-      user = create_user
+      user = create_paired_user
 
       put :update, params: {
         key: example_context.signed_key,
@@ -58,7 +58,7 @@ RSpec.describe Audiences::ContextsController do
     end
 
     it "updates the context extra users using the externalId" do
-      user = create_user
+      user = create_paired_user
 
       put :update, params: {
         key: example_context.signed_key,
@@ -81,8 +81,8 @@ RSpec.describe Audiences::ContextsController do
 
       it "allows updating the group criteria" do
         users = create_users(2)
-        department = create_group(resource_type: "Departments", external_users: users)
-        territory = create_group(resource_type: "Territories", external_users: users)
+        department = create_paired_group(resource_type: "Departments", external_users: users)
+        territory = create_paired_group(resource_type: "Territories", external_users: users)
 
         put :update, params: {
           key: example_context.signed_key,
@@ -112,8 +112,8 @@ RSpec.describe Audiences::ContextsController do
 
       it "allows updating the group criteria with group external ids" do
         users = create_users(2)
-        department = create_group(resource_type: "Departments", external_users: users)
-        territory = create_group(resource_type: "Territories", external_users: users)
+        department = create_paired_group(resource_type: "Departments", external_users: users)
+        territory = create_paired_group(resource_type: "Territories", external_users: users)
 
         put :update, params: {
           key: example_context.signed_key,

@@ -1,3 +1,16 @@
+# Unreleased
+
+**Breaking Changes:**
+- Rename `Audiences.config.read_source`, `Audiences.read_source`, and `Audiences::ReadSources::Legacy` to `Audiences.config.source`, `Audiences.source`, and `Audiences::Sources::Legacy`.
+- Require the expanded [adapter contract](README.md#implement-an-adapter) and [backing-model configuration](README.md#configure-a-source); earlier fetch-only adapters are insufficient for the new write path.
+
+**Improvements:**
+- Route context and criterion membership queries through the source, combining compatible user relations with `.or`.
+- Render criterion-group and context extra-user details through the selected source, preserving the response shape and default-user filtering.
+- Add configured selection references alongside legacy references, with unconditional dual-write and fail-closed resolution. Preserve retained extra-user join rows and avoid redundant writes. See [upgrade guidance](README.md#upgrade-an-existing-legacy-backed-installation).
+- Delegate user-search filtering to the source while preserving audience restrictions, total count, pagination, and response shape. Legacy keeps its serialized-data search and PostgreSQL/MySQL casts. See the [user-search contract](README.md#user-search).
+- Add `identity_values_for(users:)` for bulk host-identity lookup using `identity_class` and `identity_key`, preserving source order, repeated identities, and missing-identity `nil` entries. See [host identity values](README.md#host-identity-values).
+
 # Version 3.2.1 (2026-10-22)
 
 **Compatibility:**
