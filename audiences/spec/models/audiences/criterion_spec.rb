@@ -216,6 +216,12 @@ RSpec.describe Audiences::Criterion do
 
       expect(criterion.as_json).to eq(expected_json)
     end
+
+    it "renders each group through the source" do
+      allow(Audiences.source).to receive(:present).with(legacy_group).and_return("presented" => "Engineering")
+
+      expect(criterion.as_json["groups"]).to eq("Departments" => [{ "presented" => "Engineering" }])
+    end
   end
 
   describe "#count" do

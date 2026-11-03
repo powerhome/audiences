@@ -34,6 +34,10 @@ module Audiences
         ExternalUser.all
       end
 
+      def present(record)
+        record.as_json
+      end
+
       def identity_values_for(users:)
         users.pluck(:user_id)
       end

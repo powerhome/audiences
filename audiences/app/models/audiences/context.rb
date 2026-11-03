@@ -50,7 +50,9 @@ module Audiences
       {
         match_all: match_all,
         count: count,
-        extra_users: matching_extra_users.instance_exec(&Audiences.default_users_scope),
+        extra_users: matching_extra_users.instance_exec(&Audiences.default_users_scope).map do |user|
+          Audiences.source.present(user)
+        end,
         criteria: criteria,
       }.as_json(...)
     end

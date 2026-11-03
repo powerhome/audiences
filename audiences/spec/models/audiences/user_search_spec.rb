@@ -47,6 +47,15 @@ RSpec.describe Audiences::UsersSearch do
     expect(search.as_json).to eq(users: [jane.as_json], count: 1)
   end
 
+  it "renders each found user through the source" do
+    jane = create_user(data: { displayName: "Jane" })
+    allow(Audiences.source).to receive(:present).with(jane).and_return("presented" => true)
+
+    search = described_class.new(query: "Jane")
+
+    expect(search.as_json).to eq(users: [{ "presented" => true }], count: 1)
+  end
+
   it "defaults to the selected source's users when no scope is supplied" do
     create_user(data: { displayName: "Jane Legacy" })
     jane = ExampleSourceUser.create!(display_name: "Jane Configured")

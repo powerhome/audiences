@@ -34,6 +34,10 @@ module Audiences
         ExampleSourceUser.all
       end
 
+      def present(record)
+        record.as_json
+      end
+
       def identity_values_for(users:)
         values_by_user_id = @user_external_references.invert
         users.pluck(:id).map { |id| values_by_user_id[id] }
@@ -97,7 +101,7 @@ module Audiences
       end
 
       delegate :fetch, :all_users, :groups_of, :users_matching, :extra_users_of, :search_users, to: :selected
-      delegate :identity_values_for, to: :selected
+      delegate :identity_values_for, :present, to: :selected
       delegate :resolve_criterion_groups, :resolve_extra_users, to: :@configured
 
     private

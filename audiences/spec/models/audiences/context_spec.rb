@@ -272,6 +272,14 @@ RSpec.describe Audiences::Context do
       expect(context.as_json["extra_users"]).to eql([active_user.as_json])
     end
 
+    it "renders each extra user through the source" do
+      user = create_user
+      context = create_context(extra_users: [user])
+      allow(Audiences.source).to receive(:present).with(user).and_return("presented" => true)
+
+      expect(context.as_json["extra_users"]).to eq([{ "presented" => true }])
+    end
+
     context "with selected users in both sources" do
       let(:source_user) { ExampleSourceUser.create!(display_name: "Current user") }
       let(:legacy_user) do

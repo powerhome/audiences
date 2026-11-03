@@ -42,7 +42,10 @@ module Audiences
     end
 
     def as_json(...)
-      groups = Audiences.source.groups_of(self).group_by(&:resource_type)
+      source = Audiences.source
+      groups = source.groups_of(self).group_by(&:resource_type).transform_values do |of_type|
+        of_type.map { |group| source.present(group) }
+      end
 
       { id: id, count: count, groups: groups }.as_json(...)
     end

@@ -108,6 +108,10 @@ Return a collection of matching records, such as a relation or array, not a scal
 
 Do not apply the default active scopes during resolution: existing selection behavior allows inactive records to be picked.
 
+##### Presenting records
+
+`present(record)` returns the client-facing JSON for one user or group that the source returned. Audiences calls it wherever it renders those records: criterion groups, context extra users, and UsersSearch results. Return a hash shaped as described in [response serialization](#response-serialization). Legacy returns `record.as_json`.
+
 ##### User search
 
 `search_users(scope:, query:)` returns an unpaginated user relation filtered from the supplied `scope`. Never restart from all users or widen the audience: the scope may already contain context membership, criterion membership, and application restrictions.
@@ -168,7 +172,7 @@ Legacy builds a `"Users"` element from stored SCIM data plus these keys derived 
 
 Legacy filters that payload to `exposed_user_attributes`, which uses string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. Configured keys that the payload lacks are omitted.
 
-Replacement adapters must provide the same client-facing attributes without requiring the same storage schema. Returned records must serialize appropriately for directory reads, UsersSearch, and context or criterion responses. The controller does not filter arbitrary adapter results; the adapter owns serialization and attribute exposure.
+Replacement adapters must provide the same client-facing attributes without requiring the same storage schema. Directory reads render what `fetch` returns, while UsersSearch and context or criterion responses render each record through `present`. The controller does not filter arbitrary adapter results; the adapter owns serialization and attribute exposure.
 
 Criterion group details come from `groups_of(criterion)`, and context extra-user details come from `extra_users_of(context)`. Extra users are filtered by `default_users_scope` before serialization. Counts and selection details follow the selected source while retaining the existing response shape.
 

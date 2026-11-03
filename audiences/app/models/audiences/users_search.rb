@@ -13,7 +13,7 @@ module Audiences
 
     def as_json(...)
       {
-        users: users.as_json(...),
+        users: users.map { |user| Audiences.source.present(user) },
         count: count,
       }
     end
