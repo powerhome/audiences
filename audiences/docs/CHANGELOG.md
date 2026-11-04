@@ -11,6 +11,11 @@
 - Delegate user-search filtering to the source while preserving audience restrictions, total count, pagination, and response shape. Legacy keeps its serialized-data search and PostgreSQL/MySQL casts. See the [user-search contract](README.md#user-search).
 - Add `identity_values_for(users:)` for bulk host-identity lookup using `identity_class` and `identity_key`, preserving source order, repeated identities, and missing-identity `nil` entries. See [host identity values](README.md#host-identity-values).
 
+# Version 3.2.2 (2026-11-04)
+
+**Bug Fixes:**
+- Fix a race where a criterion could match every user when a concurrent context update replaced the criteria while the audience was being resolved. `ExternalUser.matching` now loads a criterion's groups once, so a criterion with no groups always matches no one.
+
 # Version 3.2.1 (2026-10-22)
 
 **Compatibility:**

@@ -23,6 +23,10 @@ module Audiences
       end
 
       def users_matching(groups:)
+        # Load the groups once: checking emptiness and loading separately lets a
+        # concurrent criteria update empty the groups in between, and reducing
+        # over no groups would match every user.
+        groups = groups.to_a
         return ExternalUser.none if groups.empty?
 
         groups.group_by(&:resource_type)
