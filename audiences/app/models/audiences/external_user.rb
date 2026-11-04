@@ -45,13 +45,16 @@ module Audiences
     end
 
     scope :matching, ->(criterion) do
-      return none if criterion.groups.empty?
+      # Load the groups once: checking emptiness and loading separately lets a
+      # concurrent criteria update empty the groups in between, and reducing
+      # over no groups would match every user.
+      groups = criterion.groups.to_a
+      return none if groups.empty?
 
-      criterion.groups
-               .group_by(&:resource_type)
-               .values
-               .reduce(self) do |scope, groups|
-        scope.members_of(groups)
+      groups.group_by(&:resource_type)
+            .values
+            .reduce(self) do |scope, type_groups|
+        scope.members_of(type_groups)
       end
     end
 

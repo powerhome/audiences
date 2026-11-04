@@ -182,6 +182,29 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
 
       expect(users).to be_empty
     end
+
+    it "does not match every user when the criterion's groups are removed while matching" do
+      user1, user2, user3 = create_users(3)
+      title = create_group(resource_type: "Titles", external_users: [user1])
+      criterion = Audiences::Criterion.find(create_criterion(groups: [title]).id)
+
+      # Simulates a concurrent context update replacing the criteria right after
+      # the first read of this criterion's groups.
+      removed = false
+      remove_groups = ->(*, payload) do
+        next if removed || payload[:sql].exclude?("audiences_criterion_groups")
+
+        removed = true
+        Audiences::CriterionGroup.where(criterion_id: criterion.id).delete_all
+      end
+
+      users = ActiveSupport::Notifications.subscribed(remove_groups, "sql.active_record") do
+        Audiences::ExternalUser.matching(criterion).to_a
+      end
+
+      expect(removed).to be true
+      expect(users).not_to include(user2, user3)
+    end
   end
 
   describe ".matching_any" do
