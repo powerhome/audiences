@@ -35,6 +35,40 @@ RSpec.describe Audiences::Context do
       expect(context.users).to match_array extra_users + group_users
     end
 
+    it "resolves a consistent view of the criteria when they are replaced while resolving" do
+      title = create_group(resource_type: "Titles")
+      department = create_group(resource_type: "Departments")
+      role = create_group(resource_type: "Roles")
+      matching_users = create_users(2, groups: [title, department]) + create_users(2, groups: [role])
+      create_users(2, groups: [title])
+      context = create_context(owner: owner)
+      create_criterion(context: context, groups: [title, department])
+      create_criterion(context: context, groups: [role])
+      context = Audiences::Context.find(context.id)
+
+      # Simulates a concurrent Audiences.update re-saving identical criteria,
+      # which deletes and recreates the criterion rows, right after the first
+      # read of the criteria's groups.
+      replaced = false
+      replace_criteria = ->(*, payload) do
+        next if replaced || payload[:sql].exclude?("audiences_criterion_groups")
+
+        replaced = true
+        criteria = [
+          Audiences::Criterion.new(groups: [title, department]),
+          Audiences::Criterion.new(groups: [role]),
+        ]
+        Audiences::Context.find(context.id).update!(criteria: criteria)
+      end
+
+      users = ActiveSupport::Notifications.subscribed(replace_criteria, "sql.active_record") do
+        context.users.to_a
+      end
+
+      expect(replaced).to be true
+      expect(users).to match_array matching_users
+    end
+
     it "is only the extra users when no criteria are set and match_all is false" do
       extra_users = create_users(3)
       context = create_context(extra_users: extra_users)
