@@ -6,6 +6,9 @@ Audiences.configure do |config|
 
   config.identity_class = "ExampleUser"
 
+  config.group_model_class = "ExampleSourceGroup"
+  config.user_model_class = "ExampleSourceUser"
+
   config.authenticate = ->(*) { true }
 
   config.notifications do

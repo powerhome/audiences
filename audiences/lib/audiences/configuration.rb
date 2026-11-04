@@ -81,21 +81,40 @@ module Audiences
 
   # The source that backs the read endpoint (ScimProxyController#get).
   #
-  # Defaults to Audiences::ReadSources::Legacy, which reads Audiences' own
+  # Defaults to Audiences::Sources::Legacy, which reads Audiences' own
   # projection (ExternalUser / Group). Applications can inject an alternative
   # source (e.g. one backed by an external store) as long as it responds to
   # `#fetch(resource_type:, query:, start_index:, count:)` and returns records
   # renderable as the client-facing contract. The controller never references
-  # the source's backing models directly, so the read source is swappable
+  # the source's backing models directly, so the source is swappable
   # without coupling Audiences to any particular provider.
   #
   # I.e.:
   #
   #   Audiences.configure do |config|
-  #     config.read_source = MyExternalReadSource.new
+  #     config.source = MyExternalSource.new
   #   end
   #
-  config_accessor(:read_source) { Audiences::ReadSources::Legacy.new }
+  config_accessor(:source) { Audiences::Sources::Legacy.new }
+
+  # The models backing the `configured_group_id` / `configured_user_id`
+  # references, named as strings so the constants resolve after eager load.
+  #
+  # These are read in a class body, so they must be set before eager load
+  # rather than in a `to_prepare` block.
+  #
+  # Configure both models when installing the adapter. New selections always
+  # carry both references, independently of the source used for membership reads.
+  #
+  # I.e.:
+  #
+  #   Audiences.configure do |config|
+  #     config.group_model_class = "MyGroup"
+  #     config.user_model_class = "MyUser"
+  #   end
+  #
+  config_accessor(:group_model_class)
+  config_accessor(:user_model_class)
 
   # These are the user attributes that will be exposed in the audiences endpoints.
   # They're required by the UI to display the user information.
@@ -146,13 +165,14 @@ module Audiences
   end
 
   #
-  # Identity model representing a SCIM User in the current application. I.e.: "User"
+  # Host model returned by has_audience identity helpers, e.g. "User".
+  # This is distinct from user_model_class, which backs source membership records.
   #
   config_accessor :identity_class
 
   #
-  # The key attribute on `identity_class` matching with the SCIM User externalId.
-  # This configuration defaults to `:id`
+  # The key attribute on identity_class matching the source's identity_values_for
+  # output. This configuration defaults to :id.
   #
   config_accessor(:identity_key) { :id }
 
