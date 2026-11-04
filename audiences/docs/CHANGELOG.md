@@ -1,3 +1,8 @@
+# Version 3.2.2 (2026-11-04)
+
+**Bug Fixes:**
+- Fix a race where a criterion could match every user when a concurrent context update replaced the criteria while the audience was being resolved. `ExternalUser.matching` now loads a criterion's groups once, so a criterion with no groups always matches no one.
+
 # Version 3.2.1 (2026-10-22)
 
 **Compatibility:**
