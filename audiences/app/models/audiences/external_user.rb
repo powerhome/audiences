@@ -62,6 +62,11 @@ module Audiences
     # concurrent update that replaces the criteria is either fully visible or
     # not visible at all, rather than leaving some criteria resolving to none.
     #
+    # The statement starts from the criteria's groups and their memberships, so
+    # its cost scales with those memberships rather than with every user: a
+    # user matches a criterion when the number of distinct resource types among
+    # the criterion's groups they belong to equals the criterion's type count.
+    #
     # @param criteria [ActiveRecord::Relation<Audiences::Criterion>]
     scope :matching_criteria, ->(criteria) { where(matching_criteria_condition(criteria)) }
 
@@ -69,29 +74,25 @@ module Audiences
       criterion_groups = Audiences::CriterionGroup.table_name
       groups = Audiences::Group.table_name
       memberships = Audiences::GroupMembership.table_name
+      criterion_ids = criteria.select(:id).to_sql
 
       <<~SQL.squish
-        EXISTS (
-          SELECT 1 FROM #{Audiences::Criterion.table_name} matched_criteria
-          WHERE matched_criteria.id IN (#{criteria.select(:id).to_sql})
-            AND EXISTS (
-              SELECT 1 FROM #{criterion_groups} any_cg
-              WHERE any_cg.criterion_id = matched_criteria.id
-            )
-            AND NOT EXISTS (
-              SELECT 1 FROM #{criterion_groups} required_cg
-              INNER JOIN #{groups} required_groups ON required_groups.id = required_cg.group_id
-              WHERE required_cg.criterion_id = matched_criteria.id
-                AND NOT EXISTS (
-                  SELECT 1 FROM #{criterion_groups} member_cg
-                  INNER JOIN #{groups} member_groups ON member_groups.id = member_cg.group_id
-                  INNER JOIN #{memberships} memberships ON memberships.group_id = member_cg.group_id
-                  WHERE member_cg.criterion_id = matched_criteria.id
-                    AND memberships.external_user_id = #{table_name}.id
-                    AND (member_groups.resource_type = required_groups.resource_type
-                         OR (member_groups.resource_type IS NULL AND required_groups.resource_type IS NULL))
-                )
-            )
+        #{table_name}.id IN (
+          SELECT memberships.external_user_id
+          FROM #{criterion_groups} member_cg
+          INNER JOIN #{groups} member_groups ON member_groups.id = member_cg.group_id
+          INNER JOIN #{memberships} memberships ON memberships.group_id = member_cg.group_id
+          INNER JOIN (
+            SELECT required_cg.criterion_id,
+                   COUNT(DISTINCT COALESCE(required_groups.resource_type, '')) AS type_count
+            FROM #{criterion_groups} required_cg
+            INNER JOIN #{groups} required_groups ON required_groups.id = required_cg.group_id
+            WHERE required_cg.criterion_id IN (#{criterion_ids})
+            GROUP BY required_cg.criterion_id
+          ) required ON required.criterion_id = member_cg.criterion_id
+          WHERE member_cg.criterion_id IN (#{criterion_ids})
+          GROUP BY member_cg.criterion_id, memberships.external_user_id, required.type_count
+          HAVING COUNT(DISTINCT COALESCE(member_groups.resource_type, '')) = required.type_count
         )
       SQL
     end
