@@ -1,3 +1,8 @@
+# Version 3.2.2 (2026-11-04)
+
+**Bug Fixes:**
+- `ExternalUser.matching` no longer matches every user when a criterion's groups are deleted while it is being evaluated. It checked for groups and loaded them in two separate queries, so a concurrent context update (which recreates every criterion) could empty the load after the check passed, leaving the criterion unconstrained. In production this resolved an audience to every active user, and the consuming app then added all of them to the room.
+
 # Version 3.2.1 (2026-10-22)
 
 **Compatibility:**

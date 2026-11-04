@@ -182,6 +182,23 @@ RSpec.describe Audiences::ExternalUser, :aggregate_failures do
 
       expect(users).to be_empty
     end
+
+    it "never matches everyone when the criterion's groups are removed while it is being matched" do
+      member, outsider = create_users(2)
+      title = create_group(resource_type: "Titles", external_users: [member])
+      criterion = Audiences::Criterion.find(create_criterion(groups: [title]).id)
+      reads = 0
+      allow(criterion).to receive(:groups).and_wrap_original do |original|
+        reads += 1
+        # A concurrent context rewrite deletes the criterion's groups after the first read.
+        Audiences::CriterionGroup.where(criterion_id: criterion.id).delete_all if reads == 2
+        original.call
+      end
+
+      users = Audiences::ExternalUser.matching(criterion)
+
+      expect(users).not_to include(outsider)
+    end
   end
 
   describe ".matching_any" do

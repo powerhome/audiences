@@ -44,13 +44,15 @@ module Audiences
       where(scim_id: ids).or(where(user_id: external_ids))
     end
 
+    # Reads the criterion's groups exactly once. Checking for groups and then
+    # loading them separately lets a concurrent criteria rewrite empty the load
+    # after the check passed, and reducing over no groups leaves the scope
+    # unconstrained: the criterion would match every user.
     scope :matching, ->(criterion) do
-      return none if criterion.groups.empty?
+      groups_by_type = criterion.groups.to_a.group_by(&:resource_type).values
+      return none if groups_by_type.empty?
 
-      criterion.groups
-               .group_by(&:resource_type)
-               .values
-               .reduce(self) do |scope, groups|
+      groups_by_type.reduce(self) do |scope, groups|
         scope.members_of(groups)
       end
     end
