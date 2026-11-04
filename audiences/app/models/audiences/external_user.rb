@@ -45,23 +45,55 @@ module Audiences
     end
 
     scope :matching, ->(criterion) do
-      # Load the groups once: checking emptiness and loading separately lets a
-      # concurrent criteria update empty the groups in between, and reducing
-      # over no groups would match every user.
-      groups = criterion.groups.to_a
-      return none if groups.empty?
-
-      groups.group_by(&:resource_type)
-            .values
-            .reduce(self) do |scope, type_groups|
-        scope.members_of(type_groups)
-      end
+      matching_criteria(Audiences::Criterion.where(id: criterion.id))
     end
 
-    scope :matching_any, ->(first, *others) do
-      others.reduce(matching(first)) do |scope, criterion|
-        scope.or matching(criterion)
-      end
+    scope :matching_any, ->(*criteria) do
+      matching_criteria(Audiences::Criterion.where(id: criteria.map(&:id)))
+    end
+
+    # Users matching any of the given criteria. A user matches a criterion when,
+    # for each resource type among the criterion's groups, they belong to at
+    # least one of its groups of that type. A criterion without groups matches
+    # no one.
+    #
+    # The criteria, their groups, and the memberships are all read in this one
+    # statement, so the database resolves them from a single snapshot: a
+    # concurrent update that replaces the criteria is either fully visible or
+    # not visible at all, rather than leaving some criteria resolving to none.
+    #
+    # @param criteria [ActiveRecord::Relation<Audiences::Criterion>]
+    scope :matching_criteria, ->(criteria) { where(matching_criteria_condition(criteria)) }
+
+    def self.matching_criteria_condition(criteria) # rubocop:disable Metrics/MethodLength
+      criterion_groups = Audiences::CriterionGroup.table_name
+      groups = Audiences::Group.table_name
+      memberships = Audiences::GroupMembership.table_name
+
+      <<~SQL.squish
+        EXISTS (
+          SELECT 1 FROM #{Audiences::Criterion.table_name} matched_criteria
+          WHERE matched_criteria.id IN (#{criteria.select(:id).to_sql})
+            AND EXISTS (
+              SELECT 1 FROM #{criterion_groups} any_cg
+              WHERE any_cg.criterion_id = matched_criteria.id
+            )
+            AND NOT EXISTS (
+              SELECT 1 FROM #{criterion_groups} required_cg
+              INNER JOIN #{groups} required_groups ON required_groups.id = required_cg.group_id
+              WHERE required_cg.criterion_id = matched_criteria.id
+                AND NOT EXISTS (
+                  SELECT 1 FROM #{criterion_groups} member_cg
+                  INNER JOIN #{groups} member_groups ON member_groups.id = member_cg.group_id
+                  INNER JOIN #{memberships} memberships ON memberships.group_id = member_cg.group_id
+                  WHERE member_cg.criterion_id = matched_criteria.id
+                    AND memberships.external_user_id = #{table_name}.id
+                    AND (member_groups.resource_type = required_groups.resource_type
+                         OR (member_groups.resource_type IS NULL AND required_groups.resource_type IS NULL))
+                )
+            )
+        )
+      SQL
     end
 
     def picture_urls = [picture_url]
