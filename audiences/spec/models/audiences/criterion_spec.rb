@@ -142,6 +142,15 @@ RSpec.describe Audiences::Criterion do
     end
   end
 
+  describe "#source_group_ids" do
+    it "is the source id of each of the criterion's groups" do
+      groups = create_groups(2)
+      criterion = create_criterion(groups: groups)
+
+      expect(described_class.find(criterion.id).source_group_ids).to match_array groups.map(&:scim_id)
+    end
+  end
+
   describe "#count" do
     it "is the count of member users" do
       users = create_users(2)

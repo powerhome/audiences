@@ -200,6 +200,15 @@ RSpec.describe Audiences::Context do
     end
   end
 
+  describe "#source_user_ids" do
+    it "is the source id of each extra user" do
+      users = create_users(2)
+      context = create_context(extra_users: users)
+
+      expect(described_class.find(context.id).source_user_ids).to match_array users.map(&:scim_id)
+    end
+  end
+
   describe "#extra_users=" do
     it "writes a context_extra_users row for each user" do
       users = create_users(2)

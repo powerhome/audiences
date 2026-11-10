@@ -17,5 +17,12 @@ RSpec.describe Audiences::CriterionGroup do
     it "is indexed" do
       expect(described_class.connection.index_exists?(described_class.table_name, :source_group_id)).to be(true)
     end
+
+    it "holds the group's scim_id when saved through Criterion#groups=" do
+      group = create_group
+      criterion = create_criterion(groups: [group])
+
+      expect(described_class.where(criterion: criterion).pluck(:source_group_id)).to eq([group.scim_id])
+    end
   end
 end

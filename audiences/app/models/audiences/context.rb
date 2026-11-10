@@ -44,6 +44,10 @@ module Audiences
       self.legacy_extra_users = users
     end
 
+    def source_user_ids
+      context_extra_users.map(&:source_user_id)
+    end
+
     def as_json(...)
       {
         match_all: match_all,

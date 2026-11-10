@@ -60,6 +60,10 @@ module Audiences
       matching_users.instance_exec(&Audiences.default_users_scope)
     end
 
+    def source_group_ids
+      criterion_groups.map(&:source_group_id)
+    end
+
     delegate :count, to: :users
   end
 end

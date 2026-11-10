@@ -7,6 +7,7 @@ require "spec_helper"
 require File.expand_path "dummy/config/environment", __dir__
 
 require "rspec/rails"
+require "db_query_matchers"
 require "shoulda/matchers"
 require "webmock/rspec"
 

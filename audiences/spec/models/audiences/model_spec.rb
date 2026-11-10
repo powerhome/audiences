@@ -22,21 +22,6 @@ RSpec.describe Audiences::Model do
   end
 
   describe "#relation_name identity lookup" do
-    def selects_during(&block)
-      count = 0
-      counter = ->(*, payload) { count += 1 if payload[:sql].start_with?("SELECT") }
-      ActiveSupport::Notifications.subscribed(counter, "sql.active_record", &block)
-      count
-    end
-
-    def members_selects_for(number)
-      identities = Array.new(number) { ExampleUser.create(name: "Identity #{_1}") }
-      external_users = identities.map { create_user(user_id: _1.id) }
-      owner = create_context(extra_users: external_users).owner
-
-      selects_during { owner.members.to_a }
-    end
-
     it "asks the source for the identity key of each user" do
       source = Audiences::Sources::Legacy.new
       allow(Audiences).to receive(:source).and_return(source)
@@ -49,11 +34,12 @@ RSpec.describe Audiences::Model do
       expect(source).to have_received(:identity_keys).with(satisfy { |users| users.to_a == context.users.to_a })
     end
 
-    it "uses the same number of queries for one user as for five" do
-      one = members_selects_for(1)
-      five = members_selects_for(5)
+    it "looks up the identities of five users in one query" do
+      identities = Array.new(5) { ExampleUser.create(name: "Identity #{_1}") }
+      external_users = identities.map { create_user(user_id: _1.id) }
+      owner = create_context(extra_users: external_users).owner
 
-      expect(five).to eql one
+      expect { owner.members.to_a }.to make_database_queries(count: 1, matching: "example_users")
     end
 
     it "has nil for a user without an identity" do
