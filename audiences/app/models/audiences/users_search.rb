@@ -13,7 +13,7 @@ module Audiences
 
     def as_json(...)
       {
-        users: users.as_json(...),
+        users: Audiences.source.present(users),
         count: count,
       }
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_10_153031) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
   create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id"
     t.bigint "context_id"
@@ -110,6 +110,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_153031) do
 
   create_table "example_owners", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "example_source_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "display_name"
+    t.string "resource_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "example_source_memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "example_source_user_id", null: false
+    t.bigint "example_source_group_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["example_source_group_id"], name: "index_example_source_memberships_on_example_source_group_id"
+    t.index ["example_source_user_id"], name: "index_example_source_memberships_on_example_source_user_id"
+  end
+
+  create_table "example_source_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "display_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

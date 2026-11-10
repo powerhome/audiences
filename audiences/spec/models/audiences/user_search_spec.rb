@@ -56,5 +56,22 @@ RSpec.describe Audiences::UsersSearch do
 
       expect(search.users.map(&:user_id)).to eql ["321"]
     end
+
+    it "renders the users as the source presents them" do
+      allow(source).to receive(:present).and_return([{ "id" => "presented" }])
+
+      search = Audiences::UsersSearch.new(query: "John")
+
+      expect(search.as_json).to eql(users: [{ "id" => "presented" }], count: 1)
+    end
+
+    it "asks the source to present only the users of the requested page" do
+      allow(source).to receive(:present).and_call_original
+
+      search = Audiences::UsersSearch.new(query: "Doe", limit: 1)
+      search.as_json
+
+      expect(source).to have_received(:present).with(search.users)
+    end
   end
 end
