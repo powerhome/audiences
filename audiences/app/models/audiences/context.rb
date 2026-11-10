@@ -14,9 +14,9 @@ module Audiences
                         dependent: :destroy
 
     has_many :context_extra_users, class_name: "Audiences::ContextExtraUser"
-    has_many :extra_users, class_name: "Audiences::ExternalUser",
-                           through: :context_extra_users,
-                           source: :external_user
+    has_many :legacy_extra_users, class_name: "Audiences::ExternalUser",
+                                  through: :context_extra_users,
+                                  source: :external_user
 
     scope :relevant_to, ->(group) do
       joins(:criteria).merge(Criterion.relevant_to(group))
@@ -35,11 +35,20 @@ module Audiences
 
     delegate :count, to: :users
 
+    # The extra users, inactive ones included, as the source calculates them.
+    def extra_users
+      Audiences.source.extra_users_of(self)
+    end
+
+    def extra_users=(users)
+      self.legacy_extra_users = users
+    end
+
     def as_json(...)
       {
         match_all: match_all,
         count: count,
-        extra_users: extra_users.instance_exec(&Audiences.default_users_scope),
+        extra_users: Audiences.source.present(extra_users.instance_exec(&Audiences.default_users_scope)),
         criteria: criteria,
       }.as_json(...)
     end
@@ -51,15 +60,18 @@ module Audiences
     end
 
     def matching_external_users
-      match_all ? ExternalUser.all : matching_extra_users.or(matching_criteria)
+      match_all ? Audiences.source.all_users : matching_extra_users.or(matching_criteria)
     end
 
     def matching_extra_users
-      ExternalUser.where(id: extra_users.select(:id))
+      extra_users
     end
 
     def matching_criteria
-      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      criteria = self.criteria.to_a
+      return Audiences.source.all_users.none if criteria.empty?
+
+      criteria.map(&:matching_users).reduce(:or)
     end
   end
 end

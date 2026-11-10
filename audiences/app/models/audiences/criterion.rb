@@ -39,14 +39,25 @@ module Audiences
     end
 
     def as_json(...)
-      groups = self.groups.group_by(&:resource_type)
+      source = Audiences.source
+      groups = source.groups_of(self).group_by(&:resource_type)
 
-      { id: id, count: count, groups: groups }.as_json(...)
+      { id: id, count: count, groups: groups.transform_values { |of_type| source.present(of_type) } }.as_json(...)
+    end
+
+    # The users matching the criterion's groups, before the default users scope.
+    def matching_users
+      # Load the groups once: checking emptiness and loading separately lets a
+      # concurrent criteria update empty the groups in between, and matching
+      # no groups would match every user (PR #572).
+      groups = Audiences.source.groups_of(self).to_a
+      return Audiences.source.all_users.none if groups.empty?
+
+      Audiences.source.users_matching(groups: groups)
     end
 
     def users
-      Audiences::ExternalUser.matching(self)
-                             .instance_exec(&Audiences.default_users_scope)
+      matching_users.instance_exec(&Audiences.default_users_scope)
     end
 
     delegate :count, to: :users

@@ -27,12 +27,7 @@ module Audiences
   private
 
     def result
-      sql = if @scope.connection.adapter_name == "PostgreSQL"
-              "CAST(data AS TEXT) LIKE ?"
-            else
-              "CAST(data AS CHAR) LIKE ?"
-            end
-      @result ||= @scope.where(sql, "%#{@query}%")
+      @result ||= Audiences.source.search_users(@scope, @query)
     end
   end
 end
