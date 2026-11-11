@@ -58,8 +58,10 @@ module Audiences
       ExternalUser.where(id: extra_users.select(:id))
     end
 
+    # Resolved as a subquery rather than from loaded criteria, so the criteria
+    # are read in the same statement as the users they match.
     def matching_criteria
-      criteria.any? ? ExternalUser.matching_any(*criteria) : ExternalUser.none
+      ExternalUser.matching_criteria(Criterion.where(context_id: id))
     end
   end
 end
