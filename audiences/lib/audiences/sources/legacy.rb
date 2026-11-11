@@ -57,7 +57,13 @@ module Audiences
 
       # @return [ActiveRecord::Relation<ExternalUser>] the users whose data match the query
       def search_users(users, query)
-        users.where(data_search_sql(users), "%#{query}%")
+        pattern = "%#{query}%"
+
+        if users.connection.adapter_name == "PostgreSQL"
+          users.where("CAST(data AS TEXT) LIKE ?", pattern)
+        else
+          users.where("CAST(data AS CHAR) LIKE ?", pattern)
+        end
       end
 
       # @return [Array<String, nil>] the identity key of each user, in the relation's order
@@ -66,14 +72,6 @@ module Audiences
       end
 
     private
-
-      def data_search_sql(users)
-        if users.connection.adapter_name == "PostgreSQL"
-          "CAST(data AS TEXT) LIKE ?"
-        else
-          "CAST(data AS CHAR) LIKE ?"
-        end
-      end
 
       def scope(resource_type)
         if resource_type == "Users"
