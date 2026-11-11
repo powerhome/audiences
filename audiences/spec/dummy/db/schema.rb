@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
+ActiveRecord::Schema[7.1].define(version: 2026_11_10_205902) do
   create_table "audiences_context_extra_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "external_user_id"
     t.bigint "context_id"
@@ -26,8 +26,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
     t.string "owner_type", null: false
     t.bigint "owner_id", null: false
     t.boolean "match_all", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.json "extra_users_json"
     t.string "relation"
     t.index ["owner_type", "owner_id", "relation"], name: "index_audiences_contexts_on_owner_type_owner_id_relation", unique: true
@@ -47,17 +47,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
   create_table "audiences_criterions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.json "groups_json"
     t.bigint "context_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "refreshed_at"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "refreshed_at", precision: nil
     t.index ["context_id"], name: "index_audiences_criterions_on_context_id"
   end
 
   create_table "audiences_external_users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "user_id", null: false
     t.json "data"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "scim_id"
     t.string "display_name"
     t.string "picture_url"
@@ -92,8 +92,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
     t.bigint "external_user_id", null: false
     t.string "group_type", null: false
     t.bigint "group_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["external_user_id"], name: "index_audiences_memberships_on_external_user_id"
     t.index ["group_type", "group_id"], name: "index_audiences_memberships_on_group_type_and_group_id"
   end
@@ -103,15 +103,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
     t.integer "user_id"
     t.string "name"
     t.string "photo"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["owner_id"], name: "index_example_memberships_on_owner_id"
   end
 
   create_table "example_owners", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "example_source_groups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -141,4 +141,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_205902) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
 end

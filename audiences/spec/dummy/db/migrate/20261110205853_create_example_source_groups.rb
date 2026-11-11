@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateExampleSourceGroups < ActiveRecord::Migration[8.1]
+class CreateExampleSourceGroups < ActiveRecord::Migration[7.1]
   def change
     create_table :example_source_groups do |t|
       t.string :display_name
