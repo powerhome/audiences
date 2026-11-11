@@ -1,3 +1,20 @@
+# Unreleased
+
+**Breaking Changes:**
+- Rename `Audiences.config.read_source` to `Audiences.config.source`, the `Audiences.read_source` accessor to `Audiences.source`, and `Audiences::ReadSources::Legacy` to `Audiences::Sources::Legacy`. There is no alias for the old names.
+- Audience calculation, the context endpoints, and the `has_audience` readers now go through `Audiences.source`, not only `GET /scim(/*scim_path)`. A custom adapter has to implement `groups_of`, `users_matching`, `all_users`, `extra_users_of`, `present`, `search_users`, and `identity_keys` as well as `fetch`.
+- `Context#users` returns the adapter's own records, and Audiences promises no attributes on them (for example, no `user_id`). With the default `Legacy` adapter nothing changes. To get identity keys with any adapter, call `Audiences.source.identity_keys(context.users)`.
+- Remove `ExternalUser.matching` and `ExternalUser.matching_any`. Their behavior moved into `Sources::Legacy#users_matching(groups:)` and `Context`.
+
+**Improvements:**
+- Add the nullable string columns `audiences_criterion_groups.source_group_id` and `audiences_context_extra_users.source_user_id`, each with an index. The legacy foreign keys are still written on every save, next to the new columns. Rows saved before the migrations hold `NULL`, and nothing backfills them.
+- `Context#extra_users` is now an explicit reader that goes through `Audiences.source`. The association behind it is renamed `legacy_extra_users`; the `extra_users=` writer keeps its name.
+- `UsersSearch#as_json` renders through `Audiences.source.present`.
+- Document the port, the stored references, the scope requirements, and the identity-key rule in the README.
+
+**Development:**
+- Add `db-query-matchers` as a development dependency.
+
 # Version 3.2.2 (2026-11-04)
 
 **Bug Fixes:**

@@ -46,7 +46,7 @@ For more details, refer to [editor_helper](../lib/audiences/editor_helper.rb).
 
 #### Source
 
-The source backs the resource endpoint, `GET /scim(/*scim_path)`. `ScimProxyController#get` renders whatever the configured source returns:
+`Audiences.source` is the one seam through which Audiences reads users and groups. It backs the resource endpoint (`GET /scim(/*scim_path)`), the context endpoints (`GET /:key` and `GET /:key/users`), audience calculation, and the `has_audience` readers. `ScimProxyController#get` renders whatever `#fetch` returns:
 
 ```ruby
 render json: Audiences.source.fetch(
@@ -57,9 +57,7 @@ render json: Audiences.source.fetch(
 )
 ```
 
-`Audiences.config.source` defaults to `Audiences::Sources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. Replacing it with any object that satisfies the `#fetch` contract below lets reads come from another store without Audiences depending on that store.
-
-That covers only this endpoint. The context endpoints (`GET /:key` and `GET /:key/users`) and audience calculation keep reading the local projection no matter what the source does.
+`Audiences.config.source` holds the adapter, the object that implements the port below, and `Audiences.source` returns it. It defaults to `Audiences::Sources::Legacy`, which reads Audiences' own `ExternalUser` and `Group` projection. Replacing it with another adapter lets reads come from another store without Audiences depending on that store.
 
 Assign a replacement from an initializer:
 
@@ -79,6 +77,34 @@ Audiences.configure do |config|
 end
 ```
 
+##### The port
+
+The port is the set of methods Audiences calls on `Audiences.source`. An adapter implements them: `Audiences::Sources::Legacy` is the default adapter, and a host application can supply its own.
+
+| Method | Arguments | Returns |
+| --- | --- | --- |
+| `fetch` | `resource_type:`, `query:`, `start_index:`, `count:` (each a `String` or `nil`) | A collection `render json:` can serialize. See the `#fetch` contract below. |
+| `groups_of` | `criterion`, an `Audiences::Criterion` | An `Enumerable` of the criterion's groups. Each group must respond to `resource_type`. |
+| `users_matching` | `groups:`, an `Array` of groups (never empty) | An `ActiveRecord::Relation` of the users who belong to at least one group of each resource type among `groups`. |
+| `all_users` | none | An `ActiveRecord::Relation` of every user. |
+| `extra_users_of` | `context`, an `Audiences::Context` | An `ActiveRecord::Relation` of the context's extra users, inactive ones included. |
+| `present` | `records`, a relation or `Array` of users or groups | An `Array` of `Hash`es in the client contract shape. |
+| `search_users` | `users`, a relation, and `query`, a `String` | `users` narrowed by `query`, as a relation. |
+| `identity_keys` | `users`, a relation | An `Array` of identity-key values. |
+
+Details an adapter has to follow:
+
+- `groups_of` and `extra_users_of` find their records from the stored references (see [Stored references](#stored-references)): `criterion.source_group_ids` and `context.source_user_ids`.
+- `users_matching` receives groups already loaded into an `Array`. Audiences never calls it with no groups; it uses `all_users.none` instead. The relation it returns has no default users scope; Audiences applies that.
+- The stored ids are strings, and the adapter derives `resource_type` itself from its own group records. Audiences stores no resource type for a reference.
+- `present` is one batch call, so an adapter can preload once for the whole collection. The `id` of every element must be an integer or an integer string (`42` or `"42"`). Group elements have `id`, `externalId` and `displayName`. `Legacy` limits user elements to the keys in `exposed_user_attributes`; whether another adapter honors that setting is up to the adapter.
+- `search_users` must return a relation, because Audiences applies `limit`, `offset` and `count` to the result.
+- `identity_keys` returns exactly one key per user, in the order of the relation it was given, with `nil` for a user that has none. An adapter that removes duplicates, drops `nil` or reorders makes the `has_audience` readers stop lining up with the users, and Audiences cannot cheaply detect that.
+
+Audiences applies `Audiences.default_users_scope` to the user relation an adapter returns, and combines the criteria of a context with ActiveRecord's `.or`. Every user relation an adapter returns for one context therefore has to be an `ActiveRecord::Relation` of the same model. `#fetch` is the only method that applies the default scopes itself (both of them, see [Scopes](#scopes)). No other method applies the groups scope.
+
+Audiences calls the port from `Context#users`, `#count`, `#extra_users` and `#as_json`, from `Criterion#as_json`, from the users search behind `GET /:key/users`, and from the `has_audience` readers.
+
 ##### The `#fetch` contract
 
 ```ruby
@@ -89,11 +115,11 @@ All four arguments come straight from request params with no casting or defaulti
 
 - `resource_type` is the wildcard path segment: `"Users"`, `"Groups"`, `"Departments"`, and so on. The segment is optional in the route, so `GET /scim` passes `nil`.
 - `query` is a substring to match against the display name. `nil` applies no filter.
-- `start_index` is an offset and `count` is a limit, both as strings such as `"2"`. `nil` means no restriction, so omitting `count` returns the whole catalogue. A source doing arithmetic on either has to call `to_i` first.
+- `start_index` is an offset and `count` is a limit, both as strings such as `"2"`. `nil` means no restriction, so omitting `count` returns the whole catalogue. An adapter doing arithmetic on either has to call `to_i` first.
 
-##### The return contract
+##### The return contract (`#fetch` and `#present`)
 
-Return a collection `render json:` can serialize: an `ActiveRecord::Relation`, serialized through each record's `as_json`, or an array of hashes rendered as given.
+`#fetch` returns a collection `render json:` can serialize: an `ActiveRecord::Relation`, serialized through each record's `as_json`, or an array of hashes rendered as given. `#present` returns the same element shapes, always as an `Array` of `Hash`es.
 
 Every resource type except `"Users"` returns elements of this shape, where `id` is the SCIM id rather than the primary key:
 
@@ -116,7 +142,7 @@ A `"Users"` element is the stored SCIM data plus these keys, derived from the us
 }
 ```
 
-That payload is then filtered to the keys in `exposed_user_attributes`, which holds string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. The filter drops any configured key the payload lacks, so listing `title`, `groups`, or the extension URN only works if the source emits them. Legacy builds all of this in `ExternalUser#as_scim`.
+That payload is then filtered to the keys in `exposed_user_attributes`, which holds string keys and defaults to `id`, `externalId`, `displayName`, and `photos`. The filter drops any configured key the payload lacks, so listing `title`, `groups`, or the extension URN only works if the adapter emits them. Legacy builds all of this in `ExternalUser#as_scim`.
 
 ##### Scopes
 
@@ -130,9 +156,25 @@ else
 end
 ```
 
-Both default to `-> { active }`. A replacement source has to apply them itself; skipping them serves inactive records and bypasses whatever membership restriction the application configured.
+Both default to `-> { active }`. A replacement adapter's `#fetch` has to apply them itself; skipping them serves inactive records and bypasses whatever membership restriction the application configured.
 
-Each proc is `instance_exec`'d against whatever relation the calling code holds, and there is one `default_users_scope` for the whole gem — the context endpoints always run it against `ExternalUser`. A proc may therefore only call scopes that exist on every model it reaches, and a source backed by another model needs equivalent scopes defined there.
+What an adapter has to support:
+
+- **Users scope.** Audiences runs `default_users_scope` on every user relation the adapter returns from `all_users`, `users_matching` and `extra_users_of`, so the adapter does not apply it for those methods. The default is `-> { active }`, which calls `active` on the adapter's user model. Either define `active` on that model, or set `default_users_scope` to a proc the model supports, such as `-> { all }`. In `#fetch`, the adapter applies the users scope itself.
+- **Groups scope.** Audiences never runs `default_groups_scope`. The adapter's `#fetch` applies it itself, and `groups_of` returns groups with no scope applied.
+
+Each proc is `instance_exec`'d against whatever relation the calling code holds, and there is one `default_users_scope` for the whole gem. A proc may therefore only call scopes that exist on every model it reaches, and an adapter backed by another model needs equivalent scopes defined there.
+
+##### Stored references
+
+Saving a context stores which groups and extra users it refers to, in two nullable string columns, each with a plain index and no foreign key:
+
+| Column | Holds |
+| --- | --- |
+| `audiences_criterion_groups.source_group_id` | The id of a criterion's group, as a string. |
+| `audiences_context_extra_users.source_user_id` | The id of an extra user, as a string. |
+
+They sit beside the legacy foreign keys (`group_id` and `external_user_id`), which are still written on every save. A `before_save` callback copies the legacy record's `scim_id` into the new column, so an adapter has to be able to find its own records by that `scim_id` value, as a string. Rows saved before the columns were added hold `NULL`, and there is no backfill, so an adapter other than `Legacy` sees only rows saved afterwards.
 
 #### Adding Audiences to a Model
 
@@ -146,6 +188,8 @@ end
 ```
 
 The `identity_class` represents the SCIM user within the app domain, and the `identity_key` maps directly to the SCIM User's `externalId`.
+
+`Context#users` returns the adapter's own records, and Audiences promises no attributes on them (for example, no `user_id`). The default `Legacy` adapter returns `ExternalUser` records, which have `user_id`, but a replacement adapter's records may not. To get identity keys, call `Audiences.source.identity_keys(context.users)`; that is the supported way, and it works with any adapter.
 
 Once configured, add audience contexts to a model:
 
