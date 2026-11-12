@@ -88,6 +88,7 @@ The port is the set of methods Audiences calls on `Audiences.source`. An adapter
 | `users_matching` | `groups:`, an `Array` of groups (never empty) | An `ActiveRecord::Relation` of the users who belong to at least one group of each resource type among `groups`. |
 | `all_users` | none | An `ActiveRecord::Relation` of every user. |
 | `extra_users_of` | `context`, an `Audiences::Context` | An `ActiveRecord::Relation` of the context's extra users, inactive ones included. |
+| `find_users` | `references`, an `Array` of `Hash`es with `id` and/or `externalId` (string or symbol keys) | The users matching any reference, as an `ActiveRecord::Relation` where the adapter can. An empty `Array` returns no users. |
 | `present` | `records`, a relation or `Array` of users or groups | An `Array` of `Hash`es in the client contract shape. |
 | `search_users` | `users`, a relation, and `query`, a `String` | `users` narrowed by `query`, as a relation. |
 | `identity_keys` | `users`, a relation | An `Array` of identity-key values. |
@@ -98,6 +99,8 @@ Details an adapter has to follow:
 - `users_matching` receives groups already loaded into an `Array`. Audiences never calls it with no groups; it uses `all_users.none` instead. The relation it returns has no default users scope; Audiences applies that.
 - The stored ids are strings, and the adapter derives `resource_type` itself from its own group records. Audiences stores no resource type for a reference.
 - `present` is one batch call, so an adapter can preload once for the whole collection. The `id` of every element must be an integer or an integer string (`42` or `"42"`). Group elements have `id`, `externalId` and `displayName`. `Legacy` limits user elements to the keys in `exposed_user_attributes`; whether another adapter honors that setting is up to the adapter.
+- `find_users` is a lookup for consumers, for example an endpoint that adds extra users by reference. The adapter matches `id` and `externalId` itself. Audiences does not call it when saving a context.
+- `Audiences.update` reads each `extra_users` entry as `{ "id" => <scim_id>, "externalId" => ... }`, so its payload has to be in the client contract shape. A consumer passes `Audiences.source.present(records)`, not `records.as_json`: for an adapter other than `Legacy`, a record's own `as_json` can put the database primary key in `"id"`.
 - `search_users` must return a relation, because Audiences applies `limit`, `offset` and `count` to the result.
 - `identity_keys` returns exactly one key per user, in the order of the relation it was given, with `nil` for a user that has none. An adapter that removes duplicates, drops `nil` or reorders makes the `has_audience` readers stop lining up with the users, and Audiences cannot cheaply detect that.
 
@@ -175,6 +178,8 @@ Saving a context stores which groups and extra users it refers to, in two nullab
 | `audiences_context_extra_users.source_user_id` | The id of an extra user, as a string. |
 
 They sit beside the legacy foreign keys (`group_id` and `external_user_id`), which are still written on every save. A `before_save` callback copies the legacy record's `scim_id` into the new column, so an adapter has to be able to find its own records by that `scim_id` value, as a string. Rows saved before the columns were added hold `NULL`, and there is no backfill, so an adapter other than `Legacy` sees only rows saved afterwards.
+
+Saving a context (`Audiences.update`) still resolves each picked group and user in Audiences' own tables (`Group` and `ExternalUser`), whatever the adapter. A host therefore keeps those tables filled until a later release replaces this lookup with one through the adapter.
 
 #### Adding Audiences to a Model
 

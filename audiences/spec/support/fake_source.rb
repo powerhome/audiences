@@ -32,6 +32,11 @@ class FakeSource
     ExampleSourceUser.where(id: context.source_user_ids)
   end
 
+  # The fake's stable id and external id are both id.to_s.
+  def find_users(references)
+    ExampleSourceUser.where(id: references.flat_map { |reference| reference.values_at("id", "externalId") }.compact)
+  end
+
   def present(records)
     records.map do |record|
       shape = { "id" => record.id.to_s, "externalId" => record.id.to_s, "displayName" => record.display_name }

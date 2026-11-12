@@ -82,6 +82,28 @@ RSpec.describe FakeSource do
     end
   end
 
+  describe "#find_users" do
+    let!(:user) { create_source_user }
+
+    before { create_source_user }
+
+    it "finds a source user by id" do
+      expect(source.find_users([{ "id" => user.id.to_s }])).to contain_exactly(user)
+    end
+
+    it "finds a source user by externalId" do
+      expect(source.find_users([{ "externalId" => user.id.to_s }])).to contain_exactly(user)
+    end
+
+    it "finds no one for an unknown reference" do
+      expect(source.find_users([{ "id" => "0", "externalId" => "0" }])).to be_empty
+    end
+
+    it "finds no one for an empty list" do
+      expect(source.find_users([])).to be_empty
+    end
+  end
+
   describe "#present" do
     it "shapes the users of a relation as id, externalId and displayName" do
       user = create_source_user(display_name: "Ada")
@@ -219,6 +241,26 @@ RSpec.describe FakeSource do
     it "reads no legacy user or group table" do
       expect { context.users.to_a }
         .not_to make_database_queries(matching: /audiences_(external_users|groups|group_memberships)/)
+    end
+
+    describe "saving back what the source presented" do
+      def save_back
+        Audiences.update(
+          context.signed_key,
+          match_all: context.match_all,
+          criteria: context.criteria.as_json,
+          extra_users: Audiences.source.present(context.extra_users)
+        )
+      end
+
+      it "leaves the extra users unchanged" do
+        expect(save_back.extra_users).to contain_exactly(extra_user)
+      end
+
+      it "leaves the criteria groups unchanged" do
+        expect(save_back.criteria.map { |criterion| criterion.as_json["groups"] })
+          .to eq [{ "Departments" => [contract_shape_of(department, display_name: "Sales")] }]
+      end
     end
 
     it "follows the source that is current when it is called" do

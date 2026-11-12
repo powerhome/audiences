@@ -49,6 +49,14 @@ module Audiences
         ExternalUser.where(id: context.context_extra_users.select(:external_user_id))
       end
 
+      # @param references [Array<Hash>] hashes with "id" and/or "externalId"
+      #   (string or symbol keys)
+      # @return [ActiveRecord::Relation<ExternalUser>] the users matching any
+      #   reference, inactive ones included; none for an empty list
+      def find_users(references)
+        ExternalUser.from_scim(*references)
+      end
+
       # @param records [ActiveRecord::Relation, Array] users or groups
       # @return [Array<Hash>] the records in the client-facing contract
       def present(records)

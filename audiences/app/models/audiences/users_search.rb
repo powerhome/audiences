@@ -4,7 +4,7 @@ module Audiences
   class UsersSearch
     DEFAULT_LIMIT = 20
 
-    def initialize(query:, limit: nil, offset: 0, scope: ExternalUser)
+    def initialize(query:, limit: nil, offset: 0, scope: Audiences.source.all_users)
       @scope = scope
       @query = query
       @limit = limit || DEFAULT_LIMIT

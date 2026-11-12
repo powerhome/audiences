@@ -114,6 +114,42 @@ RSpec.describe Audiences::Sources::Legacy do
     end
   end
 
+  describe "#find_users" do
+    let!(:user) { create_user(scim_id: "s-1", user_id: "e-1") }
+
+    before { create_user }
+
+    it "finds a user by id" do
+      expect(source.find_users([{ "id" => "s-1" }])).to contain_exactly(user)
+    end
+
+    it "finds a user by externalId only" do
+      expect(source.find_users([{ "externalId" => "e-1" }])).to contain_exactly(user)
+    end
+
+    it "finds a user by symbol keys" do
+      expect(source.find_users([{ id: "s-1" }])).to contain_exactly(user)
+    end
+
+    it "finds no one for an unknown reference" do
+      expect(source.find_users([{ "id" => "unknown", "externalId" => "unknown" }])).to be_empty
+    end
+
+    it "finds no one for an empty list" do
+      expect(source.find_users([])).to be_empty
+    end
+
+    it "includes inactive users" do
+      inactive = create_user(active: false)
+
+      expect(source.find_users([{ "id" => inactive.scim_id }])).to contain_exactly(inactive)
+    end
+
+    it "is an ActiveRecord relation" do
+      expect(source.find_users([{ "id" => "s-1" }])).to be_an(ActiveRecord::Relation)
+    end
+  end
+
   describe "#identity_keys" do
     it "is one key per user, in the relation's order" do
       first = create_user(user_id: "a")

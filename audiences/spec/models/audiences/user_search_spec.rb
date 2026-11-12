@@ -41,6 +41,15 @@ RSpec.describe Audiences::UsersSearch do
       expect(source).to have_received(:search_users).with(scope, "John")
     end
 
+    it "searches the source's users when no scope is given" do
+      allow(Audiences).to receive(:source).and_return(FakeSource.new)
+      source_user = ExampleSourceUser.create!(display_name: "Jane Doe")
+
+      search = Audiences::UsersSearch.new(query: "Doe")
+
+      expect(search.users).to contain_exactly(source_user)
+    end
+
     it "uses the users the source returned" do
       allow(source).to receive(:search_users).and_return(Audiences::ExternalUser.where(id: john.id))
 
