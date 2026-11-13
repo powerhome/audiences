@@ -1,4 +1,4 @@
-# Unreleased
+# Version 3.3.0 (2026-11-13)
 
 **Breaking Changes:**
 - Rename `Audiences.config.read_source` to `Audiences.config.source`, the `Audiences.read_source` accessor to `Audiences.source`, and `Audiences::ReadSources::Legacy` to `Audiences::Sources::Legacy`. There is no alias for the old names.
