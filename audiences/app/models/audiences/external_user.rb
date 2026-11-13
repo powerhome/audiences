@@ -44,26 +44,6 @@ module Audiences
       where(scim_id: ids).or(where(user_id: external_ids))
     end
 
-    scope :matching, ->(criterion) do
-      # Load the groups once: checking emptiness and loading separately lets a
-      # concurrent criteria update empty the groups in between, and reducing
-      # over no groups would match every user.
-      groups = criterion.groups.to_a
-      return none if groups.empty?
-
-      groups.group_by(&:resource_type)
-            .values
-            .reduce(self) do |scope, type_groups|
-        scope.members_of(type_groups)
-      end
-    end
-
-    scope :matching_any, ->(first, *others) do
-      others.reduce(matching(first)) do |scope, criterion|
-        scope.or matching(criterion)
-      end
-    end
-
     def picture_urls = [picture_url]
 
     def picture_urls=(urls)

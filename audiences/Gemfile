@@ -8,6 +8,7 @@ gemspec
 # Development tools
 gem "appraisal", "~> 2.5.0"
 gem "brakeman", "7.1.0"
+gem "db-query-matchers", "~> 0.15"
 gem "debug", ">= 1.0.0"
 gem "drb", "~> 2.2"
 gem "foreman", "~> 0.88.0"

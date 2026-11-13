@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    audiences (3.2.2)
+    audiences (3.3.0)
       aether_observatory (~> 1.0)
       rails (>= 7.1)
 
@@ -112,6 +112,9 @@ GEM
     crass (1.0.8)
     csv (3.3.6)
     date (3.6.0)
+    db-query-matchers (0.15.0)
+      activesupport (>= 4.0)
+      rspec (>= 3.0)
     debug (1.11.1)
       irb (~> 1.10)
       reline (>= 0.3.8)
@@ -363,6 +366,7 @@ DEPENDENCIES
   appraisal (~> 2.5.0)
   audiences!
   brakeman (= 7.1.0)
+  db-query-matchers (~> 0.15)
   debug (>= 1.0.0)
   drb (~> 2.2)
   foreman (~> 0.88.0)

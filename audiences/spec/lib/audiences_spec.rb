@@ -51,5 +51,67 @@ RSpec.describe Audiences do
       expect(updated_context.criteria.first.groups).to match_array [department1, department2, territory1, territory2]
       expect(updated_context.criteria.last.groups).to match_array [title1, title2]
     end
+
+    # Each row saved for a group or extra user keeps its legacy foreign key
+    # (group_id, external_user_id) and also gets the source id (the scim_id).
+    describe "the row saved for a group" do
+      let(:group) { create_group(resource_type: "Departments") }
+
+      def saved_row_referencing(reference)
+        context = Audiences.update(token, criteria: [{ "groups" => { "Departments" => [reference] } }])
+        Audiences::CriterionGroup.where(criterion: context.criteria).sole
+      end
+
+      it "has group_id and source_group_id when the group is referenced by id" do
+        expect(saved_row_referencing("id" => group.scim_id))
+          .to have_attributes(group_id: group.id, source_group_id: group.scim_id)
+      end
+
+      it "has group_id and source_group_id when the group is referenced by externalId only" do
+        expect(saved_row_referencing("externalId" => group.external_id))
+          .to have_attributes(group_id: group.id, source_group_id: group.scim_id)
+      end
+    end
+
+    describe "the row saved for an extra user" do
+      let(:user) { create_user }
+
+      def saved_row_referencing(reference)
+        context = Audiences.update(token, extra_users: [reference])
+        Audiences::ContextExtraUser.where(context: context).sole
+      end
+
+      it "has external_user_id and source_user_id when the user is referenced by id" do
+        expect(saved_row_referencing("id" => user.scim_id))
+          .to have_attributes(external_user_id: user.id, source_user_id: user.scim_id)
+      end
+
+      it "has external_user_id and source_user_id when the user is referenced by externalId only" do
+        expect(saved_row_referencing("externalId" => user.user_id))
+          .to have_attributes(external_user_id: user.id, source_user_id: user.scim_id)
+      end
+    end
+
+    describe "when match_all is true" do
+      let(:match_all_context) { Audiences.update(token, match_all: true) }
+      let(:user) { create_user }
+      let(:group) { create_group(resource_type: "Departments") }
+
+      before do
+        Audiences.update(
+          token,
+          extra_users: [{ "id" => user.scim_id }],
+          criteria: [{ "groups" => { "Departments" => [{ "id" => group.scim_id }] } }]
+        )
+      end
+
+      it "clears the criteria" do
+        expect(match_all_context.criteria).to be_empty
+      end
+
+      it "clears the extra users" do
+        expect(match_all_context.extra_users).to be_empty
+      end
+    end
   end
 end
