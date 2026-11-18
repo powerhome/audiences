@@ -29,8 +29,8 @@ module Audiences
 
     after_commit :notify_subscriptions, on: :update
 
-    def users
-      matching_external_users.instance_exec(&Audiences.default_users_scope)
+    def users(groups_by_criterion: {})
+      matching_external_users(groups_by_criterion).instance_exec(&Audiences.default_users_scope)
     end
 
     delegate :count, to: :users
@@ -49,11 +49,13 @@ module Audiences
     end
 
     def as_json(...)
+      groups_by_criterion = criteria.index_with { |criterion| Audiences.source.groups_of(criterion).to_a }
+
       {
         match_all: match_all,
-        count: count,
+        count: users(groups_by_criterion: groups_by_criterion).count,
         extra_users: Audiences.source.present(extra_users.instance_exec(&Audiences.default_users_scope)),
-        criteria: criteria,
+        criteria: groups_by_criterion.map { |criterion, groups| criterion.as_json(groups: groups) },
       }.as_json(...)
     end
 
@@ -63,19 +65,21 @@ module Audiences
       Notifications.publish(self)
     end
 
-    def matching_external_users
-      match_all ? Audiences.source.all_users : matching_extra_users.or(matching_criteria)
+    def matching_external_users(groups_by_criterion)
+      return Audiences.source.all_users if match_all
+
+      matching_extra_users.or(matching_criteria(groups_by_criterion))
     end
 
     def matching_extra_users
       extra_users
     end
 
-    def matching_criteria
+    def matching_criteria(groups_by_criterion)
       criteria = self.criteria.to_a
       return Audiences.source.all_users.none if criteria.empty?
 
-      criteria.map(&:matching_users).reduce(:or)
+      criteria.map { |criterion| criterion.matching_users(groups: groups_by_criterion[criterion]) }.reduce(:or)
     end
   end
 end

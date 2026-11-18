@@ -136,6 +136,75 @@ RSpec.describe Audiences::Context do
 
       expect(context.as_json["extra_users"]).to eql([active_user.as_json])
     end
+
+    context "with a source that returns fresh group relations" do
+      let(:source) { FakeSource.new }
+      let(:member) { ExampleSourceUser.create!(display_name: "Member") }
+
+      before do
+        allow(Audiences).to receive(:source).and_return(source)
+        allow(Audiences).to receive(:default_users_scope).and_return(-> { active })
+      end
+
+      [1, 5].each do |size|
+        it "loads each criterion's groups once when rendering #{size} criteria" do
+          extra = ExampleSourceUser.create!(display_name: "Extra")
+          context = create_context(extra_users: [create_user(scim_id: extra.id.to_s)])
+          types = %w[Departments Titles]
+          expected_criteria = Array.new(size) do
+            groups = types.map do |type|
+              group = ExampleSourceGroup.create!(resource_type: type, display_name: type)
+              ExampleSourceMembership.create!(example_source_user: member, example_source_group: group)
+              group
+            end
+            legacy_groups = groups.map { |group| create_group(scim_id: group.id.to_s) }
+            criterion = create_criterion(context: context, groups: legacy_groups)
+            {
+              "id" => criterion.id,
+              "count" => 1,
+              "groups" => groups.group_by(&:resource_type).transform_values { |of_type| source.present(of_type) },
+            }
+          end
+          context = described_class.find(context.id)
+          json = nil
+
+          ActiveRecord::Base.uncached do
+            expect { json = context.as_json }
+              .to make_database_queries(count: size, matching: /FROM [`"]example_source_groups[`"]/)
+          end
+
+          expect(json).to eq(
+            "match_all" => false,
+            "count" => 2,
+            "extra_users" => source.present([extra]),
+            "criteria" => expected_criteria
+          )
+        end
+      end
+
+      it "does not retain loaded source groups between renders" do
+        group = ExampleSourceGroup.create!(resource_type: "Titles", display_name: "Original")
+        criterion = create_criterion(groups: [create_group(scim_id: group.id.to_s)])
+        context = criterion.context
+
+        expect(context.as_json.dig("criteria", 0, "groups", "Titles", 0, "displayName")).to eq("Original")
+
+        group.update!(display_name: "Updated")
+
+        expect(context.as_json.dig("criteria", 0, "groups", "Titles", 0, "displayName")).to eq("Updated")
+      end
+
+      it "renders a criterion without resolved groups as empty and matching nobody" do
+        member
+        criterion = create_criterion(groups: [create_group(scim_id: "missing")])
+        context = described_class.find(criterion.context_id)
+
+        expect(context.as_json).to include(
+          "count" => 0,
+          "criteria" => [{ "id" => criterion.id, "count" => 0, "groups" => {} }]
+        )
+      end
+    end
   end
 
   describe "calculation through the source" do

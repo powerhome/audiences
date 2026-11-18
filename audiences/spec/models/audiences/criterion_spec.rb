@@ -109,6 +109,13 @@ RSpec.describe Audiences::Criterion do
 
       expect(criterion.matching_users).to contain_exactly(user)
     end
+
+    it "matches nobody when the supplied loaded groups are empty" do
+      user = create_user
+      criterion = create_criterion(groups: [create_group(external_users: [user])])
+
+      expect(criterion.matching_users(groups: [])).to be_empty
+    end
   end
 
   describe "#users" do
@@ -139,6 +146,40 @@ RSpec.describe Audiences::Criterion do
       allow(source).to receive(:present).and_return([{ "rendered" => "by the source" }])
 
       expect(criterion.as_json["groups"]).to eql("Titles" => [{ "rendered" => "by the source" }])
+    end
+
+    context "with a source that returns fresh group relations" do
+      let(:source) { FakeSource.new }
+
+      it "reuses the rendered groups for counting while applying the default users scope" do
+        group = ExampleSourceGroup.create!(resource_type: "Titles", display_name: "Engineer")
+        allowed = ExampleSourceUser.create!(display_name: "Allowed")
+        excluded = ExampleSourceUser.create!(display_name: "Excluded")
+        [allowed, excluded].each do |user|
+          ExampleSourceMembership.create!(example_source_user: user, example_source_group: group)
+        end
+        criterion = create_criterion(groups: [create_group(scim_id: group.id.to_s)])
+        allow(Audiences).to receive(:default_users_scope).and_return(-> { where(display_name: "Allowed") })
+        json = nil
+
+        ActiveRecord::Base.uncached do
+          expect { json = criterion.as_json }
+            .to make_database_queries(count: 1, matching: /FROM [`"]example_source_groups[`"]/)
+        end
+
+        expect(json).to eq(
+          "id" => criterion.id,
+          "count" => 1,
+          "groups" => { "Titles" => source.present([group]) }
+        )
+      end
+    end
+
+    it "preserves positional and keyword JSON options" do
+      criterion = create_criterion(groups: [create_group])
+
+      expect(criterion.as_json({ only: :id })).to eq("id" => criterion.id)
+      expect(criterion.as_json(only: :id)).to eq("id" => criterion.id)
     end
   end
 
