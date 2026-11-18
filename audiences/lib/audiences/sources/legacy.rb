@@ -21,16 +21,10 @@ module Audiences
         criterion.groups
       end
 
-      # @param groups [Enumerable<Group>] a user must belong to at least one group
+      # @param groups [Array<Group>] nonempty; a user must belong to at least one group
       #   of each resource type among these
       # @return [ActiveRecord::Relation<ExternalUser>] without the default users scope
       def users_matching(groups:)
-        # Load the groups once: checking emptiness and loading separately lets a
-        # concurrent criteria update empty the groups in between, and reducing
-        # over no groups would match every user.
-        groups = groups.to_a
-        return ExternalUser.none if groups.empty?
-
         groups.group_by(&:resource_type)
               .values
               .reduce(ExternalUser.all) do |users, of_type|
