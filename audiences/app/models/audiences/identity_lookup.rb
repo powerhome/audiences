@@ -29,15 +29,21 @@ module Audiences
     # `user_id` string column, while the identity class holds the key typed, for
     # example the Integer 12. The identities are matched to the keys in Ruby, where
     # "12" and 12 are different hash keys, so each key is cast to the type of the
-    # identity's key column. Without the cast no user would match its identity.
+    # identity's key column. Only lossless casts are accepted: "12abc" and "012"
+    # must not match identity 12.
     def keys_of(users)
       type = @identity_class.type_for_attribute(@identity_key.to_s)
 
-      @source.identity_keys(users).map { |key| type.cast(key) }
+      @source.identity_keys(users).map do |key|
+        next if key.nil?
+
+        cast_key = type.cast(key)
+        cast_key if cast_key.to_s == key.to_s
+      end
     end
 
     def identities_by_key(keys)
-      @identity_class.where(@identity_key => keys).index_by(&@identity_key)
+      @identity_class.where(@identity_key => keys).index_by { |identity| identity.public_send(@identity_key) }
     end
   end
 end
