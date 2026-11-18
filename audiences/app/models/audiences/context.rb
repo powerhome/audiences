@@ -68,11 +68,7 @@ module Audiences
     def matching_external_users(groups_by_criterion)
       return Audiences.source.all_users if match_all
 
-      matching_extra_users.or(matching_criteria(groups_by_criterion))
-    end
-
-    def matching_extra_users
-      extra_users
+      extra_users.or(matching_criteria(groups_by_criterion))
     end
 
     def matching_criteria(groups_by_criterion)
