@@ -5,6 +5,6 @@ module Audiences
     belongs_to :context
     belongs_to :external_user
 
-    before_save { self.source_user_id ||= external_user.scim_id }
+    before_save { self.source_user_id = external_user.scim_id }
   end
 end

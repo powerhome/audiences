@@ -24,5 +24,25 @@ RSpec.describe Audiences::CriterionGroup do
 
       expect(described_class.where(criterion: criterion).pluck(:source_group_id)).to eq([group.scim_id])
     end
+
+    it "tracks the replacement group's scim_id when the join is reassigned" do
+      original, replacement = create_groups(2)
+      criterion = create_criterion(groups: [original])
+      join = described_class.where(criterion: criterion).sole
+
+      join.update!(group: replacement)
+
+      expect(join.reload).to have_attributes(group_id: replacement.id, source_group_id: replacement.scim_id)
+    end
+
+    it "preserves both persisted references when reassignment fails" do
+      group = create_group
+      criterion = create_criterion(groups: [group])
+      join = described_class.where(criterion: criterion).sole
+
+      expect(join.update(group: nil)).to be(false)
+
+      expect(join.reload).to have_attributes(group_id: group.id, source_group_id: group.scim_id)
+    end
   end
 end
