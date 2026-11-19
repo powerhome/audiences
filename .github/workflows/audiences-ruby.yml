@@ -9,15 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
         with:
           bundler-cache: true
           ruby-version: '3.3.13'
           working-directory: audiences
       - name: Brakeman
-        uses: reviewdog/action-brakeman@v2
+        uses: reviewdog/action-brakeman@0fee43fec04facd0f7fb907e2e70ce622a3b7ddb # v2.21.0
         with:
           workdir: audiences
 
@@ -59,11 +59,11 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Install non-ruby dependencies
         run: sudo apt-get install libpq-dev
       - name: 'mysql2 adapter'
-        uses: powerhome/github-actions-workflows/build-ruby-gem@main
+        uses: powerhome/github-actions-workflows/build-ruby-gem@6b1da8fa29815465ebc91e95e34b98dd2f730d69 # main
         env:
           DATABASE_ADAPTER: mysql2
           DATABASE_PORT: 3306
@@ -72,7 +72,7 @@ jobs:
           ruby: ${{ matrix.ruby }}
           gemfile: ${{ matrix.gemfile }}
       - name: 'postgresql adapter'
-        uses: powerhome/github-actions-workflows/build-ruby-gem@main
+        uses: powerhome/github-actions-workflows/build-ruby-gem@6b1da8fa29815465ebc91e95e34b98dd2f730d69 # main
         env:
           DATABASE_ADAPTER: postgresql
           DATABASE_PORT: 5432
@@ -82,7 +82,7 @@ jobs:
           gemfile: ${{ matrix.gemfile }}
 
   license-compliance:
-    uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@main
+    uses: powerhome/github-actions-workflows/.github/workflows/license-compliance.yml@6b1da8fa29815465ebc91e95e34b98dd2f730d69 # main
     with:
       workdir: audiences
 
@@ -105,12 +105,12 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.ref, 'refs/tags/v') && contains(github.ref, 'audiences-ruby') }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
         with:
           node-version: "22.23.4"
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
         with:
           bundler-cache: true
           ruby-version: '3.3.13'
