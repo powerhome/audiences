@@ -157,6 +157,23 @@ RSpec.describe Audiences::ContextsController do
 
       expect(response.parsed_body).to match({ "count" => 3, "users" => users }.as_json)
     end
+
+    context "with a source other than Legacy" do
+      before { allow(Audiences).to receive(:source).and_return(FakeSource.new) }
+
+      it "is the source's users, matching the search, as the source presents them" do
+        alice = ExampleSourceUser.create!(display_name: "Alice")
+        ExampleSourceUser.create!(display_name: "Bob")
+        example_context.update!(match_all: true)
+
+        get :users, params: { key: example_context.signed_key, search: "Ali" }
+
+        expect(response.parsed_body).to eq(
+          "count" => 1,
+          "users" => [{ "id" => alice.id.to_s, "externalId" => alice.id.to_s, "displayName" => "Alice" }]
+        )
+      end
+    end
   end
 
   describe "GET /audiences/:context_key/users/:criterion_id" do
