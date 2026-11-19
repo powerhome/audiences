@@ -87,7 +87,7 @@ module Audiences
   # projection (ExternalUser / Group). Applications can inject an alternative
   # source (e.g. one backed by an external store) as long as it implements the
   # port: #fetch, #groups_of, #users_matching, #all_users, #extra_users_of,
-  # #present, #search_users and #identity_keys (see docs/README.md). Audiences
+  # #find_users, #present, #search_users and #identity_keys (see docs/README.md). Audiences
   # never references the source's backing models directly, so the source is
   # swappable without coupling Audiences to any particular provider.
   #
