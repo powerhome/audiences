@@ -55,11 +55,11 @@ RSpec.describe Audiences::ScimProxyController do
     end
   end
 
-  context "with a custom read_source" do
+  context "with a custom source" do
     it "delegates the request to the configured source and renders its result" do
       payload = [{ "id" => "src-1", "displayName" => "From custom source" }]
-      source = instance_double(Audiences::ReadSources::Legacy, fetch: payload)
-      allow(Audiences).to receive(:read_source).and_return(source)
+      source = instance_double(Audiences::Sources::Legacy, fetch: payload)
+      allow(Audiences).to receive(:source).and_return(source)
 
       get :get, params: { scim_path: "Groups", query: "q", startIndex: "2", count: "5" }
 

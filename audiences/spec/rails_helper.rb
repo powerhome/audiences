@@ -7,10 +7,12 @@ require "spec_helper"
 require File.expand_path "dummy/config/environment", __dir__
 
 require "rspec/rails"
+require "db_query_matchers"
 require "shoulda/matchers"
 require "webmock/rspec"
 
 require_relative "support/factories"
+require_relative "support/fake_source"
 require_relative "support/test_domain_events"
 
 Shoulda::Matchers.configure do |config|

@@ -59,6 +59,162 @@ RSpec.describe Audiences::Criterion do
     end
   end
 
+  describe "#matching_users" do
+    let(:source) { Audiences::Sources::Legacy.new }
+
+    before { allow(Audiences).to receive(:source).and_return(source) }
+
+    it "is none, without asking the source for users, when the criterion has no groups" do
+      create_users(2)
+      criterion = create_criterion(groups: [create_group])
+      allow(source).to receive(:groups_of).and_return(Audiences::Group.none)
+      allow(source).to receive(:users_matching).and_call_original
+
+      expect(criterion.matching_users).to be_empty
+      expect(source).not_to have_received(:users_matching)
+    end
+
+    it "asks the source for its groups once" do
+      criterion = create_criterion(groups: [create_group])
+      allow(source).to receive(:groups_of).and_call_original
+
+      criterion.matching_users
+
+      expect(source).to have_received(:groups_of).with(criterion).once
+    end
+
+    it "gives the source the groups it loaded" do
+      group = create_group
+      criterion = create_criterion(groups: [group])
+      allow(source).to receive(:users_matching).and_call_original
+
+      criterion.matching_users
+
+      expect(source).to have_received(:users_matching).with(groups: [group])
+    end
+
+    it "gives the source loaded groups, not a relation" do
+      criterion = create_criterion(groups: [create_group])
+      allow(source).to receive(:users_matching).and_call_original
+
+      criterion.matching_users
+
+      expect(source).to have_received(:users_matching).with(groups: an_instance_of(Array))
+    end
+
+    it "is what the source returned" do
+      user = create_user
+      criterion = create_criterion(groups: [create_group])
+      allow(source).to receive(:users_matching).and_return(Audiences::ExternalUser.where(id: user.id))
+
+      expect(criterion.matching_users).to contain_exactly(user)
+    end
+
+    it "matches nobody when the supplied loaded groups are empty" do
+      user = create_user
+      criterion = create_criterion(groups: [create_group(external_users: [user])])
+
+      expect(criterion.matching_users(groups: [])).to be_empty
+    end
+
+    it "does not match every user when the criterion's groups are removed while matching" do
+      user1, user2, user3 = create_users(3)
+      title = create_group(resource_type: "Titles", external_users: [user1])
+      criterion = described_class.find(create_criterion(groups: [title]).id)
+
+      # Simulates a concurrent context update replacing the criteria right after
+      # the first read of this criterion's groups.
+      removed = false
+      remove_groups = ->(*, payload) do
+        next if removed || payload[:sql].exclude?("audiences_criterion_groups")
+
+        removed = true
+        Audiences::CriterionGroup.where(criterion_id: criterion.id).delete_all
+      end
+
+      users = ActiveSupport::Notifications.subscribed(remove_groups, "sql.active_record") do
+        criterion.matching_users.to_a
+      end
+
+      expect(removed).to be true
+      expect(users).not_to include(user2, user3)
+    end
+  end
+
+  describe "#users" do
+    it "applies the default users scope to the matching users" do
+      active_user = create_user
+      inactive_user = create_user(active: false)
+      group = create_group(external_users: [active_user, inactive_user])
+
+      expect(create_criterion(groups: [group]).users).to contain_exactly(active_user)
+    end
+  end
+
+  describe "#as_json" do
+    let(:source) { Audiences::Sources::Legacy.new }
+
+    before { allow(Audiences).to receive(:source).and_return(source) }
+
+    it "reads the groups from the source" do
+      other_group = create_group(resource_type: "Titles")
+      criterion = create_criterion(groups: [create_group(resource_type: "Titles")])
+      allow(source).to receive(:groups_of).with(criterion).and_return([other_group])
+
+      expect(criterion.as_json["groups"]).to eql("Titles" => [other_group.as_json])
+    end
+
+    it "renders the groups of each type through the source" do
+      criterion = create_criterion(groups: [create_group(resource_type: "Titles")])
+      allow(source).to receive(:present).and_return([{ "rendered" => "by the source" }])
+
+      expect(criterion.as_json["groups"]).to eql("Titles" => [{ "rendered" => "by the source" }])
+    end
+
+    context "with a source that returns fresh group relations" do
+      let(:source) { FakeSource.new }
+
+      it "reuses the rendered groups for counting while applying the default users scope" do
+        group = ExampleSourceGroup.create!(resource_type: "Titles", display_name: "Engineer")
+        allowed = ExampleSourceUser.create!(display_name: "Allowed")
+        excluded = ExampleSourceUser.create!(display_name: "Excluded")
+        [allowed, excluded].each do |user|
+          ExampleSourceMembership.create!(example_source_user: user, example_source_group: group)
+        end
+        criterion = create_criterion(groups: [create_group(scim_id: group.id.to_s)])
+        allow(Audiences).to receive(:default_users_scope).and_return(-> { where(display_name: "Allowed") })
+        json = nil
+
+        ActiveRecord::Base.uncached do
+          expect { json = criterion.as_json }
+            .to make_database_queries(count: 1, matching: /FROM [`"]example_source_groups[`"]/)
+        end
+
+        expect(json).to eq(
+          "id" => criterion.id,
+          "count" => 1,
+          "groups" => { "Titles" => source.present([group]) }
+        )
+      end
+    end
+
+    it "preserves positional and keyword JSON options" do
+      criterion = create_criterion(groups: [create_group])
+
+      expect(criterion.as_json({ only: :id })).to eq("id" => criterion.id)
+      expect(criterion.as_json(only: :id)).to eq("id" => criterion.id)
+    end
+  end
+
+  describe "#source_group_ids" do
+    it "is the source id of each of the criterion's groups" do
+      groups = create_groups(2)
+      criterion = create_criterion(groups: groups)
+
+      expect(described_class.find(criterion.id).source_group_ids).to match_array groups.map(&:scim_id)
+    end
+  end
+
   describe "#count" do
     it "is the count of member users" do
       users = create_users(2)
