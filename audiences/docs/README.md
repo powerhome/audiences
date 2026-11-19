@@ -4,7 +4,7 @@
 
 ## Installation
 
-Requires Ruby 3.1 or newer and Rails 7.2 or newer. Rails versions may impose a higher Ruby requirement; the Rails 8.1 development bundle requires Ruby 3.2 or newer.
+Requires Ruby 3.1 or newer and Rails 7.1 or newer. Rails versions may impose a higher Ruby requirement; the Rails 8.1 development bundle requires Ruby 3.2 or newer.
 
 Add this line to your application's Gemfile:
 
@@ -90,7 +90,7 @@ The port is the set of methods Audiences calls on `Audiences.source`. An adapter
 | `extra_users_of` | `context`, an `Audiences::Context` | An `ActiveRecord::Relation` of the context's extra users, inactive ones included. |
 | `find_users` | `references`, an `Array` of `Hash`es with `id` and/or `externalId` (string or symbol keys) | The users matching any reference, as an `ActiveRecord::Relation` where the adapter can. An empty `Array` returns no users. |
 | `present` | `records`, a relation or `Array` of users or groups | An `Array` of `Hash`es in the client contract shape. |
-| `search_users` | `users`, a relation, and `query`, a `String` | `users` narrowed by `query`, as a relation. |
+| `search_users` | `users`, a relation, and `query`, a `String` or `nil` | `users` narrowed by `query`, as a relation. |
 | `identity_keys` | `users`, a relation | An `Array` of identity-key values. |
 
 Details an adapter has to follow:
@@ -104,7 +104,7 @@ Details an adapter has to follow:
 - `search_users` must return a relation, because Audiences applies `limit`, `offset` and `count` to the result.
 - `identity_keys` returns exactly one key per user, in the order of the relation it was given, with `nil` for a user that has none. An adapter that removes duplicates, drops `nil` or reorders makes the `has_audience` readers stop lining up with the users, and Audiences cannot cheaply detect that.
 
-Audiences applies `Audiences.default_users_scope` to the user relation an adapter returns, and combines the criteria of a context with ActiveRecord's `.or`. Every user relation an adapter returns for one context therefore has to be an `ActiveRecord::Relation` of the same model. `#fetch` is the only method that applies the default scopes itself (both of them, see [Scopes](#scopes)). No other method applies the groups scope.
+Audiences applies `Audiences.default_users_scope` during audience calculation and extra-user serialization, not to every relation returned by a source (see [Scopes](#scopes)). It combines the criteria of a context with ActiveRecord's `.or`, so every user relation an adapter returns for one context has to be an `ActiveRecord::Relation` of the same model. `#fetch` applies the configured users and groups scopes itself; no other port method applies the groups scope.
 
 Audiences calls the port from `Context#users`, `#count`, `#extra_users` and `#as_json`, from `Criterion#as_json`, from the users search behind `GET /:key/users`, and from the `has_audience` readers.
 
@@ -163,8 +163,9 @@ Both default to `-> { active }`. A replacement adapter's `#fetch` has to apply t
 
 What an adapter has to support:
 
-- **Users scope.** Audiences runs `default_users_scope` on every user relation the adapter returns from `all_users`, `users_matching` and `extra_users_of`, so the adapter does not apply it for those methods. The default is `-> { active }`, which calls `active` on the adapter's user model. Either define `active` on that model, or set `default_users_scope` to a proc the model supports, such as `-> { all }`. In `#fetch`, the adapter applies the users scope itself.
-- **Groups scope.** Audiences never runs `default_groups_scope`. The adapter's `#fetch` applies it itself, and `groups_of` returns groups with no scope applied.
+- **Users scope.** `Context#users` and `Criterion#users` apply `default_users_scope`, as do their counts. `Context#as_json` also applies it when serializing extra users. The `Context#extra_users` reader itself remains unscoped, including inactive users. The adapter therefore returns `all_users`, `users_matching` and `extra_users_of` without applying this scope. The default is `-> { active }`, which calls `active` on the adapter's user model. Either define `active` on that model, or set `default_users_scope` to a proc the model supports, such as `-> { all }`. In `#fetch`, the adapter applies the users scope itself.
+- **Search scope.** The context users endpoints pass an already-scoped relation to `UsersSearch`. `UsersSearch` does not add `default_users_scope`: it searches the supplied `scope:`, or `Audiences.source.all_users` when no scope is supplied. `search_users` must narrow that relation, not replace it with a broader one.
+- **Groups scope.** The adapter's `#fetch` applies `default_groups_scope` itself. Outside `#fetch`, Audiences does not apply it; `groups_of` returns groups with no scope applied.
 
 Each proc is `instance_exec`'d against whatever relation the calling code holds, and there is one `default_users_scope` for the whole gem. A proc may therefore only call scopes that exist on every model it reaches, and an adapter backed by another model needs equivalent scopes defined there.
 
@@ -177,7 +178,9 @@ Saving a context stores which groups and extra users it refers to, in two nullab
 | `audiences_criterion_groups.source_group_id` | The id of a criterion's group, as a string. |
 | `audiences_context_extra_users.source_user_id` | The id of an extra user, as a string. |
 
-They sit beside the legacy foreign keys (`group_id` and `external_user_id`), which are still written on every save. A `before_save` callback copies the legacy record's `scim_id` into the new column, so an adapter has to be able to find its own records by that `scim_id` value, as a string. Rows saved before the columns were added hold `NULL`, and there is no backfill, so an adapter other than `Legacy` sees only rows saved afterwards.
+They sit beside the legacy foreign keys (`group_id` and `external_user_id`), which are still written on every save. A `before_save` callback copies the legacy record's `scim_id` into the new column, so an adapter has to be able to find its own records by that `scim_id` value, as a string. Existing join rows hold `NULL` when the columns are added; the gem's migrations do not backfill them.
+
+Before switching audience calculation to the replacement source, the host application must populate `source_group_id` and `source_user_id` on existing join rows and verify that those IDs resolve to the intended groups and users.
 
 Saving a context (`Audiences.update`) still resolves each picked group and user in Audiences' own tables (`Group` and `ExternalUser`), whatever the adapter. A host therefore keeps those tables filled until a later release replaces this lookup with one through the adapter.
 

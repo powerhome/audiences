@@ -8,7 +8,7 @@
 - `Context#extra_users` is now an explicit reader that goes through `Audiences.source`. The association behind it is renamed `legacy_extra_users`; the `extra_users=` writer keeps its name.
 
 **Improvements:**
-- Add the nullable string columns `audiences_criterion_groups.source_group_id` and `audiences_context_extra_users.source_user_id`, each with an index. The legacy foreign keys are still written on every save, next to the new columns. Rows saved before the migrations hold `NULL`, and nothing backfills them.
+- Add the nullable string columns `audiences_criterion_groups.source_group_id` and `audiences_context_extra_users.source_user_id`, each with an index. The legacy foreign keys are still written on every save, next to the new columns. The migrations leave existing rows with `NULL` source IDs. Before enabling the replacement adapter for audience calculation, the host application must populate these columns on existing join rows and verify that the IDs resolve to the intended groups and users.
 - `UsersSearch#as_json` renders through `Audiences.source.present`.
 - `UsersSearch.new(query:)` without a `scope:` searches `Audiences.source.all_users` instead of `ExternalUser`.
 - Document the port, the stored references, the scope requirements, and the identity-key rule in the README.
