@@ -66,7 +66,7 @@
     "prettier": "3.4.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-trix": "0.10.1",
+    "react-trix": "0.10.2",
     "typescript": "^5.1.6",
     "vite": "^6.0.0",
     "vite-plugin-dts": "^4.0.0"
