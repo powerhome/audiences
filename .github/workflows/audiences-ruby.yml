@@ -40,7 +40,7 @@ jobs:
           - gemfiles/rails_8_1.gemfile
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:latest@sha256:4ea94de574c17f0372722806c949757050fbb1cd7648410fe45d6bba275cc00e
         env:
           POSTGRES_USER: ${{ env.DATABASE_USER }}
           POSTGRES_PASSWORD: ${{ env.DATABASE_PASS }}
@@ -49,7 +49,7 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       mysql:
-        image: mysql:latest
+        image: mysql:latest@sha256:9092489f49fb59c4ba6c1425c6a59f71f864f24bf4339a5a26b718adc7a8b343
         env:
           MYSQL_USER: ${{ env.DATABASE_USER }}
           MYSQL_PASSWORD: ${{ env.DATABASE_PASS }}
